@@ -12,6 +12,5 @@ func main() {
 
 	prometheus.MustRegister(data)
 	http.Handle("/metrics", promhttp.Handler())
-	log.Info("Beginning to serve on port :8080")
 	http.ListenAndServe(":8080", nil)
 }
