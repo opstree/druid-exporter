@@ -9,6 +9,7 @@ import (
 // MetricCollector includes the list of metrics
 type MetricCollector struct {
 	DruidHealthStatus        *prometheus.Desc
+	DataSourceCount          *prometheus.Desc
 }
 
 type DataSources struct {
@@ -32,10 +33,11 @@ func GetDruidDatasource() DataSources{
 // Describe will associate the value for druid exporter
 func (collector *MetricCollector) Describe(ch chan<- *prometheus.Desc) {
 	ch <- collector.DruidHealthStatus
+	ch <- collector.DataSourceCount
 }
 
 // Collector return the defined metrics
-func Collector() *MetricCollector{
+func Collector(dataSource string) *MetricCollector{
 	return &MetricCollector{
 		DruidHealthStatus: prometheus.NewDesc("druid_health_status",
 			"Health of Druid, 1 is healthy 0 is not",
@@ -43,10 +45,17 @@ func Collector() *MetricCollector{
 				"druid": "health",
 			},
 		),
+		DataSourceCount: prometheus.NewDesc("druid_datasource_count",
+			"Datasources present",
+			[]string{"tasks"}, nil,
+		),
 	}
 }
 
 // Collect will collect all the metrics
 func (collector *MetricCollector) Collect(ch chan<- prometheus.Metric) {
 	ch <- prometheus.MustNewConstMetric(collector.DruidHealthStatus, prometheus.CounterValue, GetDruidHealthMetrics())
+	for dataCount, data := range GetDruidDatasource() {
+		ch <- prometheus.MustNewConstMetric(collector.DataSourceCount, prometheus.GaugeValue, float64(dataCount), data.DataSource)
+	}
 }
