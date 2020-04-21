@@ -11,7 +11,7 @@ type MetricCollector struct {
 }
 
 // GetDruidMetrics returns the set of metrics for druid
-func GetDruidHealthMetrics() {
+func GetDruidHealthMetrics() float64 {
 	return utils.GetDruidHealth("http://52.172.156.84:8081/status/health")
 }
 
