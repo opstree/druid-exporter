@@ -22,9 +22,11 @@ func GetDruidHealthMetrics() float64 {
 
 // GetDruidDatasource returns the datasources of druid
 func GetDruidDatasource() DataSources{
-	respData, _ := GetDruidResponse("http://52.172.156.84:8081/druid/coordinator/v1/metadata/datasources")
-	generic, _ := json.Unmarshal(respData, &DataSources)
-	return generic
+	respData, _ := utils.GetDruidResponse("http://52.172.156.84:8081/druid/coordinator/v1/metadata/datasources")
+
+	var metric DataSources
+	json.Unmarshal(respData, &metric)
+	return metric
 }
 
 // Describe will associate the value for druid exporter
