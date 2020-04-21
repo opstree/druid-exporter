@@ -1,6 +1,8 @@
 package collector
 
 import (
+	"io/ioutil"
+	"encoding/json"
 	"druid-exporter/utils"
 	"github.com/prometheus/client_golang/prometheus"
 )
@@ -10,9 +12,20 @@ type MetricCollector struct {
 	DruidHealthStatus        *prometheus.Desc
 }
 
+type DataSources struct {
+	DataSource []string
+}
+
 // GetDruidMetrics returns the set of metrics for druid
 func GetDruidHealthMetrics() float64 {
 	return utils.GetDruidHealth("http://52.172.156.84:8081/status/health")
+}
+
+// GetDruidDatasource returns the datasources of druid
+func GetDruidDatasource() DataSources{
+	respData, _ := ioutil.ReadAll(GetDruidResponse("http://52.172.156.84:8081/druid/coordinator/v1/metadata/datasources"))
+	generic, _ := json.Unmarshal(respData, &DataSources)
+	return generic
 }
 
 // Describe will associate the value for druid exporter
