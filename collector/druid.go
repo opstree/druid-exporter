@@ -55,7 +55,7 @@ func Collector(dataSource string) *MetricCollector{
 // Collect will collect all the metrics
 func (collector *MetricCollector) Collect(ch chan<- prometheus.Metric) {
 	ch <- prometheus.MustNewConstMetric(collector.DruidHealthStatus, prometheus.CounterValue, GetDruidHealthMetrics())
-	for dataCount, data := range GetDruidDatasource() {
+	for dataCount, data := range GetDruidDatasource().DataSource {
 		ch <- prometheus.MustNewConstMetric(collector.DataSourceCount, prometheus.GaugeValue, float64(dataCount), data.DataSource)
 	}
 }
