@@ -12,20 +12,16 @@ type MetricCollector struct {
 	DataSourceCount          *prometheus.Desc
 }
 
-type DataSources struct {
-	DataSource []string
-}
-
 // GetDruidMetrics returns the set of metrics for druid
 func GetDruidHealthMetrics() float64 {
 	return utils.GetDruidHealth("http://52.172.156.84:8081/status/health")
 }
 
 // GetDruidDatasource returns the datasources of druid
-func GetDruidDatasource() DataSources{
+func GetDruidDatasource() []string{
 	respData, _ := utils.GetDruidResponse("http://52.172.156.84:8081/druid/coordinator/v1/metadata/datasources")
 
-	var metric DataSources
+	var metric []string
 	json.Unmarshal(respData, &metric)
 	return metric
 }
@@ -45,7 +41,7 @@ func Collector() *MetricCollector{
 				"druid": "health",
 			},
 		),
-		DataSourceCount: prometheus.NewDesc("druid_datasource_count",
+		DataSourceCount: prometheus.NewDesc("druid_datasource",
 			"Datasources present",
 			[]string{"datasource"}, nil,
 		),
@@ -55,5 +51,7 @@ func Collector() *MetricCollector{
 // Collect will collect all the metrics
 func (collector *MetricCollector) Collect(ch chan<- prometheus.Metric) {
 	ch <- prometheus.MustNewConstMetric(collector.DruidHealthStatus, prometheus.CounterValue, GetDruidHealthMetrics())
-	ch <- prometheus.MustNewConstMetric(collector.DataSourceCount, prometheus.GaugeValue, float64(1), "live-Customer")
+	for dateCount, data := range GetDruidDatasource() {
+		ch <- prometheus.MustNewConstMetric(collector.DataSourceCount, prometheus.GaugeValue, float64(dateCount), data)
+	}
 }
