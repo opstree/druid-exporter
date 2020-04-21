@@ -1,6 +1,7 @@
 package collector
 
 import (
+	"fmt"
 	"encoding/json"
 	"druid-exporter/utils"
 	"github.com/prometheus/client_golang/prometheus"
@@ -47,7 +48,7 @@ func Collector() *MetricCollector{
 		),
 		DataSourceCount: prometheus.NewDesc("druid_datasource_count",
 			"Datasources present",
-			[]string{"tasks"}, nil,
+			[]string{"datasource"}, nil,
 		),
 	}
 }
@@ -56,6 +57,7 @@ func Collector() *MetricCollector{
 func (collector *MetricCollector) Collect(ch chan<- prometheus.Metric) {
 	ch <- prometheus.MustNewConstMetric(collector.DruidHealthStatus, prometheus.CounterValue, GetDruidHealthMetrics())
 	for dataCount, data := range GetDruidDatasource().DataSource {
+		fmt.Println(data)
 		ch <- prometheus.MustNewConstMetric(collector.DataSourceCount, prometheus.GaugeValue, float64(dataCount), data)
 	}
 }
