@@ -34,6 +34,5 @@ func GetDruidResponse(url string) {
 		log.Fatal().Str("URL", url).Msg("Error on GET request")
 	}
 	log.Info().Str("Method", resp.Request.Method).Str("Response", resp.Status).Msg("GET request is successful on specified URL")
-	defer resp.Body.Close()
 	return resp.Body()
 }
