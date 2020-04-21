@@ -37,7 +37,7 @@ func (collector *MetricCollector) Describe(ch chan<- *prometheus.Desc) {
 }
 
 // Collector return the defined metrics
-func Collector(dataSource string) *MetricCollector{
+func Collector() *MetricCollector{
 	return &MetricCollector{
 		DruidHealthStatus: prometheus.NewDesc("druid_health_status",
 			"Health of Druid, 1 is healthy 0 is not",
