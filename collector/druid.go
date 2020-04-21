@@ -1,7 +1,6 @@
 package collector
 
 import (
-	"fmt"
 	"encoding/json"
 	"druid-exporter/utils"
 	"github.com/prometheus/client_golang/prometheus"
@@ -56,5 +55,5 @@ func Collector() *MetricCollector{
 // Collect will collect all the metrics
 func (collector *MetricCollector) Collect(ch chan<- prometheus.Metric) {
 	ch <- prometheus.MustNewConstMetric(collector.DruidHealthStatus, prometheus.CounterValue, GetDruidHealthMetrics())
-	ch <- prometheus.MustNewConstMetric(collector.DataSourceCount, prometheus.GaugeValue, float64(dataCount), GetDruidDatasource()[0])
+	ch <- prometheus.MustNewConstMetric(collector.DataSourceCount, prometheus.GaugeValue, float64(dataCount), GetDruidDatasource().DataSource[0])
 }
