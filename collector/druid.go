@@ -69,7 +69,7 @@ func (collector *MetricCollector) Collect(ch chan<- prometheus.Metric) {
 	for _, data := range GetDruidDatasource() {
 		ch <- prometheus.MustNewConstMetric(collector.DataSourceCount, prometheus.GaugeValue, float64(1), data)
 	}
-	for count, data := range GetDruidTasks() {
+	for _, data := range GetDruidTasks() {
 		ch <- prometheus.MustNewConstMetric(collector.DruidTasks, prometheus.GaugeValue, float64(1), fmt.Sprintf("%v",data["dataSource"]), fmt.Sprintf("%v", data["groupId"]), fmt.Sprintf("%v", data["status"]), fmt.Sprintf("%v", data["createdTime"]))
 	}
 }
