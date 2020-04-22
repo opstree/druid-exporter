@@ -57,7 +57,7 @@ func Collector() *MetricCollector{
 			[]string{"datasource"}, nil,
 		),
 		DruidTasks: prometheus.NewDesc("druid_tasks",
-			"Datasources present",
+			"Druid tasks status",
 			[]string{"datasource", "index_group_id", "task_status"}, nil,
 		),
 	}
