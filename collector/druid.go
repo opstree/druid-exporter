@@ -2,74 +2,44 @@ package collector
 
 import (
 	"fmt"
-	"time"
 	"encoding/json"
 	"druid-exporter/utils"
+	"github.com/rs/zerolog/log"
 	"github.com/prometheus/client_golang/prometheus"
 )
 
-// MetricCollector includes the list of metrics
-type MetricCollector struct {
-	DruidHealthStatus         *prometheus.Desc
-	DataSourceCount           *prometheus.Desc
-	DruidTasks                *prometheus.Desc
-	DruidSupervisors          *prometheus.Desc
-	DruidSegmentCount         *prometheus.Desc
-	DruidSegmentSize          *prometheus.Desc
-	DruidSegmentReplicateSize *prometheus.Desc
-}
-
-// SegementInterface is the interface for parsing segments data
-type SegementInterface []struct {
-	Name       string `json:"name"`
-	Properties struct {
-		Tiers struct {
-			DefaultTier struct {
-				Size           int64 `json:"size"`
-				ReplicatedSize int64 `json:"replicatedSize"`
-				SegmentCount   int   `json:"segmentCount"`
-			} `json:"_default_tier"`
-		} `json:"tiers"`
-		Segments struct {
-			MaxTime        time.Time `json:"maxTime"`
-			Size           int64     `json:"size"`
-			MinTime        time.Time `json:"minTime"`
-			Count          int       `json:"count"`
-			ReplicatedSize int64     `json:"replicatedSize"`
-		} `json:"segments"`
-	} `json:"properties"`
-}
-
 // GetDruidMetrics returns the set of metrics for druid
 func GetDruidHealthMetrics() float64 {
-	return utils.GetDruidHealth("http://52.172.156.84:8081/status/health")
+	druidHealthURL := os.Getenv("DRUID_URL") + healthURL
+	log.Info().Str("Query Type", "Health").Msg("Successfully made a request to get healthcheck")
+	return utils.GetHealth()
 }
 
-// GetDruidDatasource returns the datasources of druid
+// GetDruidSegmentData returns the datasources of druid
 func GetDruidSegmentData() SegementInterface {
-	respData, _ := utils.GetDruidResponse("http://52.172.156.84:8081/druid/coordinator/v1/datasources?simple")
-
+	druidSegmentURL := os.Getenv("DRUID_URL") + segmentDataURL
+	responseData, err := utils.GetDruidResponse(druidSegmentURL, "Segment")
+	if err != nil {
+		log.Error().Str("Query Type", "Segment").Msg("Error while making request on provided URL")
+	}
+	log.Info().Str("Query Type", "Segment").Msg("Successfully executed the request to get segment data")
 	var metric SegementInterface
-	json.Unmarshal(respData, &metric)
+	json.Unmarshal(responseData, &metric)
 	return metric
 }
 
-// GetDruidTasks() return all the tasks and its state
-func GetDruidTasks() []map[string]interface{} {
-	respData, _ := utils.GetDruidResponse("http://52.172.156.84:8081/druid/indexer/v1/tasks")
+// GetDruidData() return all the tasks and its state
+func GetDruidData(pathURL string) []map[string]interface{} {
+	druidURL := os.Getenv("DRUID_URL") + pathURL
+	responseData, err := utils.GetDruidResponse(druidURL, pathURL)
+	if err != nil {
+		log.Error().Str("Query Type", pathURL).Msg("Error while making request on provided URL")
+	}
+	log.Info().Str("Query Type", pathURL).Msg("Successfully executed the request")
 	var metric []map[string]interface{}
-	json.Unmarshal(respData, &metric)
+	json.Unmarshal(responseData, &metric)
 	return metric
 }
-
-// GetDruidTasks() return all the tasks and its state
-func GetDruidSupervisors() []map[string]interface{} {
-	respData, _ := utils.GetDruidResponse("http://52.172.156.84:8081/druid/indexer/v1/supervisor?full")
-	var metric []map[string]interface{}
-	json.Unmarshal(respData, &metric)
-	return metric
-}
-
 
 // Describe will associate the value for druid exporter
 func (collector *MetricCollector) Describe(ch chan<- *prometheus.Desc) {
@@ -124,19 +94,19 @@ func (collector *MetricCollector) Collect(ch chan<- prometheus.Metric) {
 	for _, data := range GetDruidSegmentData() {
 		ch <- prometheus.MustNewConstMetric(collector.DataSourceCount, prometheus.GaugeValue, float64(1), data.Name)
 	}
-	for _, data := range GetDruidTasks() {
+	for _, data := range GetDruidData(tasksURL) {
 		ch <- prometheus.MustNewConstMetric(collector.DruidTasks, prometheus.GaugeValue, float64(1), fmt.Sprintf("%v",data["dataSource"]), fmt.Sprintf("%v", data["groupId"]), fmt.Sprintf("%v", data["status"]), fmt.Sprintf("%v", data["createdTime"]))
 	}
-	for _, data := range GetDruidSupervisors() {
+	for _, data := range GetDruidData(supervisorURL) {
 		ch <- prometheus.MustNewConstMetric(collector.DruidSupervisors, prometheus.GaugeValue, float64(1), fmt.Sprintf("%v",data["id"]), fmt.Sprintf("%v", data["healthy"]), fmt.Sprintf("%v", data["detailedState"]))
 	}
 	for _, data := range GetDruidSegmentData() {
 		ch <- prometheus.MustNewConstMetric(collector.DruidSegmentCount, prometheus.GaugeValue, float64(data.Properties.Segments.Count), data.Name)
 	}
 	for _, data := range GetDruidSegmentData() {
-		ch <- prometheus.MustNewConstMetric(collector.DruidSegmentSize, prometheus.GaugeValue, int(data.Properties.Segments.Size), data.Name)
+		ch <- prometheus.MustNewConstMetric(collector.DruidSegmentSize, prometheus.GaugeValue, float64(data.Properties.Segments.Size), data.Name)
 	}
 	for _, data := range GetDruidSegmentData() {
-		ch <- prometheus.MustNewConstMetric(collector.DruidSegmentReplicateSize, prometheus.GaugeValue, int(data.Properties.Segments.ReplicatedSize), data.Name)
+		ch <- prometheus.MustNewConstMetric(collector.DruidSegmentReplicateSize, prometheus.GaugeValue, float64(data.Properties.Segments.ReplicatedSize), data.Name)
 	}
 }
