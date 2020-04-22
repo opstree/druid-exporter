@@ -1,0 +1,29 @@
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: druid-exporter
+spec:
+  selector:
+    matchLabels:
+      druid: metrics
+  strategy:
+    rollingUpdate:
+      maxSurge: 25%
+      maxUnavailable: 25%
+    type: RollingUpdate
+  template:
+    metadata:
+      labels:
+        druid: metrics
+    spec:
+      containers:
+      - env:
+        - name: DRUID_URL
+          value: http://druid.opstreelabs.in
+        image: quay.io/opstree/druid-exporter:v3.0
+        imagePullPolicy: IfNotPresent
+        name: druid-exporter
+        ports:
+        - containerPort: 8080
+          protocol: TCP

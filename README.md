@@ -41,5 +41,20 @@ For running the druid exporter from docker image:-
 
 ```shell
 # Execute docker run command
-docker run -itd --name druid-exporter -e DRUID_URL="http://druid.opstreelabs.in" quay.io/opstree/druid-exporter:latest
+docker run -itd --name druid-exporter -e DRUID_URL="http://druid.opstreelabs.in" \
+quay.io/opstree/druid-exporter:latest
+```
+
+## Kubernetes Deployment
+
+The Kubernetes deployment and service manifests are present under the [manifests](./manifets) directory and you can deploy it on Kubernetes from there.
+
+To deploy it on Kubernetes we need some basic sets of command:-
+
+```shell
+# Kubernetes deployment creation
+kubectl apply -f manifests/deployment.yaml -n my_awesome_druid_namespace
+
+# Kubernetes service creation
+kubectl apply -f manifests/service.yaml -n my_awesome_druid_namespace
 ```
