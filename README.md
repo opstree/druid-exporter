@@ -61,6 +61,8 @@ kubectl apply -f manifests/service.yaml -n my_awesome_druid_namespace
 
 ## Available Data Groups
 
+These are the available datagroups present in druid exporter.
+
 |**Name**|**Description**|
 |--------|---------------|
 | druid_health_status | To check if druid cluster is healthy or not |
