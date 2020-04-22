@@ -10,11 +10,13 @@ import (
 
 // MetricCollector includes the list of metrics
 type MetricCollector struct {
-	DruidHealthStatus        *prometheus.Desc
-	DataSourceCount          *prometheus.Desc
-	DruidTasks               *prometheus.Desc
-	DruidSupervisors         *prometheus.Desc
-	DruidSegmentCount        *prometheus.Desc
+	DruidHealthStatus         *prometheus.Desc
+	DataSourceCount           *prometheus.Desc
+	DruidTasks                *prometheus.Desc
+	DruidSupervisors          *prometheus.Desc
+	DruidSegmentCount         *prometheus.Desc
+	DruidSegmentSize          *prometheus.Desc
+	DruidSegmentReplicateSize *prometheus.Desc
 }
 
 // SegementInterface is the interface for parsing segments data
@@ -76,6 +78,8 @@ func (collector *MetricCollector) Describe(ch chan<- *prometheus.Desc) {
 	ch <- collector.DruidTasks
 	ch <- collector.DruidSupervisors
 	ch <- collector.DruidSegmentCount
+	ch <- collector.DruidSegmentSize
+	ch <- collector.DruidSegmentReplicateSize
 }
 
 // Collector return the defined metrics
@@ -101,7 +105,15 @@ func Collector() *MetricCollector{
 		),
 		DruidSegmentCount: prometheus.NewDesc("druid_segement_count",
 			"Druid segment count",
-			[]string{"name"}, nil,
+			[]string{"datasource_name"}, nil,
+		),
+		DruidSegmentSize: prometheus.NewDesc("druid_segement_size",
+			"Druid segment size",
+			[]string{"datasource_name"}, nil,
+		),
+		DruidSegmentReplicateSize: prometheus.NewDesc("druid_segement_replicated_size",
+			"Druid segment replicated size",
+			[]string{"datasource_name"}, nil,
 		),
 	}
 }
@@ -120,5 +132,11 @@ func (collector *MetricCollector) Collect(ch chan<- prometheus.Metric) {
 	}
 	for _, data := range GetDruidSegmentData() {
 		ch <- prometheus.MustNewConstMetric(collector.DruidSegmentCount, prometheus.GaugeValue, float64(data.Properties.Segments.Count), data.Name)
+	}
+	for _, data := range GetDruidSegmentData() {
+		ch <- prometheus.MustNewConstMetric(collector.DruidSegmentSize, prometheus.GaugeValue, float64(data.Properties.Segments.Size), data.Name)
+	}
+	for _, data := range GetDruidSegmentData() {
+		ch <- prometheus.MustNewConstMetric(collector.DruidSegmentReplicateSize, prometheus.GaugeValue, float64(data.Properties.Segments.ReplicatedSize), data.Name)
 	}
 }
