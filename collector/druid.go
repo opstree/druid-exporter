@@ -9,7 +9,7 @@ import (
 	"os"
 )
 
-// GetDruidMetrics returns the set of metrics for druid
+// GetDruidHealthMetrics returns the set of metrics for druid
 func GetDruidHealthMetrics() float64 {
 	druidHealthURL := os.Getenv("DRUID_URL") + healthURL
 	log.Info().Str("Query Type", "Health").Msg("Successfully made a request to get healthcheck")
@@ -29,7 +29,7 @@ func GetDruidSegmentData() SegementInterface {
 	return metric
 }
 
-// GetDruidData() return all the tasks and its state
+// GetDruidData return all the tasks and its state
 func GetDruidData(pathURL string) []map[string]interface{} {
 	druidURL := os.Getenv("DRUID_URL") + pathURL
 	responseData, err := utils.GetResponse(druidURL, pathURL)
