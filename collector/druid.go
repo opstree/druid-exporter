@@ -10,6 +10,7 @@ import (
 type MetricCollector struct {
 	DruidHealthStatus        *prometheus.Desc
 	DataSourceCount          *prometheus.Desc
+	DruidTasks               *prometheus.Desc
 }
 
 // GetDruidMetrics returns the set of metrics for druid
@@ -26,10 +27,19 @@ func GetDruidDatasource() []string{
 	return metric
 }
 
+// GetDruidTasks() return all the tasks and its state
+func GetDruidTasks() []map[string]interface{} {
+	respData, _ := utils.GetDruidResponse("http://52.172.156.84:8081/druid/indexer/v1/tasks")
+	var metric []map[string]interface{}
+	json.Unmarshal(respData, &metric)
+	return metric
+}
+
 // Describe will associate the value for druid exporter
 func (collector *MetricCollector) Describe(ch chan<- *prometheus.Desc) {
 	ch <- collector.DruidHealthStatus
 	ch <- collector.DataSourceCount
+	ch <- collector.DruidTasks
 }
 
 // Collector return the defined metrics
@@ -45,6 +55,12 @@ func Collector() *MetricCollector{
 			"Datasources present",
 			[]string{"datasource"}, nil,
 		),
+		DruidTasks: prometheus.NewDesc("druid_tasks",
+			"Datasources present",
+			[]string{"datasource"}, nil,
+			[]string{"index_group_id"}, nil,
+			[]string{"task_status"}, nil,
+		),
 	}
 }
 
@@ -53,5 +69,8 @@ func (collector *MetricCollector) Collect(ch chan<- prometheus.Metric) {
 	ch <- prometheus.MustNewConstMetric(collector.DruidHealthStatus, prometheus.CounterValue, GetDruidHealthMetrics())
 	for _, data := range GetDruidDatasource() {
 		ch <- prometheus.MustNewConstMetric(collector.DataSourceCount, prometheus.GaugeValue, float64(1), data)
+	}
+	for _, data := range GetDruidTasks() {
+		ch <- prometheus.MustNewConstMetric(collector.DruidTasks, prometheus.GaugeValue, float64(1), data.dataSource, data.groupId, data.status)
 	}
 }
