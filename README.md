@@ -20,3 +20,12 @@ export DRUID_URL=http://druid.opstreelabs.in
 
 ./druid-exporter
 ```
+
+## Building From Source
+
+Requires 1.13 => go version to compile code from source.
+
+```shell
+make build-code
+```
+
