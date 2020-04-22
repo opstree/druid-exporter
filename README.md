@@ -16,7 +16,7 @@ To run the druid exporter:-
 
 ```shell
 # Export the Druid Coordinator or Router URL
-export DRUID_URL=http://druid.opstreelabs.in
+export DRUID_URL="http://druid.opstreelabs.in"
 
 ./druid-exporter
 ```
@@ -29,3 +29,17 @@ Requires 1.13 => go version to compile code from source.
 make build-code
 ```
 
+## Building Docker Image
+
+This druid exporter has support for docker as well. The docker image can simply built by
+
+```shell
+make build-image
+```
+
+For running the druid exporter from docker image:-
+
+```shell
+# Execute docker run command
+docker run -itd --name druid-exporter -e DRUID_URL="http://druid.opstreelabs.in" quay.io/opstree/druid-exporter:latest
+```
