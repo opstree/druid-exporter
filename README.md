@@ -71,3 +71,16 @@ kubectl apply -f manifests/service.yaml -n my_awesome_druid_namespace
 | druid_segement_size | Size of druid segments in each datasource |
 | druid_segement_replicated_size | Replicated size of druid segments in each datasource |
 
+## Development
+
+Please see our [development documentation](./DEVELOPMENT.md)
+
+## Release
+
+Please see our [release documentation](./CHANGELOG.md) for details
+
+## Contact
+
+If you have any suggestion or query. Contact us at
+
+opensource@opstree.com
