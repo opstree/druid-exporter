@@ -71,7 +71,7 @@ func Collector() *MetricCollector{
 			"Druid tasks status",
 			[]string{"datasource", "index_group_id", "task_status", "created_time"}, nil,
 		),
-		DruidSupervisors: prometheus.NewDesc("druid_tasks",
+		DruidSupervisors: prometheus.NewDesc("druid_supervisors",
 			"Druid tasks status",
 			[]string{"datasource", "healthy", "state"}, nil,
 		),
