@@ -47,7 +47,7 @@ quay.io/opstree/druid-exporter:latest
 
 ## Kubernetes Deployment
 
-The Kubernetes deployment and service manifests are present under the [manifests](./manifets) directory and you can deploy it on Kubernetes from there.
+The Kubernetes deployment and service manifests are present under the **[manifests](./manifets)** directory and you can deploy it on Kubernetes from there.
 
 To deploy it on Kubernetes we need some basic sets of command:-
 
@@ -58,3 +58,16 @@ kubectl apply -f manifests/deployment.yaml -n my_awesome_druid_namespace
 # Kubernetes service creation
 kubectl apply -f manifests/service.yaml -n my_awesome_druid_namespace
 ```
+
+## Available Data Groups
+
+|**Name**|**Description**|
+|--------|---------------|
+| druid_health_status | To check if druid cluster is healthy or not |
+| druid_datasource | All datasources present in druid cluster |
+| druid_tasks | All druid's supervisors tasks status |
+| druid_supervisors | Complete information of druid's supervisors |
+| druid_segement_count | How many segments are available in each datasource |
+| druid_segement_size | Size of druid segments in each datasource |
+| druid_segement_replicated_size | Replicated size of druid segments in each datasource |
+
