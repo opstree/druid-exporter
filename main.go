@@ -1,11 +1,11 @@
 package main
 
 import (
-	"log"
-	"net/http"
 	"druid-exporter/collector"
 	"github.com/prometheus/client_golang/prometheus"
 	"github.com/prometheus/client_golang/prometheus/promhttp"
+	"log"
+	"net/http"
 )
 
 func main() {

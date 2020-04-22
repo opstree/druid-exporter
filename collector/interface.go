@@ -1,8 +1,8 @@
 package collector
 
 import (
-	"time"
 	"github.com/prometheus/client_golang/prometheus"
+	"time"
 )
 
 const (

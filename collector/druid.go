@@ -1,12 +1,12 @@
 package collector
 
 import (
-	"os"
-	"fmt"
-	"encoding/json"
 	"druid-exporter/utils"
-	"github.com/rs/zerolog/log"
+	"encoding/json"
+	"fmt"
 	"github.com/prometheus/client_golang/prometheus"
+	"github.com/rs/zerolog/log"
+	"os"
 )
 
 // GetDruidMetrics returns the set of metrics for druid
@@ -54,7 +54,7 @@ func (collector *MetricCollector) Describe(ch chan<- *prometheus.Desc) {
 }
 
 // Collector return the defined metrics
-func Collector() *MetricCollector{
+func Collector() *MetricCollector {
 	return &MetricCollector{
 		DruidHealthStatus: prometheus.NewDesc("druid_health_status",
 			"Health of Druid, 1 is healthy 0 is not",
@@ -96,10 +96,10 @@ func (collector *MetricCollector) Collect(ch chan<- prometheus.Metric) {
 		ch <- prometheus.MustNewConstMetric(collector.DataSourceCount, prometheus.GaugeValue, float64(1), data.Name)
 	}
 	for _, data := range GetDruidData(tasksURL) {
-		ch <- prometheus.MustNewConstMetric(collector.DruidTasks, prometheus.GaugeValue, float64(1), fmt.Sprintf("%v",data["dataSource"]), fmt.Sprintf("%v", data["groupId"]), fmt.Sprintf("%v", data["status"]), fmt.Sprintf("%v", data["createdTime"]))
+		ch <- prometheus.MustNewConstMetric(collector.DruidTasks, prometheus.GaugeValue, float64(1), fmt.Sprintf("%v", data["dataSource"]), fmt.Sprintf("%v", data["groupId"]), fmt.Sprintf("%v", data["status"]), fmt.Sprintf("%v", data["createdTime"]))
 	}
 	for _, data := range GetDruidData(supervisorURL) {
-		ch <- prometheus.MustNewConstMetric(collector.DruidSupervisors, prometheus.GaugeValue, float64(1), fmt.Sprintf("%v",data["id"]), fmt.Sprintf("%v", data["healthy"]), fmt.Sprintf("%v", data["detailedState"]))
+		ch <- prometheus.MustNewConstMetric(collector.DruidSupervisors, prometheus.GaugeValue, float64(1), fmt.Sprintf("%v", data["id"]), fmt.Sprintf("%v", data["healthy"]), fmt.Sprintf("%v", data["detailedState"]))
 	}
 	for _, data := range GetDruidSegmentData() {
 		ch <- prometheus.MustNewConstMetric(collector.DruidSegmentCount, prometheus.GaugeValue, float64(data.Properties.Segments.Count), data.Name)

@@ -1,9 +1,9 @@
 package utils
 
 import (
-	"net/http"
-	"io/ioutil"
 	"github.com/rs/zerolog/log"
+	"io/ioutil"
+	"net/http"
 )
 
 // GetHealth returns that druid is healthy or not
@@ -26,7 +26,7 @@ func GetHealth(url string) float64 {
 }
 
 // GetResponse will return API response for druid
-func GetResponse(url string, queryType string) ([]byte, error){
+func GetResponse(url string, queryType string) ([]byte, error) {
 	req, err := http.NewRequest("GET", url, nil)
 	if err != nil {
 		log.Fatal().Str("URL", url).Msg("Error while generating request")
