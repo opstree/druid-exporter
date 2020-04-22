@@ -2,6 +2,7 @@ package collector
 
 import (
 	"fmt"
+	"time"
 	"encoding/json"
 	"druid-exporter/utils"
 	"github.com/prometheus/client_golang/prometheus"
