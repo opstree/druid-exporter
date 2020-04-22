@@ -12,6 +12,7 @@ type MetricCollector struct {
 	DruidHealthStatus        *prometheus.Desc
 	DataSourceCount          *prometheus.Desc
 	DruidTasks               *prometheus.Desc
+	DruidSupervisors         *prometheus.Desc
 }
 
 // GetDruidMetrics returns the set of metrics for druid
@@ -36,11 +37,21 @@ func GetDruidTasks() []map[string]interface{} {
 	return metric
 }
 
+// GetDruidTasks() return all the tasks and its state
+func GetDruidSupervisors() []map[string]interface{} {
+	respData, _ := utils.GetDruidResponse("http://52.172.156.84:8081/druid/indexer/v1/supervisor?full")
+	var metric []map[string]interface{}
+	json.Unmarshal(respData, &metric)
+	return metric
+}
+
+
 // Describe will associate the value for druid exporter
 func (collector *MetricCollector) Describe(ch chan<- *prometheus.Desc) {
 	ch <- collector.DruidHealthStatus
 	ch <- collector.DataSourceCount
 	ch <- collector.DruidTasks
+	ch <- collector.DruidSupervisors
 }
 
 // Collector return the defined metrics
@@ -60,6 +71,10 @@ func Collector() *MetricCollector{
 			"Druid tasks status",
 			[]string{"datasource", "index_group_id", "task_status", "created_time"}, nil,
 		),
+		DruidSupervisors: prometheus.NewDesc("druid_tasks",
+			"Druid tasks status",
+			[]string{"datasource", "healthy", "state"}, nil,
+		),
 	}
 }
 
@@ -71,5 +86,8 @@ func (collector *MetricCollector) Collect(ch chan<- prometheus.Metric) {
 	}
 	for _, data := range GetDruidTasks() {
 		ch <- prometheus.MustNewConstMetric(collector.DruidTasks, prometheus.GaugeValue, float64(1), fmt.Sprintf("%v",data["dataSource"]), fmt.Sprintf("%v", data["groupId"]), fmt.Sprintf("%v", data["status"]), fmt.Sprintf("%v", data["createdTime"]))
+	}
+	for _, data := range GetDruidSupervisors() {
+		ch <- prometheus.MustNewConstMetric(collector.DruidSupervisors, prometheus.GaugeValue, float64(1), fmt.Sprintf("%v",data["id"]), fmt.Sprintf("%v", data["healthy"]), fmt.Sprintf("%v", data["status"]), fmt.Sprintf("%v", data["detailedState"]))
 	}
 }
