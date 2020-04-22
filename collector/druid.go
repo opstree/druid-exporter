@@ -134,9 +134,9 @@ func (collector *MetricCollector) Collect(ch chan<- prometheus.Metric) {
 		ch <- prometheus.MustNewConstMetric(collector.DruidSegmentCount, prometheus.GaugeValue, float64(data.Properties.Segments.Count), data.Name)
 	}
 	for _, data := range GetDruidSegmentData() {
-		ch <- prometheus.MustNewConstMetric(collector.DruidSegmentSize, prometheus.GaugeValue, float64(data.Properties.Segments.Size), data.Name)
+		ch <- prometheus.MustNewConstMetric(collector.DruidSegmentSize, prometheus.GaugeValue, int(data.Properties.Segments.Size), data.Name)
 	}
 	for _, data := range GetDruidSegmentData() {
-		ch <- prometheus.MustNewConstMetric(collector.DruidSegmentReplicateSize, prometheus.GaugeValue, float64(data.Properties.Segments.ReplicatedSize), data.Name)
+		ch <- prometheus.MustNewConstMetric(collector.DruidSegmentReplicateSize, prometheus.GaugeValue, int(data.Properties.Segments.ReplicatedSize), data.Name)
 	}
 }
