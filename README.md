@@ -1,5 +1,5 @@
 <p align="left">
-  <img src="./static/druid-exporter-logo.svg" height="158" width="158">
+  <img src="./static/druid-exporter-logo.svg" height="60" width="128">
 </p>
 
 # Druid Exporter
