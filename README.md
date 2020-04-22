@@ -2,4 +2,6 @@
 
 A golang based druid exporter for Prometheus.
 
-![](./static/grafana-screenshot.svg)
+<p align="center">
+  <img src="./static/grafana-screenshot.svg">
+</p>
