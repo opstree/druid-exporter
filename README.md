@@ -2,8 +2,6 @@
   <img src="./static/druid-exporter-logo.svg" height="158" width="158">
 </p>
 
-
 # Druid Exporter
 
-A golang based druid exporter for Prometheus.
-
+A Golang based exporter to scrap druid metrics in Prometheus format.
