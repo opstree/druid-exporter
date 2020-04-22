@@ -44,7 +44,7 @@ func GetDruidHealthMetrics() float64 {
 }
 
 // GetDruidDatasource returns the datasources of druid
-func GetDruidSegmentData() []string{
+func GetDruidSegmentData() SegementInterface {
 	respData, _ := utils.GetDruidResponse("http://52.172.156.84:8081/druid/coordinator/v1/datasources?simple")
 
 	var metric SegementInterface
@@ -109,7 +109,7 @@ func Collector() *MetricCollector{
 // Collect will collect all the metrics
 func (collector *MetricCollector) Collect(ch chan<- prometheus.Metric) {
 	ch <- prometheus.MustNewConstMetric(collector.DruidHealthStatus, prometheus.CounterValue, GetDruidHealthMetrics())
-	for _, data := range SegementInterface() {
+	for _, data := range GetDruidSegmentData() {
 		ch <- prometheus.MustNewConstMetric(collector.DataSourceCount, prometheus.GaugeValue, float64(1), data.Name)
 	}
 	for _, data := range GetDruidTasks() {
@@ -118,7 +118,7 @@ func (collector *MetricCollector) Collect(ch chan<- prometheus.Metric) {
 	for _, data := range GetDruidSupervisors() {
 		ch <- prometheus.MustNewConstMetric(collector.DruidSupervisors, prometheus.GaugeValue, float64(1), fmt.Sprintf("%v",data["id"]), fmt.Sprintf("%v", data["healthy"]), fmt.Sprintf("%v", data["detailedState"]))
 	}
-	for _, data := range SegementInterface() {
+	for _, data := range GetDruidSegmentData() {
 		ch <- prometheus.MustNewConstMetric(collector.DruidSegmentCount, prometheus.GaugeValue, float64(data.Properties.Segments.Count), data.Name)
 	}
 }
