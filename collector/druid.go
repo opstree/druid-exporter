@@ -1,6 +1,7 @@
 package collector
 
 import (
+	"os"
 	"fmt"
 	"encoding/json"
 	"druid-exporter/utils"
@@ -12,13 +13,13 @@ import (
 func GetDruidHealthMetrics() float64 {
 	druidHealthURL := os.Getenv("DRUID_URL") + healthURL
 	log.Info().Str("Query Type", "Health").Msg("Successfully made a request to get healthcheck")
-	return utils.GetHealth()
+	return utils.GetHealth(druidHealthURL)
 }
 
 // GetDruidSegmentData returns the datasources of druid
 func GetDruidSegmentData() SegementInterface {
 	druidSegmentURL := os.Getenv("DRUID_URL") + segmentDataURL
-	responseData, err := utils.GetDruidResponse(druidSegmentURL, "Segment")
+	responseData, err := utils.GetResponse(druidSegmentURL, "Segment")
 	if err != nil {
 		log.Error().Str("Query Type", "Segment").Msg("Error while making request on provided URL")
 	}
@@ -31,7 +32,7 @@ func GetDruidSegmentData() SegementInterface {
 // GetDruidData() return all the tasks and its state
 func GetDruidData(pathURL string) []map[string]interface{} {
 	druidURL := os.Getenv("DRUID_URL") + pathURL
-	responseData, err := utils.GetDruidResponse(druidURL, pathURL)
+	responseData, err := utils.GetResponse(druidURL, pathURL)
 	if err != nil {
 		log.Error().Str("Query Type", pathURL).Msg("Error while making request on provided URL")
 	}
