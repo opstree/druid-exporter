@@ -75,9 +75,9 @@ These are the available datagroups present in druid exporter.
 | druid_datasource | All datasources present in druid cluster |
 | druid_tasks | All druid's supervisors tasks status |
 | druid_supervisors | Complete information of druid's supervisors |
-| druid_segement_count | How many segments are available in each datasource |
-| druid_segement_size | Size of druid segments in each datasource |
-| druid_segement_replicated_size | Replicated size of druid segments in each datasource |
+| druid_segment_count | How many segments are available in each datasource |
+| druid_segment_size | Size of druid segments in each datasource |
+| druid_segment_replicated_size | Replicated size of druid segments in each datasource |
 
 ## Development
 

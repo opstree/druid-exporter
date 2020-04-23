@@ -351,7 +351,7 @@
         "steppedLine": false,
         "targets": [
           {
-            "expr": "druid_segement_count{datasource_name=~\"$datasource\"}",
+            "expr": "druid_segment_count{datasource_name=~\"$datasource\"}",
             "legendFormat": "{{datasource_name}}",
             "refId": "A"
           }
@@ -455,7 +455,7 @@
         ],
         "targets": [
           {
-            "expr": "sum(druid_segement_size{datasource_name=~\"$datasource\"}) by (datasource_name)  / 1024 / 1024",
+            "expr": "sum(druid_segment_size{datasource_name=~\"$datasource\"}) by (datasource_name)  / 1024 / 1024",
             "instant": true,
             "intervalFactor": 2,
             "legendFormat": "{{datasource_name}}",
@@ -526,7 +526,7 @@
         ],
         "targets": [
           {
-            "expr": "sum(druid_segement_replicated_size{datasource_name=~\"$datasource\"}) by (datasource_name) / 1024 / 1024",
+            "expr": "sum(druid_segment_replicated_size{datasource_name=~\"$datasource\"}) by (datasource_name) / 1024 / 1024",
             "instant": true,
             "intervalFactor": 2,
             "legendFormat": "{{datasource_name}}",
@@ -549,14 +549,14 @@
           "allValue": null,
           "current": {},
           "datasource": "${DS_PROMETHEUS}",
-          "definition": "label_values(druid_segement_count, datasource_name)",
+          "definition": "label_values(druid_segment_count, datasource_name)",
           "hide": 0,
           "includeAll": true,
           "label": null,
           "multi": false,
           "name": "datasource",
           "options": [],
-          "query": "label_values(druid_segement_count, datasource_name)",
+          "query": "label_values(druid_segment_count, datasource_name)",
           "refresh": 1,
           "regex": "",
           "skipUrlSync": false,
