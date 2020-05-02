@@ -94,20 +94,14 @@ func (collector *MetricCollector) Collect(ch chan<- prometheus.Metric) {
 	ch <- prometheus.MustNewConstMetric(collector.DruidHealthStatus, prometheus.CounterValue, GetDruidHealthMetrics())
 	for _, data := range GetDruidSegmentData() {
 		ch <- prometheus.MustNewConstMetric(collector.DataSourceCount, prometheus.GaugeValue, float64(1), data.Name)
+		ch <- prometheus.MustNewConstMetric(collector.DruidSegmentCount, prometheus.GaugeValue, float64(data.Properties.Segments.Count), data.Name)
+		ch <- prometheus.MustNewConstMetric(collector.DruidSegmentSize, prometheus.GaugeValue, float64(data.Properties.Segments.Size), data.Name)
+		ch <- prometheus.MustNewConstMetric(collector.DruidSegmentReplicateSize, prometheus.GaugeValue, float64(data.Properties.Segments.ReplicatedSize), data.Name)
 	}
 	for _, data := range GetDruidData(tasksURL) {
 		ch <- prometheus.MustNewConstMetric(collector.DruidTasks, prometheus.GaugeValue, float64(1), fmt.Sprintf("%v", data["dataSource"]), fmt.Sprintf("%v", data["groupId"]), fmt.Sprintf("%v", data["status"]), fmt.Sprintf("%v", data["createdTime"]))
 	}
 	for _, data := range GetDruidData(supervisorURL) {
 		ch <- prometheus.MustNewConstMetric(collector.DruidSupervisors, prometheus.GaugeValue, float64(1), fmt.Sprintf("%v", data["id"]), fmt.Sprintf("%v", data["healthy"]), fmt.Sprintf("%v", data["detailedState"]))
-	}
-	for _, data := range GetDruidSegmentData() {
-		ch <- prometheus.MustNewConstMetric(collector.DruidSegmentCount, prometheus.GaugeValue, float64(data.Properties.Segments.Count), data.Name)
-	}
-	for _, data := range GetDruidSegmentData() {
-		ch <- prometheus.MustNewConstMetric(collector.DruidSegmentSize, prometheus.GaugeValue, float64(data.Properties.Segments.Size), data.Name)
-	}
-	for _, data := range GetDruidSegmentData() {
-		ch <- prometheus.MustNewConstMetric(collector.DruidSegmentReplicateSize, prometheus.GaugeValue, float64(data.Properties.Segments.ReplicatedSize), data.Name)
 	}
 }
