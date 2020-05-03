@@ -2,6 +2,7 @@ package listener
 
 import (
 	"time"
+	"strings"
 	"net/http"
 	"encoding/json"
 	"github.com/rs/zerolog/log"
@@ -17,14 +18,10 @@ type DruidEmittedData struct {
 	Version        string    `json:"version"`
 	Metric         string    `json:"metric"`
 	Value          int       `json:"value"`
-	GcGen          []string  `json:"gcGen"`
-	GcGenSpaceName string    `json:"gcGenSpaceName"`
-	GcName         []string  `json:"gcName"`
 }
 
-
 // ListenerEndpoint is the endpoint to listen all druid metrics
-func ListenerEndpoint(gauge *prometheus.CounterVec) http.HandlerFunc{
+func ListenerEndpoint(gauge *prometheus.GaugeVec) http.HandlerFunc{
 	return http.HandlerFunc(func(w http.ResponseWriter, req *http.Request) {
 		var druidData []DruidEmittedData
 		if req.Method == "POST" {
@@ -34,7 +31,7 @@ func ListenerEndpoint(gauge *prometheus.CounterVec) http.HandlerFunc{
 				log.Error().Msg("Error while decoding JSON sent by druid")
 			}
 			for _, data := range druidData {
-				gauge.With(prometheus.Labels{"metric":data.Metric}).Inc()
+				gauge.With(prometheus.Labels{"metric":data.Metric, "service": data.Service, "host": data.Host}).Set(float64(data.Value))
 			}
 		}
 	})
