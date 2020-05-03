@@ -51,6 +51,11 @@ Flags:
 
 | **Option** | **Default Value** | **Environment Variable** | **Description** |
 |------------|-------------------|--------------------------|-----------------|
+| --help | - | - | Show context-sensitive help (also try --help-long and --help-man) |
+| --druid.uri | http://druid.opstreelabs.in | DRUID_URL | URL of druid's coordinator service or router service |
+| --debug | false | - | Enable logging in debug mode |
+| --port | 8080 | DRUID_EXPORTER_PORT | Listening port for the druid exporter |
+
 
 ## Installing
 
