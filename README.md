@@ -49,6 +49,9 @@ Flags:
   -p, --port="8080"  Port for druid exporter
 ```
 
+| **Option** | **Default Value** | **Environment Variable** | **Description** |
+|------------|-------------------|--------------------------|-----------------|
+
 ## Installing
 
 Druid exporter can be download from [release](https://github.com/opstree/druid-exporter/releases)
