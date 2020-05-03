@@ -18,6 +18,8 @@ JMX exporter example metrics can be found [here](https://gist.github.com/iamabhi
 
 ## Features
 
+- Configuration values with flags and environment variables
+- JSON structure based logging
 - Druid API based metrics
   - Health Status
   - Datasource
@@ -30,8 +32,6 @@ JMX exporter example metrics can be found [here](https://gist.github.com/iamabhi
   - Ingestion(Kafka)
   - Coordination
   - Sys
-- JSON structure based logging
-- Configuration values with flags and environment variables
 
 ## Installing
 
