@@ -56,6 +56,23 @@ Flags:
 | --debug | false | - | Enable logging in debug mode |
 | --port | 8080 | DRUID_EXPORTER_PORT | Listening port for the druid exporter |
 
+## Druid Configuration Changes
+
+To utilize druid exporter complete capabilities, there is some changes required in druid cluster. Druid emitts metrics to different emitters. So, we have to enable the http emitter in druid database.
+
+If you are using the properties file for druid you have to add this entry in `common.properties` file:-
+
+```properties
+druid.emitter.http.recipientBaseUrl=http://<druid_exporter_url>:<druid_exporter_port>/druid
+druid.emitter=http
+```
+
+In case, druid configurations are managed by environment variables:-
+
+```properties
+druid_emitter_http_recipientBaseUrl=http://<druid_exporter_url>:<druid_exporter_port>/druid
+druid_emitter=http
+```
 
 ## Installing
 
