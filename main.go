@@ -11,25 +11,25 @@ import (
 )
 
 var (
-	hdFailures = prometheus.NewGaugeVec(
+	druidEmittedData = prometheus.NewGaugeVec(
 		prometheus.GaugeOpts{
 			Name: "druid_emitted_metrics",
 			Help: "Druid emitted metrics from druid emitter",
-		},[]string{"metric", "service", "host"},
+		},[]string{"metric_name", "service", "host"},
 	)
 )
 
 func init() {
 	// data := collector.Collector()
 	// prometheus.MustRegister(data)
-	prometheus.MustRegister(hdFailures)
+	prometheus.MustRegister(druidEmittedData)
 }
 
 func main() {
 	router := mux.NewRouter()
-	router.Handle("/druid", listener.ListenerEndpoint(hdFailures))
+	router.Handle("/druid", listener.ListenerEndpoint(druidEmittedData))
 	router.Handle("/metrics", promhttp.Handler())
-	prometheus.Register(hdFailures)
+	// prometheus.Register(druidEmittedData)
 	log.Printf("Opstree's druid exporter is listening on :8080")
 	log.Fatal(http.ListenAndServe(":8080", router))
 }

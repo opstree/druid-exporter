@@ -31,7 +31,7 @@ func ListenerEndpoint(gauge *prometheus.GaugeVec) http.HandlerFunc{
 				log.Error().Msg("Error while decoding JSON sent by druid")
 			}
 			for _, data := range druidData {
-				gauge.With(prometheus.Labels{"metric":data.Metric, "service": data.Service, "host": data.Host}).Set(float64(data.Value))
+				gauge.With(prometheus.Labels{"metric_name": strings.Replace(data.Metric, "/", "-", 3), "service": strings.Replace(data.Service, "/", "-", 3), "host": data.Host}).Set(float64(data.Value))
 			}
 		}
 	})
