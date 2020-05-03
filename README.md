@@ -10,6 +10,16 @@ A Golang based exporter to capture druid API based metrics and collects HTTP JSO
 
 [Grafana Dashboard](https://grafana.com/grafana/dashboards/12155)
 
+## Purpose
+
+The purpose of creating this druid exporter was to capture all the metrics which is exposed or emitted by druid. [JMX Exporter](https://github.com/prometheus/jmx_exporter) can be used for getting JVM based metrics.
+
+JMX exporter example metrics can be found [here](https://gist.github.com/iamabhishek-dubey/5ef19d3db9deb25475a80c9ff5c79262)
+
+## Features
+
+- Druid API based metrics
+
 ## Installing
 
 Druid exporter can be download from [release](https://github.com/opstree/druid-exporter/releases)
