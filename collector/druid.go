@@ -51,7 +51,6 @@ func (collector *MetricCollector) Describe(ch chan<- *prometheus.Desc) {
 	ch <- collector.DruidSegmentCount
 	ch <- collector.DruidSegmentSize
 	ch <- collector.DruidSegmentReplicateSize
-	ch <- collector.DruidEmittedData
 }
 
 // Collector return the defined metrics
@@ -87,26 +86,32 @@ func Collector() *MetricCollector {
 			"Druid segment replicated size",
 			[]string{"datasource_name"}, nil,
 		),
-		DruidEmittedData: prometheus.NewDesc("druid_http_emitter_metrics",
-			"Druid emitted data",
-			[]string{"metric_name", "service_name"}, nil,
-		),
 	}
 }
 
 // Collect will collect all the metrics
 func (collector *MetricCollector) Collect(ch chan<- prometheus.Metric) {
-	ch <- prometheus.MustNewConstMetric(collector.DruidHealthStatus, prometheus.CounterValue, GetDruidHealthMetrics())
+	ch <- prometheus.MustNewConstMetric(collector.DruidHealthStatus, 
+		prometheus.CounterValue, GetDruidHealthMetrics())
 	for _, data := range GetDruidSegmentData() {
-		ch <- prometheus.MustNewConstMetric(collector.DataSourceCount, prometheus.GaugeValue, float64(1), data.Name)
-		ch <- prometheus.MustNewConstMetric(collector.DruidSegmentCount, prometheus.GaugeValue, float64(data.Properties.Segments.Count), data.Name)
-		ch <- prometheus.MustNewConstMetric(collector.DruidSegmentSize, prometheus.GaugeValue, float64(data.Properties.Segments.Size), data.Name)
-		ch <- prometheus.MustNewConstMetric(collector.DruidSegmentReplicateSize, prometheus.GaugeValue, float64(data.Properties.Segments.ReplicatedSize), data.Name)
+		ch <- prometheus.MustNewConstMetric(collector.DataSourceCount, 
+			prometheus.GaugeValue, float64(1), data.Name)
+		ch <- prometheus.MustNewConstMetric(collector.DruidSegmentCount, 
+			prometheus.GaugeValue, float64(data.Properties.Segments.Count), data.Name)
+		ch <- prometheus.MustNewConstMetric(collector.DruidSegmentSize, 
+			prometheus.GaugeValue, float64(data.Properties.Segments.Size), data.Name)
+		ch <- prometheus.MustNewConstMetric(collector.DruidSegmentReplicateSize, 
+			prometheus.GaugeValue, float64(data.Properties.Segments.ReplicatedSize), data.Name)
 	}
 	for _, data := range GetDruidData(tasksURL) {
-		ch <- prometheus.MustNewConstMetric(collector.DruidTasks, prometheus.GaugeValue, float64(1), fmt.Sprintf("%v", data["dataSource"]), fmt.Sprintf("%v", data["groupId"]), fmt.Sprintf("%v", data["status"]), fmt.Sprintf("%v", data["createdTime"]))
+		ch <- prometheus.MustNewConstMetric(collector.DruidTasks, 
+			prometheus.GaugeValue, float64(1), fmt.Sprintf("%v", data["dataSource"]), 
+			fmt.Sprintf("%v", data["groupId"]), fmt.Sprintf("%v", data["status"]), 
+			fmt.Sprintf("%v", data["createdTime"]))
 	}
 	for _, data := range GetDruidData(supervisorURL) {
-		ch <- prometheus.MustNewConstMetric(collector.DruidSupervisors, prometheus.GaugeValue, float64(1), fmt.Sprintf("%v", data["id"]), fmt.Sprintf("%v", data["healthy"]), fmt.Sprintf("%v", data["detailedState"]))
+		ch <- prometheus.MustNewConstMetric(collector.DruidSupervisors, 
+			prometheus.GaugeValue, float64(1), fmt.Sprintf("%v", data["id"]), 
+			fmt.Sprintf("%v", data["healthy"]), fmt.Sprintf("%v", data["detailedState"]))
 	}
 }

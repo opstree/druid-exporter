@@ -21,7 +21,6 @@ type MetricCollector struct {
 	DruidSegmentCount         *prometheus.Desc
 	DruidSegmentSize          *prometheus.Desc
 	DruidSegmentReplicateSize *prometheus.Desc
-	DruidEmittedData          *prometheus.Desc
 }
 
 // SegementInterface is the interface for parsing segments data
