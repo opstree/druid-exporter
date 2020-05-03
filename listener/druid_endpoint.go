@@ -20,8 +20,8 @@ type DruidEmittedData struct {
 	Value     int       `json:"value"`
 }
 
-// ListenerEndpoint is the endpoint to listen all druid metrics
-func ListenerEndpoint(gauge *prometheus.GaugeVec) http.HandlerFunc {
+// DruidHTTPEndpoint is the endpoint to listen all druid metrics
+func DruidHTTPEndpoint(gauge *prometheus.GaugeVec) http.HandlerFunc {
 	return http.HandlerFunc(func(w http.ResponseWriter, req *http.Request) {
 		var druidData []DruidEmittedData
 		if req.Method == "POST" {

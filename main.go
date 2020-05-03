@@ -31,7 +31,7 @@ func init() {
 func main() {
 	kingpin.Parse()
 	router := mux.NewRouter()
-	router.Handle("/druid", listener.ListenerEndpoint(druidEmittedData))
+	router.Handle("/druid", listener.DruidHTTPEndpoint(druidEmittedData))
 	router.Handle("/metrics", promhttp.Handler())
 	router.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
 		w.Write([]byte(`<html>
