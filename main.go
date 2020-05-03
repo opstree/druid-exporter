@@ -2,12 +2,13 @@ package main
 
 import (
 	"druid-exporter/collector"
+	"druid-exporter/logger"
 	"druid-exporter/listener"
 	"github.com/gorilla/mux"
 	"github.com/prometheus/client_golang/prometheus"
 	"github.com/prometheus/client_golang/prometheus/promhttp"
 	"gopkg.in/alecthomas/kingpin.v2"
-	"log"
+	"github.com/go-kit/kit/log/level"
 	"net/http"
 )
 
@@ -29,6 +30,7 @@ func init() {
 }
 
 func main() {
+	druidLogger := logger.GetLoggerInterface()
 	kingpin.Parse()
 	router := mux.NewRouter()
 	router.Handle("/druid", listener.DruidHTTPEndpoint(druidEmittedData))
@@ -42,6 +44,6 @@ func main() {
 			</body>
 			</html>`))
 	})
-	log.Printf("Opstree's druid exporter is listening on :" + *port)
-	log.Fatal(http.ListenAndServe(":"+*port, router))
+	level.Info(druidLogger).Log("msg", "Druid exporter started listening on :" + *port)
+	level.Error(druidLogger).Log("msg", http.ListenAndServe(":"+*port, router))
 }

@@ -1,9 +1,10 @@
 package listener
 
 import (
+	"druid-exporter/logger"
 	"encoding/json"
 	"github.com/prometheus/client_golang/prometheus"
-	"github.com/rs/zerolog/log"
+	"github.com/go-kit/kit/log/level"
 	"net/http"
 	"strings"
 	"time"
@@ -23,12 +24,13 @@ type DruidEmittedData struct {
 // DruidHTTPEndpoint is the endpoint to listen all druid metrics
 func DruidHTTPEndpoint(gauge *prometheus.GaugeVec) http.HandlerFunc {
 	return http.HandlerFunc(func(w http.ResponseWriter, req *http.Request) {
+		druidLogger := logger.GetLoggerInterface()
 		var druidData []DruidEmittedData
 		if req.Method == "POST" {
 			jsonDecoder := json.NewDecoder(req.Body)
 			err := jsonDecoder.Decode(&druidData)
 			if err != nil {
-				log.Error().Msg("Error while decoding JSON sent by druid")
+				level.Error(druidLogger).Log("msg", "Error in decoding JSON sent by druid", "err", err)
 			}
 			for _, data := range druidData {
 				gauge.With(prometheus.Labels{
@@ -36,6 +38,7 @@ func DruidHTTPEndpoint(gauge *prometheus.GaugeVec) http.HandlerFunc {
 					"service":     strings.Replace(data.Service, "/", "-", 3),
 					"host":        data.Host}).Set(float64(data.Value))
 			}
+			level.Info(druidLogger).Log("msg", "Successfully recieved data from druid emitter")
 		}
 	})
 }

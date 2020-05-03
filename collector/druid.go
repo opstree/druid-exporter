@@ -1,11 +1,12 @@
 package collector
 
 import (
+	"druid-exporter/logger"
 	"druid-exporter/utils"
 	"encoding/json"
 	"fmt"
+	"github.com/go-kit/kit/log/level"
 	"github.com/prometheus/client_golang/prometheus"
-	"github.com/rs/zerolog/log"
 	"gopkg.in/alecthomas/kingpin.v2"
 )
 
@@ -15,21 +16,23 @@ var (
 
 // GetDruidHealthMetrics returns the set of metrics for druid
 func GetDruidHealthMetrics() float64 {
+	druidLogger := logger.GetLoggerInterface()
 	kingpin.Parse()
 	druidHealthURL := *druid + healthURL
-	log.Info().Str("Query Type", "Health").Msg("Successfully made a request to get healthcheck")
+	level.Info(druidLogger).Log("msg", "Successfully retrieved the data for druid healthcheck")
 	return utils.GetHealth(druidHealthURL)
 }
 
 // GetDruidSegmentData returns the datasources of druid
 func GetDruidSegmentData() SegementInterface {
+	druidLogger := logger.GetLoggerInterface()
 	kingpin.Parse()
 	druidSegmentURL := *druid + segmentDataURL
 	responseData, err := utils.GetResponse(druidSegmentURL, "Segment")
 	if err != nil {
-		log.Error().Str("Query Type", "Segment").Msg("Error while making request on provided URL")
+		level.Error(druidLogger).Log("msg", "Cannot retrieve data for druid segments", "err", err)
 	}
-	log.Info().Str("Query Type", "Segment").Msg("Successfully executed the request to get segment data")
+	level.Info(druidLogger).Log("msg", "Successfully retrieved the data for druid segment")
 	var metric SegementInterface
 	json.Unmarshal(responseData, &metric)
 	return metric
@@ -37,13 +40,14 @@ func GetDruidSegmentData() SegementInterface {
 
 // GetDruidData return all the tasks and its state
 func GetDruidData(pathURL string) []map[string]interface{} {
+	druidLogger := logger.GetLoggerInterface()
 	kingpin.Parse()
 	druidURL := *druid + pathURL
 	responseData, err := utils.GetResponse(druidURL, pathURL)
 	if err != nil {
-		log.Error().Str("Query Type", pathURL).Msg("Error while making request on provided URL")
+		level.Error(druidLogger).Log("msg", "Cannot retrieve data for druid's supervisors tasks", "err", err)
 	}
-	log.Info().Str("Query Type", pathURL).Msg("Successfully executed the request")
+	level.Info(druidLogger).Log("msg", "Successfully retrieved the data for druid's supervisors tasks")
 	var metric []map[string]interface{}
 	json.Unmarshal(responseData, &metric)
 	return metric
