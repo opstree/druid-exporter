@@ -33,6 +33,22 @@ JMX exporter example metrics can be found [here](https://gist.github.com/iamabhi
   - Coordination
   - Sys
 
+## Available Options or Flags
+
+See the help page with `--help`
+
+```shell
+$ ./druid-exporter --help
+usage: druid-exporter [<flags>]
+
+Flags:
+      --help         Show context-sensitive help (also try --help-long and --help-man).
+  -d, --druid.uri="http://druid.opstreelabs.in"  
+                     URL of druid router or coordinator
+      --debug        Enable debug mode.
+  -p, --port="8080"  Port for druid exporter
+```
+
 ## Installing
 
 Druid exporter can be download from [release](https://github.com/opstree/druid-exporter/releases)
@@ -42,8 +58,9 @@ To run the druid exporter:-
 ```shell
 # Export the Druid Coordinator or Router URL
 export DRUID_URL="http://druid.opstreelabs.in"
+export DRUID_EXPORTER_PORT="8080"
 
-./druid-exporter
+./druid-exporter [<flags>]
 ```
 
 ## Building From Source
@@ -83,20 +100,6 @@ kubectl apply -f manifests/deployment.yaml -n my_awesome_druid_namespace
 # Kubernetes service creation
 kubectl apply -f manifests/service.yaml -n my_awesome_druid_namespace
 ```
-
-## Available Data Groups
-
-These are the available datagroups present in druid exporter.
-
-|**Name**|**Description**|
-|--------|---------------|
-| druid_health_status | To check if druid cluster is healthy or not |
-| druid_datasource | All datasources present in druid cluster |
-| druid_tasks | All druid's supervisors tasks status |
-| druid_supervisors | Complete information of druid's supervisors |
-| druid_segment_count | How many segments are available in each datasource |
-| druid_segment_size | Size of druid segments in each datasource |
-| druid_segment_replicated_size | Replicated size of druid segments in each datasource |
 
 ## Development
 
