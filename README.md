@@ -109,6 +109,13 @@ kubectl apply -f manifests/deployment.yaml -n my_awesome_druid_namespace
 kubectl apply -f manifests/service.yaml -n my_awesome_druid_namespace
 ```
 
+## Roadmap
+
+- [ ] Add docker compose setup for druid and druid exporter
+- [ ] Unit test cases should be in place
+- [ ] Integration test cases should be in place
+- [ ] Create a logo for the exporter
+
 ## Development
 
 Please see our [development documentation](./DEVELOPMENT.md)
