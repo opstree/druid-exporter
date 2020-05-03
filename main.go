@@ -1,24 +1,24 @@
 package main
 
 import (
-	"druid-exporter/listener"
 	"druid-exporter/collector"
+	"druid-exporter/listener"
+	"github.com/gorilla/mux"
 	"github.com/prometheus/client_golang/prometheus"
 	"github.com/prometheus/client_golang/prometheus/promhttp"
-	"log"
-	"github.com/gorilla/mux"
-	"net/http"
 	"gopkg.in/alecthomas/kingpin.v2"
+	"log"
+	"net/http"
 )
 
 var (
-	debug   = kingpin.Flag("debug", "Enable debug mode.").Bool()
-	port = kingpin.Flag("port", "Port for druid exporter").Default("8080").OverrideDefaultFromEnvar("DRUID_EXPORTER_PORT").Short('p').String()
+	debug            = kingpin.Flag("debug", "Enable debug mode.").Bool()
+	port             = kingpin.Flag("port", "Port for druid exporter").Default("8080").OverrideDefaultFromEnvar("DRUID_EXPORTER_PORT").Short('p').String()
 	druidEmittedData = prometheus.NewGaugeVec(
 		prometheus.GaugeOpts{
 			Name: "druid_emitted_metrics",
 			Help: "Druid emitted metrics from druid emitter",
-		},[]string{"metric_name", "service", "host"},
+		}, []string{"metric_name", "service", "host"},
 	)
 )
 
@@ -43,5 +43,5 @@ func main() {
 			</html>`))
 	})
 	log.Printf("Opstree's druid exporter is listening on :" + *port)
-	log.Fatal(http.ListenAndServe(":" + *port, router))
+	log.Fatal(http.ListenAndServe(":"+*port, router))
 }

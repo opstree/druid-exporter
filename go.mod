@@ -8,4 +8,5 @@ require (
 	github.com/prometheus/client_golang v1.5.1
 	github.com/rs/zerolog v1.18.0
 	github.com/zsais/go-gin-prometheus v0.1.0
+	gopkg.in/alecthomas/kingpin.v2 v2.2.6
 )
