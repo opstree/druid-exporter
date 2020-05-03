@@ -6,20 +6,20 @@
 [![Docker Repository on Quay](https://img.shields.io/badge/container-ready-green "Docker Repository on Quay")](https://quay.io/repository/opstree/redis-operator)
 [![Apache License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](LICENSE)
 
-A Golang based exporter to capture druid API based metrics and collects HTTP JSON data which is emitted by druid.
+A Golang based exporter captures druid API related metrics and receives druid-emitting HTTP JSON data.
 
 [Grafana Dashboard](https://grafana.com/grafana/dashboards/12155)
 
 ## Purpose
 
-The purpose of creating this druid exporter was to capture all the metrics which is exposed or emitted by druid. [JMX Exporter](https://github.com/prometheus/jmx_exporter) can be used for getting JVM based metrics.
+The aim of creating this druid exporter was to capture all of the metrics that druid exposes or emits. [JMX Exporter](https://github.com/prometheus/jmx_exporter) can be used to obtain JVM based metrics.
 
-JMX exporter example metrics can be found [here](https://gist.github.com/iamabhishek-dubey/5ef19d3db9deb25475a80c9ff5c79262)
+You can find examples of JMX exporter metrics [here](https://gist.github.com/iamabhishek-dubey/5ef19d3db9deb25475a80c9ff5c79262)
 
 ## Features
 
 - Configuration values with flags and environment variables
-- JSON structure based logging
+- JSON centered logging system
 - Druid API based metrics
   - Health Status
   - Datasource
@@ -53,21 +53,21 @@ Flags:
 |------------|-------------------|--------------------------|-----------------|
 | --help | - | - | Show context-sensitive help (also try --help-long and --help-man) |
 | --druid.uri | http://druid.opstreelabs.in | DRUID_URL | URL of druid's coordinator service or router service |
-| --debug | false | - | Enable logging in debug mode |
-| --port | 8080 | DRUID_EXPORTER_PORT | Listening port for the druid exporter |
+| --debug | false | - | Enable to log into debug mode |
+| --port | 8080 | DRUID_EXPORTER_PORT | Listening port of the druid exporter |
 
 ## Druid Configuration Changes
 
-To utilize druid exporter complete capabilities, there is some changes required in druid cluster. Druid emitts metrics to different emitters. So, we have to enable the http emitter in druid database.
+There are some changes needed in the druid cluster to exploit full capabilities of druid exporter. Druid emits the metrics to different emitters. So, in druid database, we must allow the http emitter.
 
-If you are using the properties file for druid you have to add this entry in `common.properties` file:-
+If you are using the druid properties file you must add this entry to the file `common.properties`:-
 
 ```properties
 druid.emitter.http.recipientBaseUrl=http://<druid_exporter_url>:<druid_exporter_port>/druid
 druid.emitter=http
 ```
 
-In case, druid configurations are managed by environment variables:-
+In case configuration of druid are managed by environment variables:-
 
 ```properties
 druid_emitter_http_recipientBaseUrl=http://<druid_exporter_url>:<druid_exporter_port>/druid

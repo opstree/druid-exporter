@@ -4,7 +4,7 @@
 
 #### Access to a druid cluster
 
-First of all, you will need access to a druid cluster. The easiest way is to start is docker-compose.
+First, you'll need connections to a cluster of druids. Docker-compose is the easiest way to get started.
 
 - [Docker](https://docs.docker.com/engine/install/) - Layer on which druid cluster will run
 - [Docker Compose](https://docs.docker.com/compose/install/) - to create druid cluster over docker containers
@@ -25,7 +25,7 @@ make build-code
 
 ### Build Docker Image
 
-Druid exporter gets packaged as a container image for running on Kubernetes cluster. These instructions will guide you to build image.
+Druid exporter for running on Kubernetes cluster is packaged as a container file. These instructions will help you in the image making process.
 
 ```shell
 make build-image
@@ -33,7 +33,7 @@ make build-image
 
 ## Testing
 
-To test the druid exporter, first we need a druid cluster. For creating the cluster we will use the official docker compose file of druid:-
+First we need a cluster of druid to check the druid-exporter. We will use the official docker-compose druid file to build the cluster:-
 
 https://github.com/apache/druid/blob/master/distribution/docker/docker-compose.yml
 
