@@ -51,6 +51,7 @@ func (collector *MetricCollector) Describe(ch chan<- *prometheus.Desc) {
 	ch <- collector.DruidSegmentCount
 	ch <- collector.DruidSegmentSize
 	ch <- collector.DruidSegmentReplicateSize
+	ch <- collector.DruidEmittedData
 }
 
 // Collector return the defined metrics
@@ -85,6 +86,10 @@ func Collector() *MetricCollector {
 		DruidSegmentReplicateSize: prometheus.NewDesc("druid_segment_replicated_size",
 			"Druid segment replicated size",
 			[]string{"datasource_name"}, nil,
+		),
+		DruidEmittedData: prometheus.NewDesc("druid_http_emitter_metrics",
+			"Druid emitted data",
+			[]string{"metric_name", "service_name"}, nil,
 		),
 	}
 }
