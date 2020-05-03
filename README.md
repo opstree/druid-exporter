@@ -19,6 +19,19 @@ JMX exporter example metrics can be found [here](https://gist.github.com/iamabhi
 ## Features
 
 - Druid API based metrics
+  - Health Status
+  - Datasource
+  - Segments
+  - Supervisors
+  - Tasks
+- Druid HTTP Emitted metrics
+  - Broker
+  - Historical
+  - Ingestion(Kafka)
+  - Coordination
+  - Sys
+- JSON structure based logging
+- Configuration values with flags and environment variables
 
 ## Installing
 
