@@ -1,10 +1,10 @@
 package logger
 
 import (
+	"github.com/go-kit/kit/log"
+	"github.com/go-kit/kit/log/level"
 	"os"
 	"time"
-	"github.com/go-kit/kit/log/level"
-	"github.com/go-kit/kit/log"
 )
 
 var (
@@ -15,7 +15,7 @@ var (
 )
 
 // GetLoggerInterface generates a logging interface for exporter
-func GetLoggerInterface() log.Logger{
+func GetLoggerInterface() log.Logger {
 	var logger log.Logger
 	logger = log.NewJSONLogger(os.Stderr)
 	logger = level.NewFilter(logger, level.AllowInfo())

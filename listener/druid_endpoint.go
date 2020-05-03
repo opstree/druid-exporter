@@ -3,8 +3,8 @@ package listener
 import (
 	"druid-exporter/logger"
 	"encoding/json"
-	"github.com/prometheus/client_golang/prometheus"
 	"github.com/go-kit/kit/log/level"
+	"github.com/prometheus/client_golang/prometheus"
 	"net/http"
 	"strings"
 	"time"

@@ -2,13 +2,13 @@ package main
 
 import (
 	"druid-exporter/collector"
-	"druid-exporter/logger"
 	"druid-exporter/listener"
+	"druid-exporter/logger"
+	"github.com/go-kit/kit/log/level"
 	"github.com/gorilla/mux"
 	"github.com/prometheus/client_golang/prometheus"
 	"github.com/prometheus/client_golang/prometheus/promhttp"
 	"gopkg.in/alecthomas/kingpin.v2"
-	"github.com/go-kit/kit/log/level"
 	"net/http"
 )
 
@@ -44,6 +44,6 @@ func main() {
 			</body>
 			</html>`))
 	})
-	level.Info(druidLogger).Log("msg", "Druid exporter started listening on :" + *port)
+	level.Info(druidLogger).Log("msg", "Druid exporter started listening on :"+*port)
 	level.Error(druidLogger).Log("msg", http.ListenAndServe(":"+*port, router))
 }
