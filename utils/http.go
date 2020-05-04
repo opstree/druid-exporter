@@ -1,22 +1,24 @@
 package utils
 
 import (
-	"github.com/rs/zerolog/log"
+	"druid-exporter/logger"
+	"github.com/go-kit/kit/log/level"
 	"io/ioutil"
 	"net/http"
 )
 
 // GetHealth returns that druid is healthy or not
 func GetHealth(url string) float64 {
+	druidLogger := logger.GetLoggerInterface()
 	req, err := http.NewRequest("GET", url, nil)
 	if err != nil {
-		log.Fatal().Str("URL", url).Msg("Error while generating request")
+		level.Error(druidLogger).Log("msg", "Cannot create GET request for druid healthcheck", "err", err)
 	}
 	resp, err := http.DefaultClient.Do(req)
 	if err != nil {
-		log.Fatal().Str("URL", url).Msg("Error on GET request")
+		level.Error(druidLogger).Log("msg", "Error while making GET request for druid healthcheck", "err", err)
 	}
-	log.Info().Str("Method", resp.Request.Method).Str("Response", resp.Status).Str("Query Type", "Health").Msg("GET request is successful on specified URL")
+	level.Info(druidLogger).Log("msg", "GET request is successful on druid healthcheck", "url", url)
 	defer resp.Body.Close()
 	if resp.StatusCode == 200 {
 		return 1
@@ -27,18 +29,19 @@ func GetHealth(url string) float64 {
 
 // GetResponse will return API response for druid
 func GetResponse(url string, queryType string) ([]byte, error) {
+	druidLogger := logger.GetLoggerInterface()
 	req, err := http.NewRequest("GET", url, nil)
 	if err != nil {
-		log.Fatal().Str("URL", url).Msg("Error while generating request")
+		level.Error(druidLogger).Log("msg", "Cannot create http request", "err", err)
 	}
 
 	resp, err := http.DefaultClient.Do(req)
 	if err != nil {
-		log.Fatal().Str("URL", url).Msg("Error while making request")
+		level.Error(druidLogger).Log("msg", "Error while making http request", "err", err)
 	}
 
 	defer resp.Body.Close()
-	log.Info().Str("Method", resp.Request.Method).Str("Response", resp.Status).Str("Query Type", queryType).Msg("GET request is successful on specified URL")
+	level.Info(druidLogger).Log("msg", "GET request is successful for druid api", "url", url)
 
 	return ioutil.ReadAll(resp.Body)
 }
