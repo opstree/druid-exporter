@@ -18,7 +18,7 @@ type DruidEmittedData struct {
 	Host      string    `json:"host"`
 	Version   string    `json:"version"`
 	Metric    string    `json:"metric"`
-	Value     int       `json:"value"`
+	Value     float64   `json:"value"`
 }
 
 // DruidHTTPEndpoint is the endpoint to listen all druid metrics
@@ -36,7 +36,7 @@ func DruidHTTPEndpoint(gauge *prometheus.GaugeVec) http.HandlerFunc {
 				gauge.With(prometheus.Labels{
 					"metric_name": strings.Replace(data.Metric, "/", "-", 3),
 					"service":     strings.Replace(data.Service, "/", "-", 3),
-					"host":        data.Host}).Set(float64(data.Value))
+					"host":        data.Host}).Set(data.Value)
 			}
 			level.Info(druidLogger).Log("msg", "Successfully recieved data from druid emitter")
 		}
