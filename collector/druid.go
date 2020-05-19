@@ -8,15 +8,16 @@ import (
 	"github.com/go-kit/kit/log/level"
 	"github.com/prometheus/client_golang/prometheus"
 	"gopkg.in/alecthomas/kingpin.v2"
+	"strconv"
 )
 
 var (
-	druid = kingpin.Flag("druid.uri", "URL of druid router or coordinator").Default("http://druid.opstreelabs.in").OverrideDefaultFromEnvar("DRUID_URL").Short('d').String()
+	druid       = kingpin.Flag("druid.uri", "URL of druid router or coordinator").Default("http://druid.opstreelabs.in").OverrideDefaultFromEnvar("DRUID_URL").Short('d').String()
+	druidLogger = logger.GetLoggerInterface()
 )
 
 // GetDruidHealthMetrics returns the set of metrics for druid
 func GetDruidHealthMetrics() float64 {
-	druidLogger := logger.GetLoggerInterface()
 	kingpin.Parse()
 	druidHealthURL := *druid + healthURL
 	level.Info(druidLogger).Log("msg", "Successfully retrieved the data for druid healthcheck")
@@ -25,7 +26,6 @@ func GetDruidHealthMetrics() float64 {
 
 // GetDruidSegmentData returns the datasources of druid
 func GetDruidSegmentData() SegementInterface {
-	druidLogger := logger.GetLoggerInterface()
 	kingpin.Parse()
 	druidSegmentURL := *druid + segmentDataURL
 	responseData, err := utils.GetResponse(druidSegmentURL, "Segment")
@@ -40,7 +40,6 @@ func GetDruidSegmentData() SegementInterface {
 
 // GetDruidData return all the tasks and its state
 func GetDruidData(pathURL string) []map[string]interface{} {
-	druidLogger := logger.GetLoggerInterface()
 	kingpin.Parse()
 	druidURL := *druid + pathURL
 	responseData, err := utils.GetResponse(druidURL, pathURL)
@@ -77,7 +76,7 @@ func Collector() *MetricCollector {
 			"Datasources present",
 			[]string{"datasource"}, nil,
 		),
-		DruidTasks: prometheus.NewDesc("druid_tasks",
+		DruidTasks: prometheus.NewDesc("druid_tasks_status_duration",
 			"Druid tasks status",
 			[]string{"datasource", "index_group_id", "task_status", "created_time"}, nil,
 		),
@@ -115,8 +114,18 @@ func (collector *MetricCollector) Collect(ch chan<- prometheus.Metric) {
 			prometheus.GaugeValue, float64(data.Properties.Segments.ReplicatedSize), data.Name)
 	}
 	for _, data := range GetDruidData(tasksURL) {
+		value, err := strconv.ParseFloat(fmt.Sprintf("%v", data["duration"]), 64)
+
+		if err != nil {
+			level.Error(druidLogger).Log("msg", "Unable to parse the duration value", "err", err)
+		}
+
+		if value < 0 {
+			value = float64(1)
+		}
+
 		ch <- prometheus.MustNewConstMetric(collector.DruidTasks,
-			prometheus.GaugeValue, float64(1), fmt.Sprintf("%v", data["dataSource"]),
+			prometheus.GaugeValue, value, fmt.Sprintf("%v", data["dataSource"]),
 			fmt.Sprintf("%v", data["groupId"]), fmt.Sprintf("%v", data["status"]),
 			fmt.Sprintf("%v", data["createdTime"]))
 	}
