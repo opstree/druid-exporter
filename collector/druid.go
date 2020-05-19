@@ -5,14 +5,14 @@ import (
 	"druid-exporter/utils"
 	"encoding/json"
 	"fmt"
-	"strconv"
 	"github.com/go-kit/kit/log/level"
 	"github.com/prometheus/client_golang/prometheus"
 	"gopkg.in/alecthomas/kingpin.v2"
+	"strconv"
 )
 
 var (
-	druid = kingpin.Flag("druid.uri", "URL of druid router or coordinator").Default("http://druid.opstreelabs.in").OverrideDefaultFromEnvar("DRUID_URL").Short('d').String()
+	druid       = kingpin.Flag("druid.uri", "URL of druid router or coordinator").Default("http://druid.opstreelabs.in").OverrideDefaultFromEnvar("DRUID_URL").Short('d').String()
 	druidLogger = logger.GetLoggerInterface()
 )
 
