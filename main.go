@@ -31,6 +31,7 @@ func init() {
 
 func main() {
 	druidLogger := logger.GetLoggerInterface()
+	kingpin.Version("0.3")
 	kingpin.Parse()
 	router := mux.NewRouter()
 	router.Handle("/druid", listener.DruidHTTPEndpoint(druidEmittedData))

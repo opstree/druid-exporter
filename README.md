@@ -55,6 +55,7 @@ Flags:
                      URL of druid router or coordinator
       --debug        Enable debug mode.
   -p, --port="8080"  Port for druid exporter
+      --version      Show application version.
 ```
 
 | **Option** | **Default Value** | **Environment Variable** | **Description** |
