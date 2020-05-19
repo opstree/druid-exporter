@@ -21,7 +21,7 @@ spec:
       - env:
         - name: DRUID_URL
           value: http://druid.opstreelabs.in
-        image: quay.io/opstree/druid-exporter:v3.0
+        image: quay.io/opstree/druid-exporter:v0.2
         imagePullPolicy: IfNotPresent
         name: druid-exporter
         ports:
