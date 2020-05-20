@@ -1,5 +1,5 @@
 <p align="left">
-  <img src="./static/druid-exporter-logo.svg">
+  <img src="./static/druid-exporter-logo.svg" height="120" width="120">
 </p>
 
 [![CircleCI](https://circleci.com/gh/opstree/druid-exporter.svg?style=shield)](https://circleci.com/gh/opstree/druid-exporter)
@@ -10,7 +10,7 @@
 
 # Druid Exporter
 
-A Golang based exporter captures druid API related metrics and receives druid-emitting HTTP JSON data.
+A Golang based exporter captures druid API related metrics and receives druid-emitting HTTP JSON data and converts it into the Prometheus time series format.
 
 [Grafana Dashboard](https://grafana.com/grafana/dashboards/12155)
 
