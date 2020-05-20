@@ -1,5 +1,5 @@
 <p align="left">
-  <img src="./static/druid-exporter-logo.svg">
+  <img src="./static/druid-exporter-logo.svg" height="120" width="120">
 </p>
 
 [![CircleCI](https://circleci.com/gh/opstree/druid-exporter.svg?style=shield)](https://circleci.com/gh/opstree/druid-exporter)

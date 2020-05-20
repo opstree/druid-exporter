@@ -19,7 +19,7 @@ var (
 		prometheus.GaugeOpts{
 			Name: "druid_emitted_metrics",
 			Help: "Druid emitted metrics from druid emitter",
-		}, []string{"metric_name", "service", "host"},
+		}, []string{"metric_name", "service", "host", "datasource"},
 	)
 	druidTasks = prometheus.NewGaugeVec(
 		prometheus.GaugeOpts{
