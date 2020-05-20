@@ -14,10 +14,6 @@ A Golang based exporter captures druid API related metrics and receives druid-em
 
 [Grafana Dashboard](https://grafana.com/grafana/dashboards/12155)
 
-<p align="center">
-  <img src="./static/grafana-screenshot.svg">
-</p>
-
 ## Purpose
 
 The aim of creating this druid exporter was to capture all of the metrics that druid exposes or emits. [JMX Exporter](https://github.com/prometheus/jmx_exporter) can be used to obtain JVM based metrics.
@@ -134,6 +130,12 @@ kubectl apply -f manifests/deployment.yaml -n my_awesome_druid_namespace
 # Kubernetes service creation
 kubectl apply -f manifests/service.yaml -n my_awesome_druid_namespace
 ```
+
+## Dashboard Screenshot
+
+<p align="center">
+  <img src="./static/grafana-screenshot.svg">
+</p>
 
 ## Roadmap
 
