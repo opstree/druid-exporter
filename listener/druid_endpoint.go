@@ -12,13 +12,14 @@ import (
 
 // DruidEmittedData is the data structure which druid sends over HTTP
 type DruidEmittedData struct {
-	Feed      string    `json:"feed"`
-	Timestamp time.Time `json:"timestamp"`
-	Service   string    `json:"service"`
-	Host      string    `json:"host"`
-	Version   string    `json:"version"`
-	Metric    string    `json:"metric"`
-	Value     float64   `json:"value"`
+	Feed       string    `json:"feed"`
+	Timestamp  time.Time `json:"timestamp"`
+	Service    string    `json:"service"`
+	Host       string    `json:"host"`
+	Version    string    `json:"version"`
+	Metric     string    `json:"metric"`
+	DataSource string    `json:"dataSource"`
+	Value      float64   `json:"value"`
 }
 
 // DruidHTTPEndpoint is the endpoint to listen all druid metrics
@@ -36,7 +37,9 @@ func DruidHTTPEndpoint(gauge *prometheus.GaugeVec) http.HandlerFunc {
 				gauge.With(prometheus.Labels{
 					"metric_name": strings.Replace(data.Metric, "/", "-", 3),
 					"service":     strings.Replace(data.Service, "/", "-", 3),
-					"host":        data.Host}).Set(data.Value)
+					"host":        data.Host,
+					"datasource":  data.DataSource,
+				}).Set(data.Value)
 			}
 			level.Info(druidLogger).Log("msg", "Successfully recieved data from druid emitter")
 		}

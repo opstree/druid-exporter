@@ -1,6 +1,8 @@
 <p align="left">
-  <img src="./static/druid-exporter-logo.svg">
+  <img src="./static/druid-exporter-logo.svg" height="160" width="160">
 </p>
+
+## Druid Exporter
 
 [![CircleCI](https://circleci.com/gh/opstree/druid-exporter.svg?style=shield)](https://circleci.com/gh/opstree/druid-exporter)
 [![Go Report Card](https://goreportcard.com/badge/github.com/opstree/druid-exporter)](https://goreportcard.com/report/github.com/opstree/druid-exporter)
@@ -8,15 +10,9 @@
 [![Docker Repository on Quay](https://img.shields.io/badge/container-ready-green "Docker Repository on Quay")](https://quay.io/repository/opstree/redis-operator)
 [![Apache License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](LICENSE)
 
-# Druid Exporter
-
-A Golang based exporter captures druid API related metrics and receives druid-emitting HTTP JSON data.
+A Golang based exporter captures druid API related metrics and receives druid-emitting HTTP JSON data and converts it into the Prometheus time series format.
 
 [Grafana Dashboard](https://grafana.com/grafana/dashboards/12155)
-
-<p align="center">
-  <img src="./static/grafana-screenshot.svg">
-</p>
 
 ## Purpose
 
@@ -135,12 +131,17 @@ kubectl apply -f manifests/deployment.yaml -n my_awesome_druid_namespace
 kubectl apply -f manifests/service.yaml -n my_awesome_druid_namespace
 ```
 
+## Dashboard Screenshot
+
+<p align="center">
+  <img src="./static/grafana-screenshot.svg">
+</p>
+
 ## Roadmap
 
 - [ ] Add docker compose setup for druid and druid exporter
 - [ ] Unit test cases should be in place
 - [ ] Integration test cases should be in place
-- [ ] Create a logo for the exporter
 
 ## Development
 
