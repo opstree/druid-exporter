@@ -121,7 +121,7 @@ func CollectTaskMetrics(gauge *prometheus.GaugeVec) {
 		value, err := strconv.ParseFloat(fmt.Sprintf("%v", data["duration"]), 64)
 
 		if err != nil {
-			level.Error(druidLogger).Log("msg", "Unable to parse the duration value", "err", err)
+			level.Debug(druidLogger).Log("msg", "Unable to parse the duration value", "err", err)
 		}
 		gauge.With(prometheus.Labels{
 			"datasource_name": fmt.Sprintf("%v", data["dataSource"]),
