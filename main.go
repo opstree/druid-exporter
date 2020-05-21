@@ -21,21 +21,12 @@ var (
 			Help: "Druid emitted metrics from druid emitter",
 		}, []string{"metric_name", "service", "host", "datasource"},
 	)
-	druidTasks = prometheus.NewGaugeVec(
-		prometheus.GaugeOpts{
-			Name: "druid_tasks_duration",
-			Help: "Druid tasks data information",
-		},
-		[]string{"datasource_name", "group_id", "task_status", "created_time"},
-	)
 )
 
 func init() {
 	getDruidAPIdata := collector.Collector()
 	prometheus.MustRegister(getDruidAPIdata)
 	prometheus.MustRegister(druidEmittedData)
-	prometheus.MustRegister(druidTasks)
-	collector.CollectTaskMetrics(druidTasks)
 }
 
 func main() {

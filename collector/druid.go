@@ -59,7 +59,7 @@ func GetDruidTasksData(pathURL string) TasksInterface {
 	if err != nil {
 		level.Error(druidLogger).Log("msg", "Cannot retrieve data for druid's supervisors tasks", "err", err)
 	}
-	level.Info(druidLogger).Log("msg", "Successfully retrieved the data for druid's supervisors tasks")
+	level.Info(druidLogger).Log("msg", "Successfully retrieved the data for druid's tasks")
 	var metric TasksInterface
 	json.Unmarshal(responseData, &metric)
 	return metric
@@ -72,6 +72,7 @@ func (collector *MetricCollector) Describe(ch chan<- *prometheus.Desc) {
 	ch <- collector.DruidSupervisors
 	ch <- collector.DruidSegmentCount
 	ch <- collector.DruidSegmentSize
+	ch <- collector.DruidTasks
 	ch <- collector.DruidSegmentReplicateSize
 }
 
@@ -87,6 +88,10 @@ func Collector() *MetricCollector {
 		DataSourceCount: prometheus.NewDesc("druid_datasource",
 			"Datasources present",
 			[]string{"datasource"}, nil,
+		),
+		DruidTasks: prometheus.NewDesc("druid_tasks_duration",
+			"Druid tasks duration and state",
+			[]string{"datasource", "groupd_id", "task_status", "created_time"}, nil,
 		),
 		DruidSupervisors: prometheus.NewDesc("druid_supervisors",
 			"Druid supervisors status",
@@ -121,21 +126,15 @@ func (collector *MetricCollector) Collect(ch chan<- prometheus.Metric) {
 		ch <- prometheus.MustNewConstMetric(collector.DruidSegmentReplicateSize,
 			prometheus.GaugeValue, float64(data.Properties.Segments.ReplicatedSize), data.Name)
 	}
+
+	for _, data := range GetDruidTasksData(tasksURL) {
+		ch <- prometheus.MustNewConstMetric(collector.DruidTasks,
+			prometheus.GaugeValue, data.Duration, data.DataSource, data.GroupID, data.Status, data.CreatedTime)
+	}
+
 	for _, data := range GetDruidData(supervisorURL) {
 		ch <- prometheus.MustNewConstMetric(collector.DruidSupervisors,
 			prometheus.GaugeValue, float64(1), fmt.Sprintf("%v", data["id"]),
 			fmt.Sprintf("%v", data["healthy"]), fmt.Sprintf("%v", data["detailedState"]))
-	}
-}
-
-// CollectTaskMetrics will capture the druid tasks metrics
-func CollectTaskMetrics(gauge *prometheus.GaugeVec) {
-	for _, data := range GetDruidTasksData(tasksURL) {
-		gauge.With(prometheus.Labels{
-			"datasource_name": data.DataSource,
-			"group_id":        data.GroupID,
-			"task_status":     data.Status,
-			"created_time":    data.CreatedTime,
-		}).Set(data.Duration)
 	}
 }
