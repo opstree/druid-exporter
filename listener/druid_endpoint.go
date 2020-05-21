@@ -31,7 +31,7 @@ func DruidHTTPEndpoint(gauge *prometheus.GaugeVec) http.HandlerFunc {
 			jsonDecoder := json.NewDecoder(req.Body)
 			err := jsonDecoder.Decode(&druidData)
 			if err != nil {
-				level.Error(druidLogger).Log("msg", "Error in decoding JSON sent by druid", "err", err)
+				level.Debug(druidLogger).Log("msg", "Error in decoding JSON sent by druid", "err", err)
 			}
 			for _, data := range druidData {
 				gauge.With(prometheus.Labels{

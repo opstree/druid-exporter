@@ -55,5 +55,5 @@ func main() {
 			</html>`))
 	})
 	level.Info(druidLogger).Log("msg", "Druid exporter started listening on :"+*port)
-	level.Error(druidLogger).Log("msg", http.ListenAndServe(":"+*port, router))
+	level.Error(druidLogger).Log("msg", http.ListenAndServe("0.0.0.0:"+*port, router))
 }
