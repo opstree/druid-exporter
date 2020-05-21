@@ -8,7 +8,6 @@ import (
 	"github.com/go-kit/kit/log/level"
 	"github.com/prometheus/client_golang/prometheus"
 	"gopkg.in/alecthomas/kingpin.v2"
-	"strconv"
 )
 
 var (
@@ -48,6 +47,20 @@ func GetDruidData(pathURL string) []map[string]interface{} {
 	}
 	level.Info(druidLogger).Log("msg", "Successfully retrieved the data for druid's supervisors tasks")
 	var metric []map[string]interface{}
+	json.Unmarshal(responseData, &metric)
+	return metric
+}
+
+// GetDruidTasksData return all the tasks and its state
+func GetDruidTasksData(pathURL string) TasksInterface {
+	kingpin.Parse()
+	druidURL := *druid + pathURL
+	responseData, err := utils.GetResponse(druidURL, pathURL)
+	if err != nil {
+		level.Error(druidLogger).Log("msg", "Cannot retrieve data for druid's supervisors tasks", "err", err)
+	}
+	level.Info(druidLogger).Log("msg", "Successfully retrieved the data for druid's supervisors tasks")
+	var metric TasksInterface
 	json.Unmarshal(responseData, &metric)
 	return metric
 }
@@ -117,17 +130,12 @@ func (collector *MetricCollector) Collect(ch chan<- prometheus.Metric) {
 
 // CollectTaskMetrics will capture the druid tasks metrics
 func CollectTaskMetrics(gauge *prometheus.GaugeVec) {
-	for _, data := range GetDruidData(tasksURL) {
-		value, err := strconv.ParseFloat(fmt.Sprintf("%v", data["duration"]), 64)
-
-		if err != nil {
-			level.Debug(druidLogger).Log("msg", "Unable to parse the duration value", "err", err)
-		}
+	for _, data := range GetDruidTasksData(tasksURL) {
 		gauge.With(prometheus.Labels{
-			"datasource_name": fmt.Sprintf("%v", data["dataSource"]),
-			"group_id":        fmt.Sprintf("%v", data["groupId"]),
-			"task_status":     fmt.Sprintf("%v", data["status"]),
-			"created_time":    fmt.Sprintf("%v", data["createdTime"]),
-		}).Set(value)
+			"datasource_name": data.DataSource,
+			"group_id":        data.GroupID,
+			"task_status":     data.Status,
+			"created_time":    data.CreatedTime,
+		}).Set(data.Duration)
 	}
 }
