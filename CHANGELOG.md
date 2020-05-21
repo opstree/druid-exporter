@@ -1,3 +1,11 @@
+### v0.4
+##### May 21, 2020
+
+#### :tada: Features
+
+- Add datasource label in druid emitted metrics
+- Updated new logo
+
 ### v0.3
 ##### May 19, 2020
 
