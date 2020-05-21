@@ -43,3 +43,15 @@ type SegementInterface []struct {
 		} `json:"segments"`
 	} `json:"properties"`
 }
+
+// TasksInterface is the interface for parsing druid tasks data
+type TasksInterface []struct {
+	GroupID          string  `json:"groupId"`
+	Type             string  `json:"type"`
+	CreatedTime      string  `json:"createdTime"`
+	StatusCode       string  `json:"statusCode"`
+	Status           string  `json:"status"`
+	RunnerStatusCode string  `json:"runnerStatusCode"`
+	Duration         float64 `json:"duration"`
+	DataSource       string  `json:"dataSource"`
+}
