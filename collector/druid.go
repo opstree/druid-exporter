@@ -30,6 +30,7 @@ func GetDruidSegmentData() SegementInterface {
 	responseData, err := utils.GetResponse(druidSegmentURL, "Segment")
 	if err != nil {
 		level.Error(druidLogger).Log("msg", "Cannot retrieve data for druid segments", "err", err)
+		return nil
 	}
 	level.Info(druidLogger).Log("msg", "Successfully retrieved the data for druid segment")
 	var metric SegementInterface
@@ -44,6 +45,7 @@ func GetDruidData(pathURL string) []map[string]interface{} {
 	responseData, err := utils.GetResponse(druidURL, pathURL)
 	if err != nil {
 		level.Error(druidLogger).Log("msg", "Cannot retrieve data for druid's supervisors tasks", "err", err)
+		return nil
 	}
 	level.Info(druidLogger).Log("msg", "Successfully retrieved the data for druid's supervisors tasks")
 	var metric []map[string]interface{}
@@ -58,6 +60,7 @@ func GetDruidTasksData(pathURL string) TasksInterface {
 	responseData, err := utils.GetResponse(druidURL, pathURL)
 	if err != nil {
 		level.Error(druidLogger).Log("msg", "Cannot retrieve data for druid's supervisors tasks", "err", err)
+		return nil
 	}
 	level.Info(druidLogger).Log("msg", "Successfully retrieved the data for druid's tasks")
 	var metric TasksInterface
