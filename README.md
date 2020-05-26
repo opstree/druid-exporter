@@ -48,7 +48,7 @@ usage: druid-exporter [<flags>]
 Flags:
       --help         Show context-sensitive help (also try --help-long and --help-man).
   -d, --druid.uri="http://druid.opstreelabs.in"  
-                     URL of druid router or coordinator
+                     URL of any druid's service
       --debug        Enable debug mode.
   -p, --port="8080"  Port for druid exporter
       --version      Show application version.
@@ -57,7 +57,7 @@ Flags:
 | **Option** | **Default Value** | **Environment Variable** | **Description** |
 |------------|-------------------|--------------------------|-----------------|
 | --help | - | - | Show context-sensitive help (also try --help-long and --help-man) |
-| --druid.uri | http://druid.opstreelabs.in | DRUID_URL | URL of druid's coordinator service or router service |
+| --druid.uri | http://druid.opstreelabs.in | DRUID_URL | URL of any druid's service |
 | --debug | false | - | Enable to log into debug mode |
 | --port | 8080 | DRUID_EXPORTER_PORT | Listening port of the druid exporter |
 
