@@ -13,10 +13,12 @@ func GetHealth(url string) float64 {
 	req, err := http.NewRequest("GET", url, nil)
 	if err != nil {
 		level.Error(druidLogger).Log("msg", "Cannot create GET request for druid healthcheck", "err", err)
+		return 0
 	}
 	resp, err := http.DefaultClient.Do(req)
 	if err != nil {
 		level.Error(druidLogger).Log("msg", "Error while making GET request for druid healthcheck", "err", err)
+		return 0
 	}
 	level.Info(druidLogger).Log("msg", "GET request is successful on druid healthcheck", "url", url)
 	defer resp.Body.Close()
@@ -33,11 +35,13 @@ func GetResponse(url string, queryType string) ([]byte, error) {
 	req, err := http.NewRequest("GET", url, nil)
 	if err != nil {
 		level.Error(druidLogger).Log("msg", "Cannot create http request", "err", err)
+		return nil, err
 	}
 
 	resp, err := http.DefaultClient.Do(req)
 	if err != nil {
 		level.Error(druidLogger).Log("msg", "Error while making http request", "err", err)
+		return nil, err
 	}
 
 	defer resp.Body.Close()
