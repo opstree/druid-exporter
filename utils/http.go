@@ -1,26 +1,24 @@
 package utils
 
 import (
-	"druid-exporter/logger"
-	"github.com/go-kit/kit/log/level"
+	"github.com/sirupsen/logrus"
 	"io/ioutil"
 	"net/http"
 )
 
 // GetHealth returns that druid is healthy or not
 func GetHealth(url string) float64 {
-	druidLogger := logger.GetLoggerInterface()
 	req, err := http.NewRequest("GET", url, nil)
 	if err != nil {
-		level.Error(druidLogger).Log("msg", "Cannot create GET request for druid healthcheck", "err", err)
+		logrus.Errorf("Cannot create GET request for druid healthcheck: %v", err)
 		return 0
 	}
 	resp, err := http.DefaultClient.Do(req)
 	if err != nil {
-		level.Error(druidLogger).Log("msg", "Error while making GET request for druid healthcheck", "err", err)
+		logrus.Errorf("Error on GET request for druid healthcheck: %v", err)
 		return 0
 	}
-	level.Info(druidLogger).Log("msg", "GET request is successful on druid healthcheck", "url", url)
+	logrus.Debugf("Successful healthcheck request for druid - %v", url)
 	defer resp.Body.Close()
 	if resp.StatusCode == 200 {
 		return 1
@@ -31,21 +29,20 @@ func GetHealth(url string) float64 {
 
 // GetResponse will return API response for druid
 func GetResponse(url string, queryType string) ([]byte, error) {
-	druidLogger := logger.GetLoggerInterface()
 	req, err := http.NewRequest("GET", url, nil)
 	if err != nil {
-		level.Error(druidLogger).Log("msg", "Cannot create http request", "err", err)
+		logrus.Errorf("Cannot create http request: %v", err)
 		return nil, err
 	}
 
 	resp, err := http.DefaultClient.Do(req)
 	if err != nil {
-		level.Error(druidLogger).Log("msg", "Error while making http request", "err", err)
+		logrus.Errorf("Error on making http request for druid: %v", err)
 		return nil, err
 	}
 
 	defer resp.Body.Close()
-	level.Info(druidLogger).Log("msg", "GET request is successful for druid api", "url", url)
+	logrus.Errorf("Successful GET request on Druid API - %v", url)
 
 	return ioutil.ReadAll(resp.Body)
 }
