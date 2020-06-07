@@ -48,11 +48,11 @@ usage: druid-exporter [<flags>]
 
 Flags:
       --help               Show context-sensitive help (also try --help-long and --help-man).
-      --druid.user=""      HTTP basic auth username. (Only if it is set)
+      --druid.user=""      HTTP basic auth username. (When basic auth is set)
       --druid.password=""  HTTP basic auth password. (Only if it is set)
       --cert=""            A pem encoded certificate file. (Only if tls is configured)
       --key=""             A pem encoded key file. (Only if tls is configured)
-      --ca=""              A pem encoded CA's certificate file. (Only if tls is configured)
+      --ca=""              A pem encoded CA certificate file. (Only if tls is configured)
   -d, --druid.uri="http://druid.opstreelabs.in"  
                            URL of druid router or coordinator
   -p, --port="8080"        Port to listen druid exporter. (Default - 8080)
@@ -60,13 +60,6 @@ Flags:
   -f, --log.format="text"  Log format for druid exporter, text or json. (Default: text)
       --version            Show application version.
 ```
-
-| **Option** | **Default Value** | **Environment Variable** | **Description** |
-|------------|-------------------|--------------------------|-----------------|
-| --help | - | - | Show context-sensitive help (also try --help-long and --help-man) |
-| --druid.uri | http://druid.opstreelabs.in | DRUID_URL | URL of druid's coordinator service or router service |
-| --debug | false | - | Enable to log into debug mode |
-| --port | 8080 | DRUID_EXPORTER_PORT | Listening port of the druid exporter |
 
 ## Druid Configuration Changes
 
