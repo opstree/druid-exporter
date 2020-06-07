@@ -18,6 +18,12 @@ Some of the metrics collections are:-
 
 [Grafana Dashboard](https://grafana.com/grafana/dashboards/12155)
 
+## Architecture
+
+<div align="center">
+    <img src="./static/architecture.png">
+</div>
+
 ## Purpose
 
 The aim of creating this druid exporter was to capture all of the metrics that druid exposes or emits. [JMX Exporter](https://github.com/prometheus/jmx_exporter) can be used to obtain JVM based metrics.
