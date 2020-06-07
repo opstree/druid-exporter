@@ -1,7 +1,3 @@
-<p align="left">
-  <img src="./static/druid-exporter-logo.svg" height="160" width="160">
-</p>
-
 ## Druid Exporter
 
 [![CircleCI](https://circleci.com/gh/opstree/druid-exporter.svg?style=shield)](https://circleci.com/gh/opstree/druid-exporter)
@@ -46,12 +42,18 @@ $ ./druid-exporter --help
 usage: druid-exporter [<flags>]
 
 Flags:
-      --help         Show context-sensitive help (also try --help-long and --help-man).
+      --help               Show context-sensitive help (also try --help-long and --help-man).
+      --druid.user=""      HTTP basic auth username. (Only if it is set)
+      --druid.password=""  HTTP basic auth password. (Only if it is set)
+      --cert=""            A pem encoded certificate file. (Only if tls is configured)
+      --key=""             A pem encoded key file. (Only if tls is configured)
+      --ca=""              A pem encoded CA's certificate file. (Only if tls is configured)
   -d, --druid.uri="http://druid.opstreelabs.in"  
-                     URL of druid router or coordinator
-      --debug        Enable debug mode.
-  -p, --port="8080"  Port for druid exporter
-      --version      Show application version.
+                           URL of druid router or coordinator
+  -p, --port="8080"        Port to listen druid exporter. (Default - 8080)
+  -l, --log.level="info"   Log level for druid exporter. (Default: info)
+  -f, --log.format="text"  Log format for druid exporter, text or json. (Default: text)
+      --version            Show application version.
 ```
 
 | **Option** | **Default Value** | **Environment Variable** | **Description** |

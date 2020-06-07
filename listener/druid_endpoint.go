@@ -30,6 +30,7 @@ func DruidHTTPEndpoint(gauge *prometheus.GaugeVec) http.HandlerFunc {
 			err := jsonDecoder.Decode(&druidData)
 			if err != nil {
 				logrus.Debugf("Error decoding JSON sent by druid: %v", err)
+				logrus.Debugf("%v", druidData)
 			}
 			for _, data := range druidData {
 				gauge.With(prometheus.Labels{
@@ -39,7 +40,7 @@ func DruidHTTPEndpoint(gauge *prometheus.GaugeVec) http.HandlerFunc {
 					"datasource":  data.DataSource,
 				}).Set(data.Value)
 			}
-			logrus.Debugf("Successfully recieved data from druid emitter")
+			logrus.Debugf("Successfully collected data from druid emitter")
 		}
 	})
 }
