@@ -145,6 +145,7 @@ kubectl apply -f manifests/service.yaml -n my_awesome_druid_namespace
 - [X] Add basic auth support
 - [X] Add TLS support
 - [ ] Add helm chart for kubernetes deployment
+- [ ] Create a new grafana dashboard with better insights
 
 ## Development
 
