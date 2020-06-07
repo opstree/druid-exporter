@@ -1,10 +1,14 @@
-# Druid Exporter
+<p align="left">
+  <img src="./static/druid-exporter-logo.svg" height="180" width="180">
+</p>
 
 [![CircleCI](https://circleci.com/gh/opstree/druid-exporter.svg?style=shield)](https://circleci.com/gh/opstree/druid-exporter)
 [![Go Report Card](https://goreportcard.com/badge/github.com/opstree/druid-exporter)](https://goreportcard.com/report/github.com/opstree/druid-exporter)
 [![Maintainability](https://api.codeclimate.com/v1/badges/f3d9db298411361ca84a/maintainability)](https://codeclimate.com/github/opstree/druid-exporter/maintainability)
 [![Docker Repository on Quay](https://img.shields.io/badge/container-ready-green "Docker Repository on Quay")](https://quay.io/repository/opstree/redis-operator)
 [![Apache License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](LICENSE)
+
+# Druid Exporter
 
 A Golang based exporter captures druid API metrics as well as JSON emitted metrics and convert them into Prometheus time-series format.
 
