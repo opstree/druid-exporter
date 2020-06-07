@@ -1,0 +1,13 @@
+---
+name: druid-exporter
+image:
+  name: quay.io/opstree/druid-exporter
+  tag: v0.5
+  pullPolicy: "IfNotPresent"
+druidExporterPort: "8080"
+druidURL: "http://druid.opstreelabs.in"
+logLevel: "info"
+logFormat: "text"
+serviceMonitor:
+  enabled: false
+  namespace: monitoring
