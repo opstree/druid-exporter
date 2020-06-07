@@ -1,4 +1,4 @@
-## Druid Exporter
+# Druid Exporter
 
 [![CircleCI](https://circleci.com/gh/opstree/druid-exporter.svg?style=shield)](https://circleci.com/gh/opstree/druid-exporter)
 [![Go Report Card](https://goreportcard.com/badge/github.com/opstree/druid-exporter)](https://goreportcard.com/report/github.com/opstree/druid-exporter)
@@ -6,7 +6,15 @@
 [![Docker Repository on Quay](https://img.shields.io/badge/container-ready-green "Docker Repository on Quay")](https://quay.io/repository/opstree/redis-operator)
 [![Apache License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](LICENSE)
 
-A Golang based exporter captures druid API related metrics and receives druid-emitting HTTP JSON data and converts it into the Prometheus time series format.
+A Golang based exporter captures druid API metrics as well as JSON emitted metrics and convert them into Prometheus time-series format.
+
+Some of the metrics collections are:-
+- Druid's health metrics
+- Druid's datasource metrics
+- Druid's segment metrics
+- Druid's supervisor metrics
+- Druid's tasks metrics
+- Druid's components metrics like:- broker, historical, ingestion(kafka), coordinator, sys
 
 [Grafana Dashboard](https://grafana.com/grafana/dashboards/12155)
 
@@ -16,22 +24,13 @@ The aim of creating this druid exporter was to capture all of the metrics that d
 
 You can find examples of JMX exporter metrics [here](https://gist.github.com/iamabhishek-dubey/5ef19d3db9deb25475a80c9ff5c79262)
 
-## Features
+## Supported Features
 
 - Configuration values with flags and environment variables
-- JSON centered logging system
-- Druid API based metrics
-  - Health Status
-  - Datasource
-  - Segments
-  - Supervisors
-  - Tasks
-- Druid HTTP Emitted metrics
-  - Broker
-  - Historical
-  - Ingestion(Kafka)
-  - Coordination
-  - Sys
+- HTTP basic auth username and password support
+- HTTP TLS support for collecting druid API metrics
+- Log level and format control via flags and env variables
+- API based metrics and emitted metrics of Druid
 
 ## Available Options or Flags
 
