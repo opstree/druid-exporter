@@ -1,0 +1,22 @@
+{{- if .Values.serviceMonitor.enabled -}}
+---
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  labels:
+    app: prometheus-operator-{{ .Values.name }}
+  name: prom-prometheus-operator-{{ .Values.name }}
+  namespace: {{ .Values.serviceMonitor.namespace }}
+spec:
+  endpoints:
+  - interval: 60s
+    path: /metrics
+    port: metrics
+    scrapeTimeout: 60s
+  namespaceSelector:
+    matchNames:
+    - {{ .Release.namespace }}
+  selector:
+    matchLabels:
+      druid: metrics
+{{- end -}}

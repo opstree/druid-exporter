@@ -1,0 +1,35 @@
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ .Values.name }}
+spec:
+  selector:
+    matchLabels:
+      druid: metrics
+  strategy:
+    rollingUpdate:
+      maxSurge: 25%
+      maxUnavailable: 25%
+    type: RollingUpdate
+  template:
+    metadata:
+      labels:
+        druid: metrics
+    spec:
+      containers:
+      - env:
+        - name: DRUID_URL
+          value: {{ .Values.druidURL }}
+        - name: DRUID_EXPORTER_PORT
+          value: {{ .Values.druidExporterPort }}
+        - name: LOG_LEVEL
+          value: {{ .Values.logLevel }}
+        - name: LOG_FORMAT
+          value: {{ .Values.logFormat }}
+        image: quay.io/opstree/druid-exporter:v0.3
+        imagePullPolicy: {{ .Values.image.pullPolicy }}
+        name: {{ .Values.name }}
+        ports:
+        - containerPort: {{ .Values.druidExporterPort }}
+          protocol: TCP

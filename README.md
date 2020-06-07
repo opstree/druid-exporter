@@ -137,6 +137,17 @@ kubectl apply -f manifests/deployment.yaml -n my_awesome_druid_namespace
 kubectl apply -f manifests/service.yaml -n my_awesome_druid_namespace
 ```
 
+We recommend to use helm chart for Kubernetes deployment.
+
+```shell
+# Helm chart deployment
+helm upgrade druid-exporter ./helm/ --install --namespace monitoring \
+--set druidURL="http://druid.opstreelabs.in" \
+--set druidExporterPort="8080" \
+--set logLevel="info" --set logFormat="text" \
+--set serviceMonitor.enabled=true --serviceMonitor.namespace=monitoring
+```
+
 ## Dashboard Screenshot
 
 <p align="center">
@@ -150,7 +161,7 @@ kubectl apply -f manifests/service.yaml -n my_awesome_druid_namespace
 - [ ] Integration test cases should be in place
 - [X] Add basic auth support
 - [X] Add TLS support
-- [ ] Add helm chart for kubernetes deployment
+- [X] Add helm chart for kubernetes deployment
 - [ ] Create a new grafana dashboard with better insights
 
 ## Development
