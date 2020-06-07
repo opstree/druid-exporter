@@ -1,8 +1,4 @@
-<p align="left">
-  <img src="./static/druid-exporter-logo.svg" height="160" width="160">
-</p>
-
-## Druid Exporter
+# Druid Exporter
 
 [![CircleCI](https://circleci.com/gh/opstree/druid-exporter.svg?style=shield)](https://circleci.com/gh/opstree/druid-exporter)
 [![Go Report Card](https://goreportcard.com/badge/github.com/opstree/druid-exporter)](https://goreportcard.com/report/github.com/opstree/druid-exporter)
@@ -10,9 +6,25 @@
 [![Docker Repository on Quay](https://img.shields.io/badge/container-ready-green "Docker Repository on Quay")](https://quay.io/repository/opstree/redis-operator)
 [![Apache License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](LICENSE)
 
-A Golang based exporter captures druid API related metrics and receives druid-emitting HTTP JSON data and converts it into the Prometheus time series format.
+A Golang based exporter captures druid API metrics as well as JSON emitted metrics and convert them into Prometheus time-series format.
+
+Some of the metrics collections are:-
+- Druid's health metrics
+- Druid's datasource metrics
+- Druid's segment metrics
+- Druid's supervisor metrics
+- Druid's tasks metrics
+- Druid's components metrics like:- broker, historical, ingestion(kafka), coordinator, sys
+
+and many more...
 
 [Grafana Dashboard](https://grafana.com/grafana/dashboards/12155)
+
+## Architecture
+
+<div align="center">
+    <img src="./static/architecture.png">
+</div>
 
 ## Purpose
 
@@ -20,22 +32,13 @@ The aim of creating this druid exporter was to capture all of the metrics that d
 
 You can find examples of JMX exporter metrics [here](https://gist.github.com/iamabhishek-dubey/5ef19d3db9deb25475a80c9ff5c79262)
 
-## Features
+## Supported Features
 
 - Configuration values with flags and environment variables
-- JSON centered logging system
-- Druid API based metrics
-  - Health Status
-  - Datasource
-  - Segments
-  - Supervisors
-  - Tasks
-- Druid HTTP Emitted metrics
-  - Broker
-  - Historical
-  - Ingestion(Kafka)
-  - Coordination
-  - Sys
+- HTTP basic auth username and password support
+- HTTP TLS support for collecting druid API metrics
+- Log level and format control via flags and env variables
+- API based metrics and emitted metrics of Druid
 
 ## Available Options or Flags
 
@@ -46,20 +49,19 @@ $ ./druid-exporter --help
 usage: druid-exporter [<flags>]
 
 Flags:
-      --help         Show context-sensitive help (also try --help-long and --help-man).
+      --help               Show context-sensitive help (also try --help-long and --help-man).
+      --druid.user=""      HTTP basic auth username. (When basic auth is set)
+      --druid.password=""  HTTP basic auth password. (Only if it is set)
+      --cert=""            A pem encoded certificate file. (Only if tls is configured)
+      --key=""             A pem encoded key file. (Only if tls is configured)
+      --ca=""              A pem encoded CA certificate file. (Only if tls is configured)
   -d, --druid.uri="http://druid.opstreelabs.in"  
-                     URL of druid router or coordinator
-      --debug        Enable debug mode.
-  -p, --port="8080"  Port for druid exporter
-      --version      Show application version.
+                           URL of druid router or coordinator
+  -p, --port="8080"        Port to listen druid exporter. (Default - 8080)
+  -l, --log.level="info"   Log level for druid exporter. (Default: info)
+  -f, --log.format="text"  Log format for druid exporter, text or json. (Default: text)
+      --version            Show application version.
 ```
-
-| **Option** | **Default Value** | **Environment Variable** | **Description** |
-|------------|-------------------|--------------------------|-----------------|
-| --help | - | - | Show context-sensitive help (also try --help-long and --help-man) |
-| --druid.uri | http://druid.opstreelabs.in | DRUID_URL | URL of druid's coordinator service or router service |
-| --debug | false | - | Enable to log into debug mode |
-| --port | 8080 | DRUID_EXPORTER_PORT | Listening port of the druid exporter |
 
 ## Druid Configuration Changes
 
@@ -79,7 +81,7 @@ druid_emitter_http_recipientBaseUrl=http://<druid_exporter_url>:<druid_exporter_
 druid_emitter=http
 ```
 
-## Installing
+## Installation
 
 Druid exporter can be download from [release](https://github.com/opstree/druid-exporter/releases)
 
@@ -93,7 +95,7 @@ export DRUID_EXPORTER_PORT="8080"
 ./druid-exporter [<flags>]
 ```
 
-## Building From Source
+### Building From Source
 
 Requires 1.13 => go version to compile code from source.
 
@@ -101,7 +103,7 @@ Requires 1.13 => go version to compile code from source.
 make build-code
 ```
 
-## Building Docker Image
+### Building Docker Image
 
 This druid exporter has support for docker as well. The docker image can simply built by
 
@@ -117,7 +119,7 @@ docker run -itd --name druid-exporter -e DRUID_URL="http://druid.opstreelabs.in"
 quay.io/opstree/druid-exporter:latest
 ```
 
-## Kubernetes Deployment
+### Kubernetes Deployment
 
 The Kubernetes deployment and service manifests are present under the **[manifests](./manifets)** directory and you can deploy it on Kubernetes from there.
 
@@ -142,6 +144,10 @@ kubectl apply -f manifests/service.yaml -n my_awesome_druid_namespace
 - [ ] Add docker compose setup for druid and druid exporter
 - [ ] Unit test cases should be in place
 - [ ] Integration test cases should be in place
+- [X] Add basic auth support
+- [X] Add TLS support
+- [ ] Add helm chart for kubernetes deployment
+- [ ] Create a new grafana dashboard with better insights
 
 ## Development
 

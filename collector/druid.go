@@ -1,25 +1,23 @@
 package collector
 
 import (
-	"druid-exporter/logger"
 	"druid-exporter/utils"
 	"encoding/json"
 	"fmt"
-	"github.com/go-kit/kit/log/level"
 	"github.com/prometheus/client_golang/prometheus"
+	"github.com/sirupsen/logrus"
 	"gopkg.in/alecthomas/kingpin.v2"
 )
 
 var (
-	druid       = kingpin.Flag("druid.uri", "URL of druid router or coordinator").Default("http://druid.opstreelabs.in").OverrideDefaultFromEnvar("DRUID_URL").Short('d').String()
-	druidLogger = logger.GetLoggerInterface()
+	druid = kingpin.Flag("druid.uri", "URL of druid router or coordinator").Default("http://druid.opstreelabs.in").OverrideDefaultFromEnvar("DRUID_URL").Short('d').String()
 )
 
 // GetDruidHealthMetrics returns the set of metrics for druid
 func GetDruidHealthMetrics() float64 {
 	kingpin.Parse()
 	druidHealthURL := *druid + healthURL
-	level.Info(druidLogger).Log("msg", "Successfully retrieved the data for druid healthcheck")
+	logrus.Debugf("Successfully collected the data for druid healthcheck")
 	return utils.GetHealth(druidHealthURL)
 }
 
@@ -29,10 +27,10 @@ func GetDruidSegmentData() SegementInterface {
 	druidSegmentURL := *druid + segmentDataURL
 	responseData, err := utils.GetResponse(druidSegmentURL, "Segment")
 	if err != nil {
-		level.Error(druidLogger).Log("msg", "Cannot retrieve data for druid segments", "err", err)
+		logrus.Errorf("Cannot collect data for druid segments: %v", err)
 		return nil
 	}
-	level.Info(druidLogger).Log("msg", "Successfully retrieved the data for druid segment")
+	logrus.Debugf("Successfully collected the data for druid segment")
 	var metric SegementInterface
 	json.Unmarshal(responseData, &metric)
 	return metric
@@ -44,10 +42,10 @@ func GetDruidData(pathURL string) []map[string]interface{} {
 	druidURL := *druid + pathURL
 	responseData, err := utils.GetResponse(druidURL, pathURL)
 	if err != nil {
-		level.Error(druidLogger).Log("msg", "Cannot retrieve data for druid's supervisors tasks", "err", err)
+		logrus.Errorf("Cannot collect data for druid's supervisors: %v", err)
 		return nil
 	}
-	level.Info(druidLogger).Log("msg", "Successfully retrieved the data for druid's supervisors tasks")
+	logrus.Debugf("Successfully collected the data for druid's supervisors")
 	var metric []map[string]interface{}
 	json.Unmarshal(responseData, &metric)
 	return metric
@@ -59,10 +57,10 @@ func GetDruidTasksData(pathURL string) TasksInterface {
 	druidURL := *druid + pathURL
 	responseData, err := utils.GetResponse(druidURL, pathURL)
 	if err != nil {
-		level.Error(druidLogger).Log("msg", "Cannot retrieve data for druid's supervisors tasks", "err", err)
+		logrus.Errorf("Cannot retrieve data for druid's tasks: %v", err)
 		return nil
 	}
-	level.Info(druidLogger).Log("msg", "Successfully retrieved the data for druid's tasks")
+	logrus.Debugf("Successfully retrieved the data for druid's tasks")
 	var metric TasksInterface
 	json.Unmarshal(responseData, &metric)
 	return metric

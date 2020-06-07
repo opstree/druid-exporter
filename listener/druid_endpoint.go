@@ -1,10 +1,9 @@
 package listener
 
 import (
-	"druid-exporter/logger"
 	"encoding/json"
-	"github.com/go-kit/kit/log/level"
 	"github.com/prometheus/client_golang/prometheus"
+	"github.com/sirupsen/logrus"
 	"net/http"
 	"strings"
 	"time"
@@ -25,13 +24,13 @@ type DruidEmittedData struct {
 // DruidHTTPEndpoint is the endpoint to listen all druid metrics
 func DruidHTTPEndpoint(gauge *prometheus.GaugeVec) http.HandlerFunc {
 	return http.HandlerFunc(func(w http.ResponseWriter, req *http.Request) {
-		druidLogger := logger.GetLoggerInterface()
 		var druidData []DruidEmittedData
 		if req.Method == "POST" {
 			jsonDecoder := json.NewDecoder(req.Body)
 			err := jsonDecoder.Decode(&druidData)
 			if err != nil {
-				level.Debug(druidLogger).Log("msg", "Error in decoding JSON sent by druid", "err", err)
+				logrus.Debugf("Error decoding JSON sent by druid: %v", err)
+				logrus.Debugf("%v", druidData)
 			}
 			for _, data := range druidData {
 				gauge.With(prometheus.Labels{
@@ -41,7 +40,7 @@ func DruidHTTPEndpoint(gauge *prometheus.GaugeVec) http.HandlerFunc {
 					"datasource":  data.DataSource,
 				}).Set(data.Value)
 			}
-			level.Info(druidLogger).Log("msg", "Successfully recieved data from druid emitter")
+			logrus.Debugf("Successfully collected data from druid emitter")
 		}
 	})
 }
