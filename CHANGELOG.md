@@ -8,7 +8,7 @@
 - Revamped README with useful information
 - Added log format and log level support
 
-#### :tada: Bug Fixes
+#### :beetle: Bug Fixes
 
 - Fixed exporter panic issue in case druid url is not available
 
@@ -23,14 +23,14 @@
 ### v0.3
 ##### May 19, 2020
 
-#### :tada: Bug Fixes
-
-- Fixed duplicate values error
-- Replaced int with float as some of the druid emitted values are float
-
 #### :tada: Features
 
 - Added version flag to determine version
+
+#### :beetle: Bug Fixes
+
+- Fixed duplicate values error
+- Replaced int with float as some of the druid emitted values are float
 
 ### v0.2
 ##### May 3, 2020
