@@ -79,7 +79,7 @@ druid_emitter_http_recipientBaseUrl=http://<druid_exporter_url>:<druid_exporter_
 druid_emitter=http
 ```
 
-## Installing
+## Installation
 
 Druid exporter can be download from [release](https://github.com/opstree/druid-exporter/releases)
 
@@ -93,7 +93,7 @@ export DRUID_EXPORTER_PORT="8080"
 ./druid-exporter [<flags>]
 ```
 
-## Building From Source
+### Building From Source
 
 Requires 1.13 => go version to compile code from source.
 
@@ -101,7 +101,7 @@ Requires 1.13 => go version to compile code from source.
 make build-code
 ```
 
-## Building Docker Image
+### Building Docker Image
 
 This druid exporter has support for docker as well. The docker image can simply built by
 
@@ -117,7 +117,7 @@ docker run -itd --name druid-exporter -e DRUID_URL="http://druid.opstreelabs.in"
 quay.io/opstree/druid-exporter:latest
 ```
 
-## Kubernetes Deployment
+### Kubernetes Deployment
 
 The Kubernetes deployment and service manifests are present under the **[manifests](./manifets)** directory and you can deploy it on Kubernetes from there.
 
@@ -142,6 +142,9 @@ kubectl apply -f manifests/service.yaml -n my_awesome_druid_namespace
 - [ ] Add docker compose setup for druid and druid exporter
 - [ ] Unit test cases should be in place
 - [ ] Integration test cases should be in place
+- [X] Add basic auth support
+- [X] Add TLS support
+- [ ] Add helm chart for kubernetes deployment
 
 ## Development
 
