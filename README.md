@@ -16,6 +16,8 @@ Some of the metrics collections are:-
 - Druid's tasks metrics
 - Druid's components metrics like:- broker, historical, ingestion(kafka), coordinator, sys
 
+and many more...
+
 [Grafana Dashboard](https://grafana.com/grafana/dashboards/12155)
 
 ## Architecture
