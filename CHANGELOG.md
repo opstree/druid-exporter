@@ -1,3 +1,17 @@
+### v0.5
+##### June 7, 2020
+
+#### :tada: Features
+
+- Added HTTP basic auth support
+- Added HTTP TLS support
+- Revamped README with useful information
+- Added log format and log level support
+
+#### :tada: Bug Fixes
+
+- Fixed exporter panic issue in case druid url is not available
+
 ### v0.4
 ##### May 21, 2020
 
