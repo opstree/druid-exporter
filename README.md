@@ -141,11 +141,11 @@ We recommend to use helm chart for Kubernetes deployment.
 
 ```shell
 # Helm chart deployment
-helm upgrade druid-exporter ./helm/ --install --namespace monitoring \
+helm upgrade druid-exporter ./helm/ --install --namespace druid \
 --set druidURL="http://druid.opstreelabs.in" \
 --set druidExporterPort="8080" \
 --set logLevel="info" --set logFormat="text" \
---set serviceMonitor.enabled=true --serviceMonitor.namespace=monitoring
+--set serviceMonitor.enabled=true --serviceMonitor.namespace="monitoring"
 ```
 
 ## Dashboard Screenshot
