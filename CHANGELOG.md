@@ -1,3 +1,14 @@
+### v0.6
+##### June 11, 2020
+
+#### :tada: Features
+
+- Added TLS verify skip support flag
+
+#### :beetle: Bug Fixes
+
+- Bad username and password error statement for authentication request failure
+
 ### v0.5
 ##### June 7, 2020
 
