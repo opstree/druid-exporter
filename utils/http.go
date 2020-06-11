@@ -89,6 +89,7 @@ func generateTLSConfig() (*http.Client, error) {
 	kingpin.Parse()
 
 	if *certFile != "" && *keyFile != "" && *caFile != "" {
+	  // mutual TLS, verify server and client
 		cert, err := tls.LoadX509KeyPair(*certFile, *keyFile)
 		if err != nil {
 			logrus.Errorf("Unable to load certificate file: %v", err)
@@ -109,16 +110,34 @@ func generateTLSConfig() (*http.Client, error) {
 		transport := &http.Transport{TLSClientConfig: tlsConfig}
 		client := &http.Client{Transport: transport}
 		return client, nil
-	}
-
+	}  
+	if *caFile != "" {
+	  // TLS, verify server
+		caCert, err := ioutil.ReadFile(*caFile)
+		if err != nil {
+			logrus.Errorf("Unable to load CA's certificate file: %v", err)
+			return nil, err
+		}
+		caCertPool := x509.NewCertPool()
+		caCertPool.AppendCertsFromPEM(caCert)
+			tlsConfig := &tls.Config{
+			RootCAs: caCertPool,
+		}
+		tlsConfig.BuildNameToCertificate()
+		transport := &http.Transport{TLSClientConfig: tlsConfig}
+		client := &http.Client{Transport: transport}
+		return client, nil
+	} 
 	if *insecureTLS == true {
+	  // TLS, no server verification
 		tlsConfig := &tls.Config{
 			InsecureSkipVerify: true,
 		}
 		transport := &http.Transport{TLSClientConfig: tlsConfig}
 		client := &http.Client{Transport: transport}
 		return client, nil
-	}
+	} 
+	// http, no TLS
 	client := &http.Client{}
 	return client, nil
 }

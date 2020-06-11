@@ -10,4 +10,5 @@ MAINTAINER OpsTree Solutions
 WORKDIR /app
 RUN apk add --no-cache libc6-compat
 COPY --from=builder /go/src/druid-exporter/druid-exporter /app/
+COPY --from=builder /go/src/druid-exporter/* /app/
 ENTRYPOINT ["./druid-exporter"]
