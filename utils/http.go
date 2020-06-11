@@ -10,11 +10,12 @@ import (
 )
 
 var (
-	user     = kingpin.Flag("druid.user", "HTTP basic auth username. (Only if it is set)").Default("").OverrideDefaultFromEnvar("DRUID_USER").String()
-	password = kingpin.Flag("druid.password", "HTTP basic auth password. (Only if it is set)").Default("").OverrideDefaultFromEnvar("DRUID_PASSWORD").String()
-	certFile = kingpin.Flag("cert", "A pem encoded certificate file. (Only if tls is configured)").Default("").OverrideDefaultFromEnvar("CERT_FILE").String()
-	keyFile  = kingpin.Flag("key", "A pem encoded key file. (Only if tls is configured)").Default("").OverrideDefaultFromEnvar("CERT_KEY").String()
-	caFile   = kingpin.Flag("ca", "A pem encoded CA's certificate file. (Only if tls is configured)").Default("").OverrideDefaultFromEnvar("CA_CERT_FILE").String()
+	user        = kingpin.Flag("druid.user", "HTTP basic auth username, EnvVar - DRUID_USER. (Only if it is set)").Default("").OverrideDefaultFromEnvar("DRUID_USER").String()
+	password    = kingpin.Flag("druid.password", "HTTP basic auth password, EnvVar - DRUID_PASSWORD. (Only if it is set)").Default("").OverrideDefaultFromEnvar("DRUID_PASSWORD").String()
+	insecureTLS = kingpin.Flag("insecure.tls.verify", "Boolean flag to skip TLS verification, EnvVar - INSECURE_TLS_VERIFY.").OverrideDefaultFromEnvar("INSECURE_TLS_VERIFY").Bool()
+	certFile    = kingpin.Flag("tls.cert", "A pem encoded certificate file, EnvVar - CERT_FILE. (Only if tls is configured)").Default("").OverrideDefaultFromEnvar("CERT_FILE").String()
+	keyFile     = kingpin.Flag("tls.key", "A pem encoded key file, EnvVar - CERT_KEY. (Only if tls is configured)").Default("").OverrideDefaultFromEnvar("CERT_KEY").String()
+	caFile      = kingpin.Flag("tls.ca", "A pem encoded CA's certificate file, EnvVar - CA_CERT_FILE. (Only if tls is configured)").Default("").OverrideDefaultFromEnvar("CA_CERT_FILE").String()
 )
 
 // GetHealth returns that druid is healthy or not
@@ -41,6 +42,7 @@ func GetHealth(url string) float64 {
 	logrus.Debugf("Successful healthcheck request for druid - %v", url)
 	defer resp.Body.Close()
 	if resp.StatusCode == 200 {
+		logrus.Debugf("Successful GET request on Druid API - %v", url)
 		return 1
 	}
 
@@ -68,11 +70,17 @@ func GetResponse(url string, queryType string) ([]byte, error) {
 	resp, err := client.Do(req)
 	if err != nil {
 		logrus.Errorf("Error on making http request for druid: %v", err)
+		logrus.Errorf("Possible issue can be with Druid's URL, Username or Password")
 		return nil, err
 	}
 
 	defer resp.Body.Close()
-	logrus.Debugf("Successful GET request on Druid API - %v", url)
+	if resp.StatusCode == 200 {
+		logrus.Debugf("Successful GET request on Druid API - %v", url)
+	} else {
+		logrus.Errorf("Druid's API response is not 200, Status Code - %v", resp.StatusCode)
+		logrus.Errorf("Possible issue can be with Druid's URL, Username or Password")
+	}
 
 	return ioutil.ReadAll(resp.Body)
 }
@@ -98,6 +106,15 @@ func generateTLSConfig() (*http.Client, error) {
 			RootCAs:      caCertPool,
 		}
 		tlsConfig.BuildNameToCertificate()
+		transport := &http.Transport{TLSClientConfig: tlsConfig}
+		client := &http.Client{Transport: transport}
+		return client, nil
+	}
+
+	if *insecureTLS == true {
+		tlsConfig := &tls.Config{
+			InsecureSkipVerify: true,
+		}
 		transport := &http.Transport{TLSClientConfig: tlsConfig}
 		client := &http.Client{Transport: transport}
 		return client, nil

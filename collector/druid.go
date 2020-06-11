@@ -10,7 +10,7 @@ import (
 )
 
 var (
-	druid = kingpin.Flag("druid.uri", "URL of druid router or coordinator").Default("http://druid.opstreelabs.in").OverrideDefaultFromEnvar("DRUID_URL").Short('d').String()
+	druid = kingpin.Flag("druid.uri", "URL of druid router or coordinator, EnvVar - DRUID_URL").Default("http://druid.opstreelabs.in").OverrideDefaultFromEnvar("DRUID_URL").Short('d').String()
 )
 
 // GetDruidHealthMetrics returns the set of metrics for druid
@@ -33,6 +33,7 @@ func GetDruidSegmentData() SegementInterface {
 	logrus.Debugf("Successfully collected the data for druid segment")
 	var metric SegementInterface
 	json.Unmarshal(responseData, &metric)
+	logrus.Debugf("Druid segment's metric data, %v", metric)
 	return metric
 }
 
@@ -48,6 +49,7 @@ func GetDruidData(pathURL string) []map[string]interface{} {
 	logrus.Debugf("Successfully collected the data for druid's supervisors")
 	var metric []map[string]interface{}
 	json.Unmarshal(responseData, &metric)
+	logrus.Debugf("Druid supervisor's metric data, %v", metric)
 	return metric
 }
 
@@ -63,6 +65,7 @@ func GetDruidTasksData(pathURL string) TasksInterface {
 	logrus.Debugf("Successfully retrieved the data for druid's tasks")
 	var metric TasksInterface
 	json.Unmarshal(responseData, &metric)
+	logrus.Debugf("Druid tasks's metric data, %v", metric)
 	return metric
 }
 
