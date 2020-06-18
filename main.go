@@ -61,5 +61,5 @@ func main() {
 	logrus.Infof("Druid exporter started listening on: %v", *port)
 	logrus.Infof("Metrics endpoint - http://0.0.0.0:%v/metrics", *port)
 	logrus.Infof("Druid emitter endpoint - http://0.0.0.0:%v/druid", *port)
-	http.ListenAndServe("0.0.0.0:8080", router)
+	http.ListenAndServe("0.0.0.0:" + *port, router)
 }
