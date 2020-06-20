@@ -5,6 +5,7 @@ go 1.13
 require (
 	github.com/gin-gonic/gin v1.6.2
 	github.com/go-kit/kit v0.9.0
+	github.com/golang/gddo v0.0.0-20200611223618-a4829ef13274
 	github.com/gorilla/mux v1.7.4
 	github.com/prometheus/client_golang v1.5.1
 	github.com/rs/zerolog v1.18.0
