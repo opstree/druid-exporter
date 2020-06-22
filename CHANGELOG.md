@@ -1,3 +1,11 @@
+### v0.7
+##### June 22, 2020
+
+#### :beetle: Bug Fixes
+
+- Fixed JSON parser failure issue
+- Fixed duplicate task metric's server 500 issue
+
 ### v0.6
 ##### June 11, 2020
 
