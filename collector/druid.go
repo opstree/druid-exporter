@@ -10,7 +10,10 @@ import (
 )
 
 var (
-	druid = kingpin.Flag("druid.uri", "URL of druid router or coordinator, EnvVar - DRUID_URL").Default("http://druid.opstreelabs.in").OverrideDefaultFromEnvar("DRUID_URL").Short('d').String()
+	druid = kingpin.Flag(
+		"druid.uri",
+		"URL of druid router or coordinator, EnvVar - DRUID_URL",
+	).Default("http://druid.opstreelabs.in").OverrideDefaultFromEnvar("DRUID_URL").Short('d').String()
 )
 
 // GetDruidHealthMetrics returns the set of metrics for druid

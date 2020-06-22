@@ -12,9 +12,18 @@ import (
 )
 
 var (
-	port             = kingpin.Flag("port", "Port to listen druid exporter, EnvVar - DRUID_EXPORTER_PORT. (Default - 8080)").Default("8080").OverrideDefaultFromEnvar("DRUID_EXPORTER_PORT").Short('p').String()
-	logLevel         = kingpin.Flag("log.level", "Log level for druid exporter, EnvVar - LOG_LEVEL. (Default: info)").Default("info").OverrideDefaultFromEnvar("LOG_LEVEL").Short('l').String()
-	logFormat        = kingpin.Flag("log.format", "Log format for druid exporter, text or json, EnvVar - LOG_FORMAT. (Default: text)").Default("text").OverrideDefaultFromEnvar("LOG_FORMAT").Short('f').String()
+	port = kingpin.Flag(
+		"port",
+		"Port to listen druid exporter, EnvVar - DRUID_EXPORTER_PORT. (Default - 8080)",
+	).Default("8080").OverrideDefaultFromEnvar("DRUID_EXPORTER_PORT").Short('p').String()
+	logLevel = kingpin.Flag(
+		"log.level",
+		"Log level for druid exporter, EnvVar - LOG_LEVEL. (Default: info)",
+	).Default("info").OverrideDefaultFromEnvar("LOG_LEVEL").Short('l').String()
+	logFormat = kingpin.Flag(
+		"log.format",
+		"Log format for druid exporter, text or json, EnvVar - LOG_FORMAT. (Default: text)",
+	).Default("text").OverrideDefaultFromEnvar("LOG_FORMAT").Short('f').String()
 	druidEmittedData = prometheus.NewGaugeVec(
 		prometheus.GaugeOpts{
 			Name: "druid_emitted_metrics",
