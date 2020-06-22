@@ -33,8 +33,6 @@ var (
 )
 
 func init() {
-	getDruidAPIdata := collector.Collector()
-	prometheus.MustRegister(getDruidAPIdata)
 	prometheus.MustRegister(druidEmittedData)
 }
 
@@ -56,8 +54,10 @@ func main() {
 		})
 	}
 	router := mux.NewRouter()
+	getDruidAPIdata := collector.Collector()
+	handlerFunc := newHandler(*getDruidAPIdata)
 	router.Handle("/druid", listener.DruidHTTPEndpoint(druidEmittedData))
-	router.Handle("/metrics", promhttp.Handler())
+	router.Handle("/metrics", promhttp.InstrumentMetricHandler(prometheus.DefaultRegisterer, handlerFunc))
 	router.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
 		w.Write([]byte(`<html>
 			<head><title>Druid Exporter</title></head>
@@ -70,5 +70,19 @@ func main() {
 	logrus.Infof("Druid exporter started listening on: %v", *port)
 	logrus.Infof("Metrics endpoint - http://0.0.0.0:%v/metrics", *port)
 	logrus.Infof("Druid emitter endpoint - http://0.0.0.0:%v/druid", *port)
-	http.ListenAndServe("0.0.0.0:"+*port, router)
+	http.ListenAndServe("0.0.0.0:8080", router)
+}
+
+func newHandler(metrics collector.MetricCollector) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		registry := prometheus.NewRegistry()
+		getDruidAPIdata := collector.Collector()
+		registry.MustRegister(getDruidAPIdata)
+		gatherers := prometheus.Gatherers{
+			prometheus.DefaultGatherer,
+			registry,
+		}
+		h := promhttp.HandlerFor(gatherers, promhttp.HandlerOpts{})
+		h.ServeHTTP(w, r)
+	}
 }
