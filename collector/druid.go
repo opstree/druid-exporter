@@ -98,7 +98,7 @@ func Collector() *MetricCollector {
 		),
 		DruidTasks: prometheus.NewDesc("druid_tasks_duration",
 			"Druid tasks duration and state",
-			[]string{"datasource", "groupd_id", "task_status", "created_time"}, nil,
+			[]string{"datasource", "task_id", "groupd_id", "task_status", "created_time"}, nil,
 		),
 		DruidSupervisors: prometheus.NewDesc("druid_supervisors",
 			"Druid supervisors status",
@@ -136,7 +136,7 @@ func (collector *MetricCollector) Collect(ch chan<- prometheus.Metric) {
 
 	for _, data := range GetDruidTasksData(tasksURL) {
 		ch <- prometheus.MustNewConstMetric(collector.DruidTasks,
-			prometheus.GaugeValue, data.Duration, data.DataSource, data.GroupID, data.Status, data.CreatedTime)
+			prometheus.GaugeValue, data.Duration, data.DataSource, data.ID, data.GroupID, data.Status, data.CreatedTime)
 	}
 
 	for _, data := range GetDruidData(supervisorURL) {
