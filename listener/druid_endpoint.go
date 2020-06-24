@@ -30,19 +30,30 @@ func DruidHTTPEndpoint(gauge *prometheus.GaugeVec) http.HandlerFunc {
 				logrus.Debugf("%v", druidData)
 			}
 			for _, data := range druidData {
-				metricName := fmt.Sprintf("%v", data["metric"])
-				serviceName := fmt.Sprintf("%v", data["service"])
-				host := fmt.Sprintf("%v", data["host"])
-				datasource := fmt.Sprintf("%v", data["dataSource"])
-				value, _ := strconv.ParseFloat(fmt.Sprintf("%v", data["value"]), 64)
 				if data["dataSource"] != nil {
-					gauge.With(prometheus.Labels{
-						"metric_name": strings.Replace(metricName, "/", "-", 3),
-						"service":     strings.Replace(serviceName, "/", "-", 3),
-						"host":        host,
-						"datasource":  datasource,
-						"pod":         collector.ToPodName(strings.Split(host, ":")[0]),
-					}).Set(value)
+					metricName := fmt.Sprintf("%v", data["metric"])
+					serviceName := fmt.Sprintf("%v", data["service"])
+					host := fmt.Sprintf("%v", data["host"])
+					value, _ := strconv.ParseFloat(fmt.Sprintf("%v", data["value"]), 64)
+
+					var datasources []string
+					if rawDatasource, ok := data["dataSource"].(string); ok {
+						datasources = []string{rawDatasource}
+					} else if rawDatasources, ok := data["dataSource"].([]interface{}); ok {
+						datasources = make([]string, len(rawDatasources))
+						for i, rawDatasource := range rawDatasources {
+							datasources[i] = rawDatasource.(string)
+						}
+					}
+					for _, datasource := range datasources {
+						gauge.With(prometheus.Labels{
+							"metric_name": strings.Replace(metricName, "/", "-", 3),
+							"service":     strings.Replace(serviceName, "/", "-", 3),
+							"host":        host,
+							"datasource":  datasource,
+							"pod":         collector.ToPodName(strings.Split(host, ":")[0]),
+						}).Set(value)
+					}
 				}
 			}
 			logrus.Debugf("Successfully collected data from druid emitter")
