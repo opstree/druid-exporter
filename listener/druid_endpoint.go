@@ -1,6 +1,7 @@
 package listener
 
 import (
+	"druid-exporter/collector"
 	"encoding/json"
 	"fmt"
 	"github.com/golang/gddo/httputil/header"
@@ -40,6 +41,7 @@ func DruidHTTPEndpoint(gauge *prometheus.GaugeVec) http.HandlerFunc {
 						"service":     strings.Replace(serviceName, "/", "-", 3),
 						"host":        host,
 						"datasource":  datasource,
+						"pod":         collector.ToPodName(strings.Split(host, ":")[0]),
 					}).Set(value)
 				}
 			}
