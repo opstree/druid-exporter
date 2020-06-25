@@ -46,12 +46,12 @@ func DruidHTTPEndpoint(gauge *prometheus.GaugeVec) http.HandlerFunc {
 						}
 					}
 					for _, datasource := range datasources {
+						podName := collector.ToPodName(strings.Split(host, ":")[0])
 						gauge.With(prometheus.Labels{
 							"metric_name": strings.Replace(metricName, "/", "-", 3),
 							"service":     strings.Replace(serviceName, "/", "-", 3),
-							"host":        host,
 							"datasource":  datasource,
-							"pod":         collector.ToPodName(strings.Split(host, ":")[0]),
+							"pod":         podName,
 						}).Set(value)
 					}
 				}

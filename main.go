@@ -28,7 +28,7 @@ var (
 		prometheus.GaugeOpts{
 			Name: "druid_emitted_metrics",
 			Help: "Druid emitted metrics from druid emitter",
-		}, []string{"pod", "metric_name", "service", "host", "datasource"},
+		}, []string{"pod", "metric_name", "service", "datasource"},
 	)
 )
 
