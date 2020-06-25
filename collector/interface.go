@@ -2,6 +2,8 @@ package collector
 
 import (
 	"github.com/prometheus/client_golang/prometheus"
+	"net"
+	"strings"
 	"time"
 )
 
@@ -44,14 +46,34 @@ type SegementInterface []struct {
 	} `json:"properties"`
 }
 
+type taskLocation struct {
+	Host string
+	Port int
+}
+
+func (l taskLocation) toPodName() string {
+	return ToPodName(l.Host)
+}
+
 // TasksInterface is the interface for parsing druid tasks data
 type TasksInterface []struct {
-	GroupID          string  `json:"groupId"`
-	Type             string  `json:"type"`
-	CreatedTime      string  `json:"createdTime"`
-	StatusCode       string  `json:"statusCode"`
-	Status           string  `json:"status"`
-	RunnerStatusCode string  `json:"runnerStatusCode"`
-	Duration         float64 `json:"duration"`
-	DataSource       string  `json:"dataSource"`
+	ID               string       `json:"id"`
+	GroupID          string       `json:"groupId"`
+	Type             string       `json:"type"`
+	CreatedTime      string       `json:"createdTime"`
+	StatusCode       string       `json:"statusCode"`
+	Status           string       `json:"status"`
+	RunnerStatusCode string       `json:"runnerStatusCode"`
+	Duration         float64      `json:"duration"`
+	DataSource       string       `json:"dataSource"`
+	Location         taskLocation `json:"location"`
+}
+
+// ToPodName is a func to get pod name from host ip
+func ToPodName(host string) string {
+	names, err := net.LookupAddr(host)
+	if err != nil || len(names) == 0 {
+		return ""
+	}
+	return strings.Split(names[0], ".")[0]
 }
