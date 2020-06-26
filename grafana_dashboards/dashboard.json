@@ -163,7 +163,7 @@
         "timeFrom": null,
         "timeShift": null,
         "title": "Druid Cluster Health",
-        "type": "singlestat",
+        "type": "stat",
         "valueFontSize": "80%",
         "valueMaps": [
           {
@@ -300,7 +300,7 @@
         "pluginVersion": "6.5.2",
         "targets": [
           {
-            "expr": "count(druid_tasks) by (task_status)",
+            "expr": "count(druid_tasks_duration) by (task_status)",
             "legendFormat": "{{task_status}}",
             "refId": "A"
           }
