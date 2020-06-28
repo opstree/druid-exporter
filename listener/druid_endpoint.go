@@ -11,10 +11,12 @@ import (
 	"net/http"
 	"strconv"
 	"strings"
+	"sync"
 )
 
 // DruidHTTPEndpoint is the endpoint to listen all druid metrics
 func DruidHTTPEndpoint(gauge *prometheus.GaugeVec) http.HandlerFunc {
+	podNames := &sync.Map{}
 	return http.HandlerFunc(func(w http.ResponseWriter, req *http.Request) {
 		var druidData []map[string]interface{}
 		reqHeader, _ := header.ParseValueAndParams(req.Header, "Content-Type")
@@ -46,7 +48,15 @@ func DruidHTTPEndpoint(gauge *prometheus.GaugeVec) http.HandlerFunc {
 						}
 					}
 					for _, datasource := range datasources {
-						podName := collector.ToPodName(strings.Split(host, ":")[0])
+						host := strings.Split(host, ":")[0]
+						podName := collector.ToPodName(host)
+						if podName == "" {
+							if rawPodName, has := podNames.Load(host); has {
+								podName = rawPodName.(string)
+							}
+						} else {
+							podNames.Store(host, podName)
+						}
 						gauge.With(prometheus.Labels{
 							"metric_name": strings.Replace(metricName, "/", "-", 3),
 							"service":     strings.Replace(serviceName, "/", "-", 3),
