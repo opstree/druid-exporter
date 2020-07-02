@@ -11,6 +11,7 @@ const (
 	healthURL      = "/status/health"
 	segmentDataURL = "/druid/coordinator/v1/datasources?simple"
 	tasksURL       = "/druid/indexer/v1/tasks"
+	workersURL     = "/druid/indexer/v1/workers"
 	supervisorURL  = "/druid/indexer/v1/supervisor?full"
 )
 
@@ -46,27 +47,30 @@ type SegementInterface []struct {
 	} `json:"properties"`
 }
 
-type taskLocation struct {
-	Host string
-	Port int
-}
-
-func (l taskLocation) toPodName() string {
-	return ToPodName(l.Host)
-}
-
 // TasksInterface is the interface for parsing druid tasks data
 type TasksInterface []struct {
-	ID               string       `json:"id"`
-	GroupID          string       `json:"groupId"`
-	Type             string       `json:"type"`
-	CreatedTime      string       `json:"createdTime"`
-	StatusCode       string       `json:"statusCode"`
-	Status           string       `json:"status"`
-	RunnerStatusCode string       `json:"runnerStatusCode"`
-	Duration         float64      `json:"duration"`
-	DataSource       string       `json:"dataSource"`
-	Location         taskLocation `json:"location"`
+	ID               string  `json:"id"`
+	GroupID          string  `json:"groupId"`
+	Type             string  `json:"type"`
+	CreatedTime      string  `json:"createdTime"`
+	StatusCode       string  `json:"statusCode"`
+	Status           string  `json:"status"`
+	RunnerStatusCode string  `json:"runnerStatusCode"`
+	Duration         float64 `json:"duration"`
+	DataSource       string  `json:"dataSource"`
+}
+
+type worker struct {
+	Worker struct {
+		Host    string `json:"host"`
+		Version string `json:"version"`
+		IP      string `json:"ip"`
+	}
+	RunningTasks []string `json:"runningTasks"`
+}
+
+func (w worker) podName() string {
+	return strings.Split(w.Worker.IP, ".")[0]
 }
 
 // ToPodName is a func to get pod name from host ip

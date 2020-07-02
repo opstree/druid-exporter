@@ -7,6 +7,7 @@ import (
 	"github.com/prometheus/client_golang/prometheus"
 	"github.com/sirupsen/logrus"
 	"gopkg.in/alecthomas/kingpin.v2"
+	"math/rand"
 )
 
 var (
@@ -72,6 +73,23 @@ func GetDruidTasksData(pathURL string) TasksInterface {
 	return metric
 }
 
+// getDruidWorkersData return all the workers and its state
+func getDruidWorkersData(pathURL string) []worker {
+	kingpin.Parse()
+	druidURL := *druid + pathURL
+	responseData, err := utils.GetResponse(druidURL, pathURL)
+	if err != nil {
+		logrus.Errorf("Cannot retrieve data for druid's workers: %v", err)
+		return nil
+	}
+	logrus.Debugf("Successfully retrieved the data for druid's workers")
+	var workers []worker
+	json.Unmarshal(responseData, &workers)
+	logrus.Debugf("Druid workers's metric data, %v", workers)
+
+	return workers
+}
+
 // Describe will associate the value for druid exporter
 func (collector *MetricCollector) Describe(ch chan<- *prometheus.Desc) {
 	ch <- collector.DruidHealthStatus
@@ -134,9 +152,25 @@ func (collector *MetricCollector) Collect(ch chan<- prometheus.Metric) {
 			prometheus.GaugeValue, float64(data.Properties.Segments.ReplicatedSize), data.Name)
 	}
 
+	workers := getDruidWorkersData(workersURL)
 	for _, data := range GetDruidTasksData(tasksURL) {
+		podName := ""
+		for _, worker := range workers {
+			for _, task := range worker.RunningTasks {
+				if task == data.ID {
+					podName = worker.podName()
+					break
+				}
+			}
+			if podName != "" {
+				break
+			}
+		}
+		if podName == "" {
+			podName = workers[rand.Intn(len(workers))].podName()
+		}
 		ch <- prometheus.MustNewConstMetric(collector.DruidTasks,
-			prometheus.GaugeValue, data.Duration, data.Location.toPodName(), data.DataSource, data.ID, data.GroupID, data.Status, data.CreatedTime)
+			prometheus.GaugeValue, data.Duration, podName, data.DataSource, data.ID, data.GroupID, data.Status, data.CreatedTime)
 	}
 
 	for _, data := range GetDruidData(supervisorURL) {
