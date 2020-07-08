@@ -3,12 +3,13 @@ package main
 import (
 	"druid-exporter/collector"
 	"druid-exporter/listener"
+	"net/http"
+
 	"github.com/gorilla/mux"
 	"github.com/prometheus/client_golang/prometheus"
 	"github.com/prometheus/client_golang/prometheus/promhttp"
 	"github.com/sirupsen/logrus"
 	"gopkg.in/alecthomas/kingpin.v2"
-	"net/http"
 )
 
 var (
@@ -28,7 +29,7 @@ var (
 		prometheus.GaugeOpts{
 			Name: "druid_emitted_metrics",
 			Help: "Druid emitted metrics from druid emitter",
-		}, []string{"pod", "metric_name", "service", "datasource"},
+		}, []string{"host", "metric_name", "service", "datasource"},
 	)
 )
 

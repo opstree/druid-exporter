@@ -3,20 +3,17 @@ package listener
 import (
 	"druid-exporter/collector"
 	"encoding/json"
-	"fmt"
+	"io/ioutil"
+	"net/http"
+	"strings"
+
 	"github.com/golang/gddo/httputil/header"
 	"github.com/prometheus/client_golang/prometheus"
 	"github.com/sirupsen/logrus"
-	"io/ioutil"
-	"net/http"
-	"strconv"
-	"strings"
-	"sync"
 )
 
 // DruidHTTPEndpoint is the endpoint to listen all druid metrics
 func DruidHTTPEndpoint(gauge *prometheus.GaugeVec) http.HandlerFunc {
-	podNames := &sync.Map{}
 	return http.HandlerFunc(func(w http.ResponseWriter, req *http.Request) {
 		var druidData []map[string]interface{}
 		reqHeader, _ := header.ParseValueAndParams(req.Header, "Content-Type")
@@ -32,52 +29,42 @@ func DruidHTTPEndpoint(gauge *prometheus.GaugeVec) http.HandlerFunc {
 				logrus.Debugf("%v", druidData)
 			}
 			for _, data := range druidData {
-				if data["dataSource"] != nil {
-					metricName := fmt.Sprintf("%v", data["metric"])
-					serviceName := fmt.Sprintf("%v", data["service"])
-					host := fmt.Sprintf("%v", data["host"])
-					value, _ := strconv.ParseFloat(fmt.Sprintf("%v", data["value"]), 64)
+				metric := data["metric"].(string)
+				service := data["service"].(string)
+				hostname := data["host"].(string)
+				value, _ := data["value"].(float64)
 
-					var datasources []string
-					if rawDatasource, ok := data["dataSource"].(string); ok {
-						datasources = []string{rawDatasource}
-					} else if rawDatasources, ok := data["dataSource"].([]interface{}); ok {
-						datasources = make([]string, len(rawDatasources))
-						for i, rawDatasource := range rawDatasources {
-							datasources[i] = rawDatasource.(string)
+				// Reverse DNS Lookup
+				host := collector.ToPodName(strings.Split(hostname, ":")[0])
+
+				if datasource, ok := data["dataSource"]; ok {
+					if arrDatasource, ok := datasource.([]interface{}); ok { // Array datasource
+						for _, entryDatasource := range arrDatasource {
+							gauge.With(prometheus.Labels{
+								"metric_name": strings.Replace(metric, "/", "-", 3),
+								"service":     strings.Replace(service, "/", "-", 3),
+								"datasource":  entryDatasource.(string),
+								"host":        host,
+							}).Set(value)
 						}
-					}
-					for _, datasource := range datasources {
-						host := strings.Split(host, ":")[0]
-						podName := collector.ToPodName(host)
-						if podName == "" {
-							if rawPodName, has := podNames.Load(host); has {
-								podName = rawPodName.(string)
-							}
-						} else {
-							podNames.Store(host, podName)
-						}
+					} else { // Single datasource
 						gauge.With(prometheus.Labels{
-							"metric_name": strings.Replace(metricName, "/", "-", 3),
-							"service":     strings.Replace(serviceName, "/", "-", 3),
-							"datasource":  datasource,
-							"pod":         podName,
+							"metric_name": strings.Replace(metric, "/", "-", 3),
+							"service":     strings.Replace(service, "/", "-", 3),
+							"datasource":  datasource.(string),
+							"host":        host,
 						}).Set(value)
 					}
-				} else {
-					metricName := fmt.Sprintf("%v", data["metric"])
-					serviceName := fmt.Sprintf("%v", data["service"])
-					host := fmt.Sprintf("%v", data["host"])
-					value, _ := strconv.ParseFloat(fmt.Sprintf("%v", data["value"]), 64)
+				} else { // Missing datasource case
 					gauge.With(prometheus.Labels{
-						"metric_name": strings.Replace(metricName, "/", "-", 3),
-						"service":     strings.Replace(serviceName, "/", "-", 3),
-						"datasource":  host,
-						"pod":         collector.ToPodName(strings.Split(host, ":")[0]),
+						"metric_name": strings.Replace(metric, "/", "-", 3),
+						"service":     strings.Replace(service, "/", "-", 3),
+						"datasource":  "",
+						"host":        host,
 					}).Set(value)
 				}
 			}
-			logrus.Debugf("Successfully collected data from druid emitter")
+			logrus.Infof("Successfully collected data from druid emitter, %s", druidData[0]["service"].(string))
 		}
 	})
 }
