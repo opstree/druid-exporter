@@ -15,7 +15,7 @@ spec:
     scrapeTimeout: 60s
   namespaceSelector:
     matchNames:
-    - {{ .Release.namespace }}
+    - {{ .Release.Namespace }}
   selector:
     matchLabels:
       druid: metrics
