@@ -1,10 +1,11 @@
 package collector
 
 import (
-	"github.com/prometheus/client_golang/prometheus"
 	"net"
 	"strings"
 	"time"
+
+	"github.com/prometheus/client_golang/prometheus"
 )
 
 const (
@@ -74,10 +75,11 @@ func (w worker) podName() string {
 }
 
 // ToPodName is a func to get pod name from host ip
+// Returns hostname if reverse DNS fails
 func ToPodName(host string) string {
 	names, err := net.LookupAddr(host)
 	if err != nil || len(names) == 0 {
-		return ""
+		return host
 	}
 	return strings.Split(names[0], ".")[0]
 }
