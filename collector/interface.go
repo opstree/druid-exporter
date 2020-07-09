@@ -69,6 +69,6 @@ type worker struct {
 	RunningTasks []string `json:"runningTasks"`
 }
 
-func (w worker) podName() string {
+func (w worker) hostname() string {
 	return strings.Split(w.Worker.IP, ".")[0]
 }
