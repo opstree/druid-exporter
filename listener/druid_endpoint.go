@@ -1,7 +1,7 @@
 package listener
 
 import (
-	"druid-exporter/collector"
+	"druid-exporter/utils"
 	"encoding/json"
 	"io/ioutil"
 	"net/http"
@@ -38,7 +38,7 @@ func DruidHTTPEndpoint(gauge *prometheus.GaugeVec, dnsCache *cache.Cache) http.H
 				// Reverse DNS Lookup
 				// Mutates dnsCache
 				hostValue := strings.Split(hostname, ":")[0]
-				dnsLookupValue := collector.ReverseDNSLookup(hostValue, dnsCache)
+				dnsLookupValue := utils.ReverseDNSLookup(hostValue, dnsCache)
 
 				host := strings.Replace(hostname, hostValue, dnsLookupValue, 1) // Adding back port
 
