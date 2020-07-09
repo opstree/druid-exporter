@@ -4,8 +4,10 @@ import (
 	"druid-exporter/collector"
 	"druid-exporter/listener"
 	"net/http"
+	"time"
 
 	"github.com/gorilla/mux"
+	"github.com/patrickmn/go-cache"
 	"github.com/prometheus/client_golang/prometheus"
 	"github.com/prometheus/client_golang/prometheus/promhttp"
 	"github.com/sirupsen/logrus"
@@ -54,10 +56,12 @@ func main() {
 			FullTimestamp: true,
 		})
 	}
+
+	dnsCache := cache.New(5*time.Minute, 10*time.Minute)
 	router := mux.NewRouter()
 	getDruidAPIdata := collector.Collector()
 	handlerFunc := newHandler(*getDruidAPIdata)
-	router.Handle("/druid", listener.DruidHTTPEndpoint(druidEmittedData))
+	router.Handle("/druid", listener.DruidHTTPEndpoint(druidEmittedData, dnsCache))
 	router.Handle("/metrics", promhttp.InstrumentMetricHandler(prometheus.DefaultRegisterer, handlerFunc))
 	router.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
 		w.Write([]byte(`<html>

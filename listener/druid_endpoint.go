@@ -8,12 +8,13 @@ import (
 	"strings"
 
 	"github.com/golang/gddo/httputil/header"
+	"github.com/patrickmn/go-cache"
 	"github.com/prometheus/client_golang/prometheus"
 	"github.com/sirupsen/logrus"
 )
 
 // DruidHTTPEndpoint is the endpoint to listen all druid metrics
-func DruidHTTPEndpoint(gauge *prometheus.GaugeVec) http.HandlerFunc {
+func DruidHTTPEndpoint(gauge *prometheus.GaugeVec, dnsCache *cache.Cache) http.HandlerFunc {
 	return http.HandlerFunc(func(w http.ResponseWriter, req *http.Request) {
 		var druidData []map[string]interface{}
 		reqHeader, _ := header.ParseValueAndParams(req.Header, "Content-Type")
@@ -35,7 +36,11 @@ func DruidHTTPEndpoint(gauge *prometheus.GaugeVec) http.HandlerFunc {
 				value, _ := data["value"].(float64)
 
 				// Reverse DNS Lookup
-				host := collector.ToPodName(strings.Split(hostname, ":")[0])
+				// Mutates dnsCache
+				hostValue := strings.Split(hostname, ":")[0]
+				dnsLookupValue := collector.ReverseDNSLookup(hostValue, dnsCache)
+
+				host := strings.Replace(hostname, hostValue, dnsLookupValue, 1) // Adding back port
 
 				if datasource, ok := data["dataSource"]; ok {
 					if arrDatasource, ok := datasource.([]interface{}); ok { // Array datasource
