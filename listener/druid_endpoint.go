@@ -29,11 +29,12 @@ func DruidHTTPEndpoint(gauge *prometheus.GaugeVec, dnsCache *cache.Cache) http.H
 				logrus.Debugf("Error decoding JSON sent by druid: %v", err)
 				logrus.Debugf("%v", druidData)
 			}
-			for _, data := range druidData {
+			for i, data := range druidData {
 				metric := data["metric"].(string)
 				service := data["service"].(string)
 				hostname := data["host"].(string)
 				value, _ := data["value"].(float64)
+				datasource := data["dataSource"]
 
 				// Reverse DNS Lookup
 				// Mutates dnsCache
@@ -42,7 +43,16 @@ func DruidHTTPEndpoint(gauge *prometheus.GaugeVec, dnsCache *cache.Cache) http.H
 
 				host := strings.Replace(hostname, hostValue, dnsLookupValue, 1) // Adding back port
 
-				if datasource, ok := data["dataSource"]; ok {
+				if i == 0 { // Comment out this line if you want the whole metrics received
+					logrus.Tracef("parameters received and mapped:")
+					logrus.Tracef("    metric     => %s", metric)
+					logrus.Tracef("    service    => %s", service)
+					logrus.Tracef("    hostname   => (%s -> %s)", hostname, host)
+					logrus.Tracef("    datasource => %v", datasource)
+					logrus.Tracef("    value      => %v", value)
+				}
+
+				if data["dataSource"] != nil {
 					if arrDatasource, ok := datasource.([]interface{}); ok { // Array datasource
 						for _, entryDatasource := range arrDatasource {
 							gauge.With(prometheus.Labels{
