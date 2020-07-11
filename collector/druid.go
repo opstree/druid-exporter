@@ -4,10 +4,11 @@ import (
 	"druid-exporter/utils"
 	"encoding/json"
 	"fmt"
+	"math/rand"
+
 	"github.com/prometheus/client_golang/prometheus"
 	"github.com/sirupsen/logrus"
 	"gopkg.in/alecthomas/kingpin.v2"
-	"math/rand"
 )
 
 var (
@@ -154,23 +155,23 @@ func (collector *MetricCollector) Collect(ch chan<- prometheus.Metric) {
 
 	workers := getDruidWorkersData(workersURL)
 	for _, data := range GetDruidTasksData(tasksURL) {
-		podName := ""
+		hostname := ""
 		for _, worker := range workers {
 			for _, task := range worker.RunningTasks {
 				if task == data.ID {
-					podName = worker.podName()
+					hostname = worker.hostname()
 					break
 				}
 			}
-			if podName != "" {
+			if hostname != "" {
 				break
 			}
 		}
-		if podName == "" {
-			podName = workers[rand.Intn(len(workers))].podName()
+		if hostname == "" {
+			hostname = workers[rand.Intn(len(workers))].hostname()
 		}
 		ch <- prometheus.MustNewConstMetric(collector.DruidTasks,
-			prometheus.GaugeValue, data.Duration, podName, data.DataSource, data.ID, data.GroupID, data.Status, data.CreatedTime)
+			prometheus.GaugeValue, data.Duration, hostname, data.DataSource, data.ID, data.GroupID, data.Status, data.CreatedTime)
 	}
 
 	for _, data := range GetDruidData(supervisorURL) {

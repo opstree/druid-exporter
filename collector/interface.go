@@ -1,10 +1,10 @@
 package collector
 
 import (
-	"github.com/prometheus/client_golang/prometheus"
-	"net"
 	"strings"
 	"time"
+
+	"github.com/prometheus/client_golang/prometheus"
 )
 
 const (
@@ -69,15 +69,6 @@ type worker struct {
 	RunningTasks []string `json:"runningTasks"`
 }
 
-func (w worker) podName() string {
+func (w worker) hostname() string {
 	return strings.Split(w.Worker.IP, ".")[0]
-}
-
-// ToPodName is a func to get pod name from host ip
-func ToPodName(host string) string {
-	names, err := net.LookupAddr(host)
-	if err != nil || len(names) == 0 {
-		return ""
-	}
-	return strings.Split(names[0], ".")[0]
 }
