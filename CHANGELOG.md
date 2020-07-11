@@ -1,3 +1,13 @@
+### v0.8
+##### July 11, 2020
+
+#### :beetle: Bug Fixes
+
+- Changed Port env variable to remove k8s default env variables conflicts
+- Fixed servicemonitor file in helm template
+- Refactored metrics ingestion from podName to hostName
+- Fixed druid exporter name in helm template
+
 ### v0.7
 ##### June 22, 2020
 
