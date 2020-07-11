@@ -17,8 +17,8 @@ import (
 var (
 	port = kingpin.Flag(
 		"port",
-		"Port to listen druid exporter, EnvVar - DRUID_EXPORTER_PORT. (Default - 8080)",
-	).Default("8080").OverrideDefaultFromEnvar("DRUID_EXPORTER_PORT").Short('p').String()
+		"Port to listen druid exporter, EnvVar - PORT. (Default - 8080)",
+	).Default("8080").OverrideDefaultFromEnvar("PORT").Short('p').String()
 	logLevel = kingpin.Flag(
 		"log.level",
 		"Log level for druid exporter, EnvVar - LOG_LEVEL. (Default: info)",

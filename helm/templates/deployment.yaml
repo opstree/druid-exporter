@@ -21,7 +21,7 @@ spec:
       - env:
         - name: DRUID_URL
           value: {{ .Values.druidURL }}
-        - name: DRUID_EXPORTER_PORT
+        - name: PORT
           value: {{ .Values.druidExporterPort | quote}}
         - name: LOG_LEVEL
           value: {{ .Values.logLevel }}

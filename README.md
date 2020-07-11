@@ -62,7 +62,7 @@ Flags:
       --tls.ca=""            A pem encoded CA certificate file, EnvVar - CA_CERT_FILE. (Only if tls is configured)
   -d, --druid.uri="http://druid.opstreelabs.in"  
                              URL of druid router or coordinator, EnvVar - DRUID_URL
-  -p, --port="8080"          Port to listen druid exporter, EnvVar - DRUID_EXPORTER_PORT. (Default - 8080)
+  -p, --port="8080"          Port to listen druid exporter, EnvVar - PORT. (Default - 8080)
   -l, --log.level="info"     Log level for druid exporter, EnvVar - LOG_LEVEL. (Default: info)
   -f, --log.format="text"    Log format for druid exporter, text or json, EnvVar - LOG_FORMAT. (Default: text)
       --version              Show application version.
@@ -95,7 +95,7 @@ To run the druid exporter:-
 ```shell
 # Export the Druid Coordinator or Router URL
 export DRUID_URL="http://druid.opstreelabs.in"
-export DRUID_EXPORTER_PORT="8080"
+export PORT="8080"
 
 ./druid-exporter [<flags>]
 ```
