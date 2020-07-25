@@ -149,10 +149,18 @@ helm upgrade druid-exporter ./helm/ --install --namespace druid \
 --set serviceMonitor.enabled=true --serviceMonitor.namespace="monitoring"
 ```
 
-## Dashboard Screenshot
+## Dashboard Screenshots
 
 <p align="center">
-  <img src="./static/grafana-screenshot.svg">
+  <img src="./static/dashboard1.png">
+</p>
+
+<p align="center">
+  <img src="./static/dashboard2.png">
+</p>
+
+<p align="center">
+  <img src="./static/dashboard3.png">
 </p>
 
 ## Roadmap
@@ -163,7 +171,7 @@ helm upgrade druid-exporter ./helm/ --install --namespace druid \
 - [X] Add basic auth support
 - [X] Add TLS support
 - [X] Add helm chart for kubernetes deployment
-- [ ] Create a new grafana dashboard with better insights
+- [X] Create a new grafana dashboard with better insights
 
 ## Development
 
