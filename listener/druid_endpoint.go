@@ -15,19 +15,21 @@ import (
 
 // DruidHTTPEndpoint is the endpoint to listen all druid metrics
 func DruidHTTPEndpoint(gauge *prometheus.GaugeVec, dnsCache *cache.Cache) http.HandlerFunc {
-	return http.HandlerFunc(func(w http.ResponseWriter, req *http.Request) {
+	return func(w http.ResponseWriter, req *http.Request) {
 		var druidData []map[string]interface{}
 		reqHeader, _ := header.ParseValueAndParams(req.Header, "Content-Type")
 		if req.Method == "POST" && reqHeader == "application/json" {
 			output, err := ioutil.ReadAll(req.Body)
 			defer req.Body.Close()
 			if err != nil {
-				logrus.Errorf("Unable to read JSON reponse: %v", err)
+				logrus.Errorf("Unable to read JSON response: %v", err)
+				return
 			}
 			err = json.Unmarshal(output, &druidData)
 			if err != nil {
-				logrus.Debugf("Error decoding JSON sent by druid: %v", err)
+				logrus.Errorf("Error decoding JSON sent by druid: %v", err)
 				logrus.Debugf("%v", druidData)
+				return
 			}
 			for i, data := range druidData {
 				metric := data["metric"].(string)
@@ -79,7 +81,8 @@ func DruidHTTPEndpoint(gauge *prometheus.GaugeVec, dnsCache *cache.Cache) http.H
 					}).Set(value)
 				}
 			}
+
 			logrus.Infof("Successfully collected data from druid emitter, %s", druidData[0]["service"].(string))
 		}
-	})
+	}
 }
