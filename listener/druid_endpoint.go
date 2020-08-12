@@ -3,8 +3,10 @@ package listener
 import (
 	"druid-exporter/utils"
 	"encoding/json"
+	"fmt"
 	"io/ioutil"
 	"net/http"
+	"strconv"
 	"strings"
 
 	"github.com/golang/gddo/httputil/header"
@@ -32,11 +34,11 @@ func DruidHTTPEndpoint(gauge *prometheus.GaugeVec, dnsCache *cache.Cache) http.H
 				return
 			}
 			for i, data := range druidData {
-				metric := data["metric"].(string)
-				service := data["service"].(string)
-				hostname := data["host"].(string)
-				value, _ := data["value"].(float64)
+				metric := fmt.Sprintf("%v", data["metric"])
+				service := fmt.Sprintf("%v", data["service"])
+				hostname := fmt.Sprintf("%v", data["host"])
 				datasource := data["dataSource"]
+				value, _ := strconv.ParseFloat(fmt.Sprintf("%v", data["value"]), 64)
 
 				// Reverse DNS Lookup
 				// Mutates dnsCache
