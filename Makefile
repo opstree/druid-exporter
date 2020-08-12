@@ -9,7 +9,7 @@ build-code:	get-depends
 	go build -o druid-exporter
 
 build-image:
-	docker build -t quay.io/opstree/druid-exporter:latest -f Dockerfile .
+	docker build -t quay.io/opstree/druid-exporter:v0.9 -f Dockerfile .
 
 check-fmt:
 	test -z "$(shell gofmt -l .)"
