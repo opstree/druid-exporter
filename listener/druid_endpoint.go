@@ -17,6 +17,7 @@ import (
 
 // DruidHTTPEndpoint is the endpoint to listen all druid metrics
 func DruidHTTPEndpoint(histogram *prometheus.HistogramVec, gauge *prometheus.GaugeVec, dnsCache *cache.Cache) http.HandlerFunc {
+	gaugeCleaner := newCleaner(gauge, 10)
 	return func(w http.ResponseWriter, req *http.Request) {
 		var druidData []map[string]interface{}
 		reqHeader, _ := header.ParseValueAndParams(req.Header, "Content-Type")
@@ -66,12 +67,14 @@ func DruidHTTPEndpoint(histogram *prometheus.HistogramVec, gauge *prometheus.Gau
 								"host":        host,
 							}).Observe(value)
 
-							gauge.With(prometheus.Labels{
+							labels := prometheus.Labels{
 								"metric_name": strings.Replace(metric, "/", "-", 3),
 								"service":     strings.Replace(service, "/", "-", 3),
 								"datasource":  entryDatasource.(string),
 								"host":        host,
-							}).Set(value)
+							}
+							gaugeCleaner.add(labels)
+							gauge.With(labels).Set(value)
 						}
 					} else { // Single datasource
 						histogram.With(prometheus.Labels{
@@ -81,12 +84,14 @@ func DruidHTTPEndpoint(histogram *prometheus.HistogramVec, gauge *prometheus.Gau
 							"host":        host,
 						}).Observe(value)
 
-						gauge.With(prometheus.Labels{
+						labels := prometheus.Labels{
 							"metric_name": strings.Replace(metric, "/", "-", 3),
 							"service":     strings.Replace(service, "/", "-", 3),
 							"datasource":  datasource.(string),
 							"host":        host,
-						}).Set(value)
+						}
+						gaugeCleaner.add(labels)
+						gauge.With(labels).Set(value)
 					}
 				} else { // Missing datasource case
 					histogram.With(prometheus.Labels{
@@ -96,12 +101,14 @@ func DruidHTTPEndpoint(histogram *prometheus.HistogramVec, gauge *prometheus.Gau
 						"host":        host,
 					}).Observe(value)
 
-					gauge.With(prometheus.Labels{
+					labels := prometheus.Labels{
 						"metric_name": strings.Replace(metric, "/", "-", 3),
 						"service":     strings.Replace(service, "/", "-", 3),
 						"datasource":  "",
 						"host":        host,
-					}).Set(value)
+					}
+					gaugeCleaner.add(labels)
+					gauge.With(labels).Set(value)
 				}
 			}
 
