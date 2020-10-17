@@ -1,0 +1,6 @@
+---
+remote: origin
+target-branch: master
+chart-dirs:
+  - helm
+helm-extra-args: --timeout 600s
