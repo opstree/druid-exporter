@@ -111,7 +111,7 @@ func generateTLSConfig() (*http.Client, error) {
 		return client, nil
 	}
 
-	if *insecureTLS == true {
+	if *insecureTLS {
 		tlsConfig := &tls.Config{
 			InsecureSkipVerify: true,
 		}
