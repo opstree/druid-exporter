@@ -27,7 +27,13 @@ var (
 		"log.format",
 		"Log format for druid exporter, text or json, EnvVar - LOG_FORMAT. (Default: text)",
 	).Default("text").OverrideDefaultFromEnvar("LOG_FORMAT").Short('f').String()
-	druidEmittedData = prometheus.NewGaugeVec(
+	druidEmittedDataHistogram = prometheus.NewHistogramVec(
+		prometheus.HistogramOpts{
+			Name: "druid_emitted_metrics_histogram",
+			Help: "Druid emitted metrics from druid emitter",
+		}, []string{"host", "metric_name", "service", "datasource"},
+	)
+	druidEmittedDataGauge = prometheus.NewGaugeVec(
 		prometheus.GaugeOpts{
 			Name: "druid_emitted_metrics",
 			Help: "Druid emitted metrics from druid emitter",
@@ -36,7 +42,8 @@ var (
 )
 
 func init() {
-	prometheus.MustRegister(druidEmittedData)
+	prometheus.MustRegister(druidEmittedDataHistogram)
+	prometheus.MustRegister(druidEmittedDataGauge)
 }
 
 func main() {
@@ -61,7 +68,7 @@ func main() {
 	router := mux.NewRouter()
 	getDruidAPIdata := collector.Collector()
 	handlerFunc := newHandler(*getDruidAPIdata)
-	router.Handle("/druid", listener.DruidHTTPEndpoint(druidEmittedData, dnsCache))
+	router.Handle("/druid", listener.DruidHTTPEndpoint(druidEmittedDataHistogram, druidEmittedDataGauge, dnsCache))
 	router.Handle("/metrics", promhttp.InstrumentMetricHandler(prometheus.DefaultRegisterer, handlerFunc))
 	router.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
 		w.Write([]byte(`<html>

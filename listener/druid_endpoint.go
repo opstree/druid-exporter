@@ -16,7 +16,7 @@ import (
 )
 
 // DruidHTTPEndpoint is the endpoint to listen all druid metrics
-func DruidHTTPEndpoint(gauge *prometheus.GaugeVec, dnsCache *cache.Cache) http.HandlerFunc {
+func DruidHTTPEndpoint(histogram *prometheus.HistogramVec, gauge *prometheus.GaugeVec, dnsCache *cache.Cache) http.HandlerFunc {
 	return func(w http.ResponseWriter, req *http.Request) {
 		var druidData []map[string]interface{}
 		reqHeader, _ := header.ParseValueAndParams(req.Header, "Content-Type")
@@ -59,6 +59,13 @@ func DruidHTTPEndpoint(gauge *prometheus.GaugeVec, dnsCache *cache.Cache) http.H
 				if data["dataSource"] != nil {
 					if arrDatasource, ok := datasource.([]interface{}); ok { // Array datasource
 						for _, entryDatasource := range arrDatasource {
+							histogram.With(prometheus.Labels{
+								"metric_name": strings.Replace(metric, "/", "-", 3),
+								"service":     strings.Replace(service, "/", "-", 3),
+								"datasource":  entryDatasource.(string),
+								"host":        host,
+							}).Observe(value)
+
 							gauge.With(prometheus.Labels{
 								"metric_name": strings.Replace(metric, "/", "-", 3),
 								"service":     strings.Replace(service, "/", "-", 3),
@@ -67,6 +74,13 @@ func DruidHTTPEndpoint(gauge *prometheus.GaugeVec, dnsCache *cache.Cache) http.H
 							}).Set(value)
 						}
 					} else { // Single datasource
+						histogram.With(prometheus.Labels{
+							"metric_name": strings.Replace(metric, "/", "-", 3),
+							"service":     strings.Replace(service, "/", "-", 3),
+							"datasource":  datasource.(string),
+							"host":        host,
+						}).Observe(value)
+
 						gauge.With(prometheus.Labels{
 							"metric_name": strings.Replace(metric, "/", "-", 3),
 							"service":     strings.Replace(service, "/", "-", 3),
@@ -75,6 +89,13 @@ func DruidHTTPEndpoint(gauge *prometheus.GaugeVec, dnsCache *cache.Cache) http.H
 						}).Set(value)
 					}
 				} else { // Missing datasource case
+					histogram.With(prometheus.Labels{
+						"metric_name": strings.Replace(metric, "/", "-", 3),
+						"service":     strings.Replace(service, "/", "-", 3),
+						"datasource":  "",
+						"host":        host,
+					}).Observe(value)
+
 					gauge.With(prometheus.Labels{
 						"metric_name": strings.Replace(metric, "/", "-", 3),
 						"service":     strings.Replace(service, "/", "-", 3),
