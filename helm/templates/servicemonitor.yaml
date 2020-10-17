@@ -4,19 +4,33 @@ apiVersion: monitoring.coreos.com/v1
 kind: ServiceMonitor
 metadata:
   labels:
-    app: prometheus-operator-{{ .Values.name }}
-  name: prom-prometheus-operator-{{ .Values.name }}
+    app.kubernetes.io/name: {{ include "prometheus-druid-exporter.fullname" . }}
+    helm.sh/chart: {{ .Chart.Name }}-{{ .Chart.Version | replace "+" "_" }}
+    app.kubernetes.io/managed-by: {{ .Release.Service }}
+    app.kubernetes.io/instance: {{ .Release.Name }}
+    app.kubernetes.io/version: {{ .Chart.AppVersion }}
+    {{- range $key, $value := .Values.serviceMonitor.additionalLabels }}
+    {{ $key }}: {{ $value | quote }}
+    {{- end }}
+  name: {{ include "prometheus-druid-exporter.fullname" . }}
   namespace: {{ .Values.serviceMonitor.namespace }}
 spec:
   endpoints:
-  - interval: 60s
+  - interval: {{ .Values.serviceMonitor.interval }}
     path: /metrics
     port: metrics
-    scrapeTimeout: 60s
+    scrapeTimeout: {{ .Values.serviceMonitor.scrapeTimeout }}
   namespaceSelector:
     matchNames:
     - {{ .Release.Namespace }}
   selector:
     matchLabels:
-      druid: metrics
+      app.kubernetes.io/name: {{ include "prometheus-druid-exporter.fullname" . }}
+      app.kubernetes.io/instance: {{ .Release.Name }}
+{{- if .Values.serviceMonitor.targetLabels }}
+  targetLabels:
+{{- range .Values.serviceMonitor.targetLabels }}
+    - {{ . }}
+{{- end }}
+{{- end }}
 {{- end -}}

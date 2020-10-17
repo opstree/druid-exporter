@@ -22,3 +22,6 @@ vet:
 
 test:
 	go test -v -coverprofile=coverage.txt ./...
+
+golangci-lint:
+	golangci-lint run ./...

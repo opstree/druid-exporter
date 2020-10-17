@@ -1,14 +1,18 @@
 ---
 apiVersion: v1
+appVersion: "v0.8.0"
 description: Druid exporter to monitor druid metrics with Prometheus
 engine: gotpl
-maintainers:
-  - name: Opstree Solutions
-name: druid-exporter
-sources:
-  - https://github.com/opstree/druid-exporter
-version: 0.5
+name: prometheus-druid-exporter
+version: 0.8.0
 home: https://github.com/opstree/druid-exporter
+maintainers:
+- email: abhishekbhardwaj510@gmail.com
+  name: iamabhishek-dubey
+- email: sandeep@opstree.com
+  name: sandy724
+sources:
+  - https://github.com/opstree/druid-exporter/helm
 keywords:
 - kubernetes
 - apache

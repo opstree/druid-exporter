@@ -37,7 +37,11 @@ func GetDruidSegmentData() SegementInterface {
 	}
 	logrus.Debugf("Successfully collected the data for druid segment")
 	var metric SegementInterface
-	json.Unmarshal(responseData, &metric)
+	err = json.Unmarshal(responseData, &metric)
+	if err != nil {
+		logrus.Errorf("Cannot parse JSON data: %v", err)
+		return nil
+	}
 	logrus.Debugf("Druid segment's metric data, %v", metric)
 	return metric
 }
@@ -53,7 +57,11 @@ func GetDruidData(pathURL string) []map[string]interface{} {
 	}
 	logrus.Debugf("Successfully collected the data for druid's supervisors")
 	var metric []map[string]interface{}
-	json.Unmarshal(responseData, &metric)
+	err = json.Unmarshal(responseData, &metric)
+	if err != nil {
+		logrus.Errorf("Cannot parse JSON data: %v", err)
+		return nil
+	}
 	logrus.Debugf("Druid supervisor's metric data, %v", metric)
 	return metric
 }
@@ -69,7 +77,11 @@ func GetDruidTasksData(pathURL string) TasksInterface {
 	}
 	logrus.Debugf("Successfully retrieved the data for druid's tasks")
 	var metric TasksInterface
-	json.Unmarshal(responseData, &metric)
+	err = json.Unmarshal(responseData, &metric)
+	if err != nil {
+		logrus.Errorf("Cannot parse JSON data: %v", err)
+		return nil
+	}
 	logrus.Debugf("Druid tasks's metric data, %v", metric)
 	return metric
 }
@@ -85,7 +97,11 @@ func getDruidWorkersData(pathURL string) []worker {
 	}
 	logrus.Debugf("Successfully retrieved the data for druid's workers")
 	var workers []worker
-	json.Unmarshal(responseData, &workers)
+	err = json.Unmarshal(responseData, &workers)
+	if err != nil {
+		logrus.Errorf("Cannot parse JSON data: %v", err)
+		return nil
+	}
 	logrus.Debugf("Druid workers's metric data, %v", workers)
 
 	return workers
