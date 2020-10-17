@@ -168,7 +168,9 @@ func (collector *MetricCollector) Collect(ch chan<- prometheus.Metric) {
 			}
 		}
 		if hostname == "" {
-			hostname = workers[rand.Intn(len(workers))].hostname()
+			if len(workers) != 0 {
+				hostname = workers[rand.Intn(len(workers))].hostname()
+			}
 		}
 		ch <- prometheus.MustNewConstMetric(collector.DruidTasks,
 			prometheus.GaugeValue, data.Duration, hostname, data.DataSource, data.ID, data.GroupID, data.Status, data.CreatedTime)
