@@ -30,7 +30,9 @@ func DruidHTTPEndpoint(histogram *prometheus.HistogramVec, gauge *prometheus.Gau
 			err = json.Unmarshal(output, &druidData)
 			if err != nil {
 				logrus.Errorf("Error decoding JSON sent by druid: %v", err)
-				logrus.Debugf("%v", druidData)
+				if druidData != nil {
+					logrus.Debugf("%v", druidData)
+				}
 				return
 			}
 			for i, data := range druidData {
