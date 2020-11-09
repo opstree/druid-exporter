@@ -19,6 +19,7 @@ const (
 type MetricCollector struct {
 	DruidHealthStatus         *prometheus.Desc
 	DataSourceCount           *prometheus.Desc
+	DruidWorkers              *prometheus.Desc
 	DruidTasks                *prometheus.Desc
 	DruidSupervisors          *prometheus.Desc
 	DruidSegmentCount         *prometheus.Desc
@@ -62,11 +63,13 @@ type TasksInterface []struct {
 
 type worker struct {
 	Worker struct {
-		Host    string `json:"host"`
-		Version string `json:"version"`
-		IP      string `json:"ip"`
+		Host     string `json:"host"`
+		Version  string `json:"version"`
+		IP       string `json:"ip"`
+		Capacity int    `json:"capacity"`
 	}
-	RunningTasks []string `json:"runningTasks"`
+	CurrCapacityUsed int      `json:"currCapacityUsed"`
+	RunningTasks     []string `json:"runningTasks"`
 }
 
 func (w worker) hostname() string {
