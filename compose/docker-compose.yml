@@ -125,7 +125,7 @@ services:
     ports:
       - "9080:8080"
     environment:
-      - DRUID_URL="http://router:8888"
+      - DRUID_URL=http://router:8888
     depends_on:
       - router
     restart: unless-stopped
