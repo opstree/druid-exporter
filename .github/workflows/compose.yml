@@ -1,0 +1,17 @@
+name: compose
+
+on: [push, pull_request]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: Test docker-compose file config
+        run: docker-compose -f ./compose/docker-compose.yml config
+
+      - name: Test docker-compose run action
+        uses: isbang/compose-action@v0.1.1
+        with:
+          compose-file: ./compose/docker-compose.yml
