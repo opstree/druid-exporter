@@ -165,7 +165,7 @@ helm upgrade druid-exporter ./helm/ --install --namespace druid \
 
 ## Roadmap
 
-- [ ] Add docker compose setup for druid and druid exporter
+- [x] Add docker compose setup for druid and druid exporter
 - [ ] Unit test cases should be in place
 - [ ] Integration test cases should be in place
 - [X] Add basic auth support
