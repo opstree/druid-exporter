@@ -86,6 +86,26 @@ func GetDruidTasksData(pathURL string) TasksInterface {
 	return metric
 }
 
+// GetDruidDataSourcesTotalRows returns the amount of rows in each datasource
+func GetDruidDataSourcesTotalRows(pathURL string) DataSourcesTotalRows {
+	kingpin.Parse()
+	druidURL := *druid + pathURL
+	responseData, err := utils.GetSQLResponse(druidURL, totalRowsSQL)
+	if err != nil {
+		logrus.Errorf("Cannot retrieve data for druid's datasources rows: %v", err)
+		return nil
+	}
+	logrus.Debugf("Successfully retrieved the data for druid's datasources rows")
+	var datasources DataSourcesTotalRows
+	err = json.Unmarshal(responseData, &datasources)
+	if err != nil {
+		logrus.Errorf("Cannot parse JSON data: %v", err)
+		return nil
+	}
+	logrus.Debugf("Druid datasources total rows, %v", datasources)
+	return datasources
+}
+
 // getDruidWorkersData return all the workers and its state
 func getDruidWorkersData(pathURL string) []worker {
 	kingpin.Parse()
@@ -156,6 +176,9 @@ func Collector() *MetricCollector {
 			"Druid segment replicated size",
 			[]string{"datasource_name"}, nil,
 		),
+		DruidDataSourcesTotalRows: prometheus.NewDesc("druid_datasource_total_rows",
+			"Number of rows in a datasource",
+			[]string{"datasource_name", "source"}, nil),
 	}
 }
 
@@ -207,5 +230,9 @@ func (collector *MetricCollector) Collect(ch chan<- prometheus.Metric) {
 		ch <- prometheus.MustNewConstMetric(collector.DruidSupervisors,
 			prometheus.GaugeValue, float64(1), fmt.Sprintf("%v", data["id"]),
 			fmt.Sprintf("%v", data["healthy"]), fmt.Sprintf("%v", data["detailedState"]))
+	}
+
+	for _, data := range GetDruidDataSourcesTotalRows(sqlURL) {
+		ch <- prometheus.MustNewConstMetric(collector.DruidDataSourcesTotalRows, prometheus.GaugeValue, float64(data.TotalRows), data.Datasource, data.Source)
 	}
 }

@@ -1,8 +1,10 @@
 package utils
 
 import (
+	"bytes"
 	"crypto/tls"
 	"crypto/x509"
+	"encoding/json"
 	"github.com/sirupsen/logrus"
 	"gopkg.in/alecthomas/kingpin.v2"
 	"io/ioutil"
@@ -85,6 +87,51 @@ func GetResponse(url string, queryType string) ([]byte, error) {
 	return ioutil.ReadAll(resp.Body)
 }
 
+// GetSQLResponse will return API response for a druid query
+func GetSQLResponse(url string, query string) ([]byte, error) {
+	kingpin.Parse()
+	client, err := generateTLSConfig()
+	if err != nil {
+		logrus.Errorf("Cannot generate http client: %v", err)
+		return nil, err
+	}
+
+	queryDTO := sqlQuery{Query: query}
+	queryBody, err := json.Marshal(queryDTO)
+	if err != nil {
+		logrus.Errorf("Cannot marshal query: %v", err)
+		return nil, err
+	}
+
+	req, err := http.NewRequest("POST", url, bytes.NewReader(queryBody))
+	if err != nil {
+		logrus.Errorf("Cannot create http request: %v", err)
+		return nil, err
+	}
+	req.Header["Content-type"] = []string{"application/json"}
+
+	if *user != "" && *password != "" {
+		req.SetBasicAuth(*user, *password)
+	}
+
+	resp, err := client.Do(req)
+	if err != nil {
+		logrus.Errorf("Error on making http request for druid: %v", err)
+		logrus.Errorf("Possible issue can be with Druid's URL, Username or Password")
+		return nil, err
+	}
+
+	defer resp.Body.Close()
+	if resp.StatusCode == 200 {
+		logrus.Debugf("Successful GET request on Druid API - %v", url)
+	} else {
+		logrus.Errorf("Druid's API response is not 200, Status Code - %v", resp.StatusCode)
+		logrus.Errorf("Possible issue can be with Druid's URL, Username or Password")
+	}
+
+	return ioutil.ReadAll(resp.Body)
+}
+
 func generateTLSConfig() (*http.Client, error) {
 	kingpin.Parse()
 
@@ -121,4 +168,8 @@ func generateTLSConfig() (*http.Client, error) {
 	}
 	client := &http.Client{}
 	return client, nil
+}
+
+type sqlQuery struct {
+	Query string `json:"query"`
 }
