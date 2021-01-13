@@ -120,7 +120,7 @@ services:
       - ./druid-conf/environment
 
   druid_exporter:
-    image: quay.io/opstree/druid-exporter:latest
+    image: quay.io/opstree/druid-exporter:v0.9
     container_name: druid_exporter
     ports:
       - "9080:8080"
