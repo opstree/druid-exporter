@@ -29,7 +29,7 @@ func DruidHTTPEndpoint(histogram *prometheus.HistogramVec, gauge *prometheus.Gau
 				return
 			}
 			if druidData == nil {
-				logrus.Infof("The dataset for druid is empty, can be ignored: %v", druidData)
+				logrus.Debugf("The dataset for druid is empty, can be ignored: %v", druidData)
 				return
 			}
 			err = json.Unmarshal(output, &druidData)

@@ -29,6 +29,8 @@ services:
       - POSTGRES_PASSWORD=SomeStrongPassword
       - POSTGRES_USER=druid
       - POSTGRES_DB=druid
+    networks:
+      - druid
 
   # Need 3.5 or later for container nodes
   zookeeper:
@@ -36,13 +38,15 @@ services:
     image: zookeeper:3.5
     environment:
       - ZOO_MY_ID=1
+    networks:
+      - druid
 
   coordinator:
     image: apache/druid:0.20.0
     container_name: coordinator
     volumes:
       - ./volumes/druid_storage:/opt/data
-      - coordinator_var:/opt/druid-conf/var
+      - druid_var:/opt/druid-conf/var
     depends_on:
       - zookeeper
       - postgres
@@ -52,12 +56,14 @@ services:
       - coordinator
     env_file:
       - ./druid-conf/environment
+    networks:
+      - druid
 
   broker:
     image: apache/druid:0.20.0
     container_name: broker
     volumes:
-      - broker_var:/opt/druid-conf/var
+      - druid_var:/opt/druid-conf/var
     depends_on:
       - zookeeper
       - postgres
@@ -68,13 +74,15 @@ services:
       - broker
     env_file:
       - ./druid-conf/environment
+    networks:
+      - druid
 
   historical:
     image: apache/druid:0.20.0
     container_name: historical
     volumes:
       - ./volumes/druid_storage:/opt/data
-      - historical_var:/opt/druid-conf/var
+      - druid_var:/opt/druid-conf/var
     depends_on:
       - zookeeper
       - postgres
@@ -85,13 +93,15 @@ services:
       - historical
     env_file:
       - ./druid-conf/environment
+    networks:
+      - druid
 
   middlemanager:
     image: apache/druid:0.20.0
     container_name: middlemanager
     volumes:
       - ./volumes/druid_storage:/opt/data
-      - middle_var:/opt/druid-conf/var
+      - druid_var:/opt/druid-conf/var
     depends_on:
       - zookeeper
       - postgres
@@ -102,12 +112,14 @@ services:
       - middleManager
     env_file:
       - ./druid-conf/environment
+    networks:
+      - druid
 
   router:
     image: apache/druid:0.20.0
     container_name: router
     volumes:
-      - router_var:/opt/druid-conf/var
+      - druid_var:/opt/druid-conf/var
     depends_on:
       - zookeeper
       - postgres
@@ -118,6 +130,26 @@ services:
       - router
     env_file:
       - ./druid-conf/environment
+    networks:
+      - druid
+
+  overlord:
+    image: apache/druid:0.20.0
+    container_name: overlord
+    volumes:
+      - druid_var:/opt/druid-conf/var
+    depends_on:
+      - zookeeper
+      - postgres
+      - coordinator
+    ports:
+      - "8093:8081"
+    command:
+      - overlord
+    env_file:
+      - ./druid-conf/environment
+    networks:
+      - druid
 
   druid_exporter:
     image: quay.io/opstree/druid-exporter:v0.9
@@ -129,6 +161,8 @@ services:
     depends_on:
       - router
     restart: unless-stopped
+    networks:
+      - druid
 
   prometheus:
     image: quay.io/prometheus/prometheus
@@ -142,6 +176,8 @@ services:
     command:
       - '--config.file=/etc/prometheus/prometheus.yml'
       - '--storage.tsdb.path=/prometheus'
+    networks:
+      - druid
 
   grafana:
     depends_on:
@@ -158,13 +194,15 @@ services:
     volumes:
       - grafana_storage:/var/lib/grafana
       - ./grafana-conf/provisioning/:/etc/grafana/provisioning/
+    networks:
+      - druid
+
+networks:
+  druid:
+    driver: bridge
 
 volumes:
   metadata_data: {}
-  middle_var: {}
-  historical_var: {}
-  broker_var: {}
-  coordinator_var: {}
-  router_var: {}
+  druid_var: {}
   grafana_storage: {}
   prometheus-storage: {}

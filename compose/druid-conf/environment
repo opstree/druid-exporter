@@ -26,11 +26,10 @@ DRUID_MAXDIRECTMEMORYSIZE=6172m
 
 druid_emitter_logging_logLevel=debug
 
-druid_extensions_loadList=["druid-histogram", "druid-datasketches", "druid-lookups-cached-global",  "postgresql-metadata-storage", "druid-avro-extensions", "druid-kafka-indexing-service", "druid-parquet-extensions", "druid-protobuf-extensions", "druid-orc-extensions",  "druid-stats"]
+druid_extensions_loadList=["druid-histogram", "druid-datasketches", "druid-lookups-cached-global","druid-kafka-indexing-service", "postgresql-metadata-storage"]
 
 druid_zk_service_host=zookeeper
 
-druid_metadata_storage_host=
 druid_metadata_storage_type=postgresql
 druid_metadata_storage_connector_connectURI=jdbc:postgresql://postgres:5432/druid
 druid_metadata_storage_connector_user=druid
