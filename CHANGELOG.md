@@ -1,3 +1,16 @@
+### v0.9
+##### January 13, 2020
+
+#### :beetle: Bug Fixes
+
+- Fixed interface to a nil conversion error in Druid HTTP Endpoint
+- Invalid argument(0) to Intn goroutine
+
+#### :tada: Features
+
+- Added datasource row count as metrics
+- Docker compose setup to fix
+
 ### v0.8
 ##### July 11, 2020
 
