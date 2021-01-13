@@ -189,12 +189,18 @@ func (collector *MetricCollector) Collect(ch chan<- prometheus.Metric) {
 	for _, data := range GetDruidSegmentData() {
 		ch <- prometheus.MustNewConstMetric(collector.DataSourceCount,
 			prometheus.GaugeValue, float64(1), data.Name)
-		ch <- prometheus.MustNewConstMetric(collector.DruidSegmentCount,
-			prometheus.GaugeValue, float64(data.Properties.Segments.Count), data.Name)
-		ch <- prometheus.MustNewConstMetric(collector.DruidSegmentSize,
-			prometheus.GaugeValue, float64(data.Properties.Segments.Size), data.Name)
-		ch <- prometheus.MustNewConstMetric(collector.DruidSegmentReplicateSize,
-			prometheus.GaugeValue, float64(data.Properties.Segments.ReplicatedSize), data.Name)
+		if data.Properties.Segments.Count != 0 {
+			ch <- prometheus.MustNewConstMetric(collector.DruidSegmentCount,
+				prometheus.GaugeValue, float64(data.Properties.Segments.Count), data.Name)
+		}
+		if data.Properties.Segments.Size != 0 {
+			ch <- prometheus.MustNewConstMetric(collector.DruidSegmentSize,
+				prometheus.GaugeValue, float64(data.Properties.Segments.Size), data.Name)
+		}
+		if data.Properties.Segments.ReplicatedSize != 0 {
+			ch <- prometheus.MustNewConstMetric(collector.DruidSegmentReplicateSize,
+				prometheus.GaugeValue, float64(data.Properties.Segments.ReplicatedSize), data.Name)
+		}
 	}
 
 	workers := getDruidWorkersData(workersURL)
