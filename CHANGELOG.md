@@ -10,6 +10,7 @@
 
 - Added datasource row count as metrics
 - Docker compose setup to fix
+- Added new task count metrics
 
 ### v0.8
 ##### July 11, 2020

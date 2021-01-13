@@ -106,6 +106,26 @@ func GetDruidDataSourcesTotalRows(pathURL string) DataSourcesTotalRows {
 	return datasources
 }
 
+// GetDruidTasksStatusCount returns count of different tasks by status
+func GetDruidTasksStatusCount(pathURL string) TaskStatusMetric {
+	kingpin.Parse()
+	druidURL := *druid + pathURL
+	responseData, err := utils.GetResponse(druidURL, pathURL)
+	if err != nil {
+		logrus.Errorf("Cannot retrieve data for druid's workers: %v", err)
+		return nil
+	}
+	logrus.Debugf("Successfully retrieved the data for druid task: %v", pathURL)
+	var taskCount TaskStatusMetric
+	err = json.Unmarshal(responseData, &taskCount)
+	if err != nil {
+		logrus.Errorf("Cannot parse JSON data: %v", err)
+		return nil
+	}
+	logrus.Debugf("Successfully collected tasks status count: %v", pathURL)
+	return taskCount
+}
+
 // getDruidWorkersData return all the workers and its state
 func getDruidWorkersData(pathURL string) []worker {
 	kingpin.Parse()
@@ -137,6 +157,10 @@ func (collector *MetricCollector) Describe(ch chan<- *prometheus.Desc) {
 	ch <- collector.DruidWorkers
 	ch <- collector.DruidTasks
 	ch <- collector.DruidSegmentReplicateSize
+	ch <- collector.DruidRunningTasks
+	ch <- collector.DruidWaitingTasks
+	ch <- collector.DruidCompletedTasks
+	ch <- collector.DruidPendingTasks
 }
 
 // Collector return the defined metrics
@@ -179,6 +203,22 @@ func Collector() *MetricCollector {
 		DruidDataSourcesTotalRows: prometheus.NewDesc("druid_datasource_total_rows",
 			"Number of rows in a datasource",
 			[]string{"datasource_name", "source"}, nil),
+		DruidRunningTasks: prometheus.NewDesc("druid_running_tasks",
+			"Druid running tasks count",
+			nil, nil,
+		),
+		DruidWaitingTasks: prometheus.NewDesc("druid_waiting_tasks",
+			"Druid waiting tasks count",
+			nil, nil,
+		),
+		DruidCompletedTasks: prometheus.NewDesc("druid_completed_tasks",
+			"Druid completed tasks count",
+			nil, nil,
+		),
+		DruidPendingTasks: prometheus.NewDesc("druid_pending_tasks",
+			"Druid pending tasks count",
+			nil, nil,
+		),
 	}
 }
 
@@ -202,6 +242,15 @@ func (collector *MetricCollector) Collect(ch chan<- prometheus.Metric) {
 				prometheus.GaugeValue, float64(data.Properties.Segments.ReplicatedSize), data.Name)
 		}
 	}
+
+	ch <- prometheus.MustNewConstMetric(collector.DruidRunningTasks,
+		prometheus.GaugeValue, float64(len(GetDruidTasksStatusCount(runningTask))))
+	ch <- prometheus.MustNewConstMetric(collector.DruidWaitingTasks,
+		prometheus.GaugeValue, float64(len(GetDruidTasksStatusCount(waitingTask))))
+	ch <- prometheus.MustNewConstMetric(collector.DruidCompletedTasks,
+		prometheus.GaugeValue, float64(len(GetDruidTasksStatusCount(completedTask))))
+	ch <- prometheus.MustNewConstMetric(collector.DruidPendingTasks,
+		prometheus.GaugeValue, float64(len(GetDruidTasksStatusCount(pendingTask))))
 
 	workers := getDruidWorkersData(workersURL)
 

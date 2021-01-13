@@ -14,6 +14,10 @@ const (
 	workersURL     = "/druid/indexer/v1/workers"
 	supervisorURL  = "/druid/indexer/v1/supervisor?full"
 	sqlURL         = "/druid/v2/sql"
+	pendingTask    = "/druid/indexer/v1/pendingTasks"
+	runningTask    = "/druid/indexer/v1/runningTasks"
+	waitingTask    = "/druid/indexer/v1/waitingTasks"
+	completedTask  = "/druid/indexer/v1/completeTasks"
 )
 
 const totalRowsSQL = `select SEG.datasource, SUP.source,
@@ -33,6 +37,10 @@ type MetricCollector struct {
 	DruidSegmentSize          *prometheus.Desc
 	DruidSegmentReplicateSize *prometheus.Desc
 	DruidDataSourcesTotalRows *prometheus.Desc
+	DruidRunningTasks         *prometheus.Desc
+	DruidWaitingTasks         *prometheus.Desc
+	DruidCompletedTasks       *prometheus.Desc
+	DruidPendingTasks         *prometheus.Desc
 }
 
 // DataSourcesTotalRows shows total rows from each datasource
@@ -74,6 +82,12 @@ type TasksInterface []struct {
 	RunnerStatusCode string  `json:"runnerStatusCode"`
 	Duration         float64 `json:"duration"`
 	DataSource       string  `json:"dataSource"`
+}
+
+// TaskStatusMetric is the interface for tasks status
+type TaskStatusMetric []struct {
+	NameDataSource string `json:"dataSource"`
+	StatusCode     string `json:"statusCode"`
 }
 
 type worker struct {
