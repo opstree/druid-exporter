@@ -41,7 +41,6 @@ type MetricCollector struct {
 	DruidWaitingTasks         *prometheus.Desc
 	DruidCompletedTasks       *prometheus.Desc
 	DruidPendingTasks         *prometheus.Desc
-	DruidWorkerCapacity       *prometheus.Desc
 }
 
 // DataSourcesTotalRows shows total rows from each datasource
