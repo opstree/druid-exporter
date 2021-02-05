@@ -28,16 +28,16 @@ func DruidHTTPEndpoint(histogram *prometheus.HistogramVec, gauge *prometheus.Gau
 				logrus.Debugf("Unable to read JSON response: %v", err)
 				return
 			}
-			if druidData == nil {
-				logrus.Debugf("The dataset for druid is empty, can be ignored: %v", druidData)
-				return
-			}
 			err = json.Unmarshal(output, &druidData)
 			if err != nil {
 				logrus.Errorf("Error decoding JSON sent by druid: %v", err)
 				if druidData != nil {
 					logrus.Debugf("%v", druidData)
 				}
+				return
+			}
+			if druidData == nil {
+				logrus.Debugf("The dataset for druid is empty, can be ignored: %v", druidData)
 				return
 			}
 			for i, data := range druidData {
