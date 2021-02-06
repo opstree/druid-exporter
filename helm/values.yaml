@@ -14,6 +14,11 @@ logFormat: json
 
 exporterPort: 8080
 
+security:
+  enabled: false
+  druidUser: admin
+  druidPassword: admin
+
 serviceAccount:
   create: true
 
