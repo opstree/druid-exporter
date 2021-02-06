@@ -47,7 +47,7 @@ func init() {
 }
 
 func main() {
-	kingpin.Version("0.5")
+	kingpin.Version("0.9")
 	kingpin.Parse()
 	parsedLevel, err := logrus.ParseLevel(*logLevel)
 	if err != nil {
