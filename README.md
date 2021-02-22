@@ -146,7 +146,7 @@ helm upgrade druid-exporter ./helm/ --install --namespace druid \
 --set druidURL="http://druid.opstreelabs.in" \
 --set druidExporterPort="8080" \
 --set logLevel="info" --set logFormat="text" \
---set serviceMonitor.enabled=true --serviceMonitor.namespace="monitoring"
+--set serviceMonitor.enabled=true --set serviceMonitor.namespace="monitoring"
 ```
 
 ## Dashboard Screenshots
