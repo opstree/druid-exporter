@@ -45,6 +45,8 @@ spec:
         ports:
         - containerPort: {{ .Values.exporterPort }}
           protocol: TCP
+        resources:
+          {{- toYaml .Values.resources | nindent 12 }}
 {{- if .Values.serviceAccount.create }}
       serviceAccount: {{ include "prometheus-druid-exporter.fullname" . }}
       serviceAccountName: {{ include "prometheus-druid-exporter.fullname" . }}
