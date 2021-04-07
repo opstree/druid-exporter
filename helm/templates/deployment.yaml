@@ -33,6 +33,8 @@ spec:
           value: {{ .Values.logLevel }}
         - name: LOG_FORMAT
           value: {{ .Values.logFormat }}
+        - name: NO_HISTOGRAM
+          value: {{ .Values.noHistogram }}
 {{- if .Values.security.enabled }}
         - name: DRUID_USER
           value: {{ .Values.security.druidUser }}

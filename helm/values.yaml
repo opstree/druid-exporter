@@ -3,7 +3,7 @@ name: druid-exporter
 
 image:
   name: quay.io/opstree/druid-exporter
-  tag: v0.9
+  tag: v0.10
   pullPolicy: IfNotPresent
 
 annotations: {}
@@ -11,6 +11,7 @@ annotations: {}
 druidURL: http://druid.opstreelabs.in
 logLevel: info
 logFormat: json
+noHistogram: false
 
 exporterPort: 8080
 

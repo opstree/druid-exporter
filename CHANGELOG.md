@@ -1,3 +1,11 @@
+### v0.10
+##### April 07, 2021
+
+#### :Stephan3555: Added additional histogram flag
+
+- Adde new flag to switch off prometheus histogram for metrics
+- Updated Helm Chart accordingly
+
 ### v0.9
 ##### January 13, 2020
 
