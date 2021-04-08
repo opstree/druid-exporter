@@ -66,7 +66,7 @@ func DruidHTTPEndpoint(disableHistogram bool, histogram *prometheus.HistogramVec
 				if data["dataSource"] != nil {
 					if arrDatasource, ok := datasource.([]interface{}); ok { // Array datasource
 						for _, entryDatasource := range arrDatasource {
-                            if disableHistogram == false {
+                            if !disableHistogram {
                                 histogram.With(prometheus.Labels{
                                     "metric_name": strings.Replace(metric, "/", "-", 3),
                                     "service":     strings.Replace(service, "/", "-", 3),
@@ -85,7 +85,7 @@ func DruidHTTPEndpoint(disableHistogram bool, histogram *prometheus.HistogramVec
 							gauge.With(labels).Set(value)
 						}
 					} else { // Single datasource
-					    if disableHistogram == false {
+					    if !disableHistogram {
                             histogram.With(prometheus.Labels{
                                 "metric_name": strings.Replace(metric, "/", "-", 3),
                                 "service":     strings.Replace(service, "/", "-", 3),
@@ -104,7 +104,7 @@ func DruidHTTPEndpoint(disableHistogram bool, histogram *prometheus.HistogramVec
 						gauge.With(labels).Set(value)
 					}
 				} else { // Missing datasource case
-				    if disableHistogram == false {
+				    if !disableHistogram {
                         histogram.With(prometheus.Labels{
                             "metric_name": strings.Replace(metric, "/", "-", 3),
                             "service":     strings.Replace(service, "/", "-", 3),
