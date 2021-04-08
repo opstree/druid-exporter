@@ -68,7 +68,6 @@ func main() {
 		})
 	}
 
-    logrus.Infof("Histogram: %v", *disableHistogram)
 	dnsCache := cache.New(5*time.Minute, 10*time.Minute)
 	router := mux.NewRouter()
 	getDruidAPIdata := collector.Collector()
