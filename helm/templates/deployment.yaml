@@ -34,7 +34,7 @@ spec:
         - name: LOG_FORMAT
           value: {{ .Values.logFormat }}
         - name: NO_HISTOGRAM
-          value: {{ .Values.noHistogram }}
+          value: {{ .Values.noHistogram | quote}}
 {{- if .Values.security.enabled }}
         - name: DRUID_USER
           value: {{ .Values.security.druidUser }}
