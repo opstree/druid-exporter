@@ -1,5 +1,17 @@
+### v0.10
+##### April 12, 2021
+
+#### :beetle: Bug Fixes
+
+- Fixed duplication of metrics in worker capacity used
+
+#### :tada: Features
+
+- Histogram metrics has boolean switch to enable or disable
+- Optimized helm charts with latest standards
+
 ### v0.9
-##### January 13, 2020
+##### January 13, 2021
 
 #### :beetle: Bug Fixes
 
