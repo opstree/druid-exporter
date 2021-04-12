@@ -65,6 +65,7 @@ Flags:
   -p, --port="8080"          Port to listen druid exporter, EnvVar - PORT. (Default - 8080)
   -l, --log.level="info"     Log level for druid exporter, EnvVar - LOG_LEVEL. (Default: info)
   -f, --log.format="text"    Log format for druid exporter, text or json, EnvVar - LOG_FORMAT. (Default: text)
+      --no-histogram         Flag whether to export histogram metrics or not.
       --version              Show application version.
 ```
 

@@ -11,6 +11,7 @@ annotations: {}
 druidURL: http://druid.opstreelabs.in
 logLevel: info
 logFormat: json
+noHistogram: false
 
 exporterPort: 8080
 

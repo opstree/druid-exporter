@@ -27,6 +27,10 @@ var (
 		"log.format",
 		"Log format for druid exporter, text or json, EnvVar - LOG_FORMAT. (Default: text)",
 	).Default("text").OverrideDefaultFromEnvar("LOG_FORMAT").Short('f').String()
+	disableHistogram = kingpin.Flag(
+    		"no-histogram",
+    		"Flag whether to export histogram metrics or not.",
+    	).Default("false").OverrideDefaultFromEnvar("NO_HISTOGRAM").Bool()
 	druidEmittedDataHistogram = prometheus.NewHistogramVec(
 		prometheus.HistogramOpts{
 			Name: "druid_emitted_metrics_histogram",
@@ -47,7 +51,7 @@ func init() {
 }
 
 func main() {
-	kingpin.Version("0.9")
+	kingpin.Version("0.10")
 	kingpin.Parse()
 	parsedLevel, err := logrus.ParseLevel(*logLevel)
 	if err != nil {
@@ -68,7 +72,7 @@ func main() {
 	router := mux.NewRouter()
 	getDruidAPIdata := collector.Collector()
 	handlerFunc := newHandler(*getDruidAPIdata)
-	router.Handle("/druid", listener.DruidHTTPEndpoint(druidEmittedDataHistogram, druidEmittedDataGauge, dnsCache))
+	router.Handle("/druid", listener.DruidHTTPEndpoint(*disableHistogram, druidEmittedDataHistogram, druidEmittedDataGauge, dnsCache))
 	router.Handle("/metrics", promhttp.InstrumentMetricHandler(prometheus.DefaultRegisterer, handlerFunc))
 	router.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
 		w.Write([]byte(`<html>
