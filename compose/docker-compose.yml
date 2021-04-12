@@ -152,7 +152,7 @@ services:
       - druid
 
   druid_exporter:
-    image: quay.io/opstree/druid-exporter:v0.10
+    image: quay.io/opstree/druid-exporter:v0.9
     container_name: druid_exporter
     ports:
       - "9080:8080"

@@ -3,7 +3,7 @@ name: druid-exporter
 
 image:
   name: quay.io/opstree/druid-exporter
-  tag: v0.10
+  tag: v0.9
   pullPolicy: IfNotPresent
 
 annotations: {}
