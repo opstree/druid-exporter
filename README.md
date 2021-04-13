@@ -53,20 +53,21 @@ $ ./druid-exporter --help
 usage: druid-exporter [<flags>]
 
 Flags:
-      --help                 Show context-sensitive help (also try --help-long and --help-man).
-      --druid.user=""        HTTP basic auth username, EnvVar - DRUID_USER. (Only if it is set)
-      --druid.password=""    HTTP basic auth password, EnvVar - DRUID_PASSWORD. (Only if it is set)
-      --insecure.tls.verify  Boolean flag to skip TLS verification, EnvVar - INSECURE_TLS_VERIFY.
-      --tls.cert=""          A pem encoded certificate file, EnvVar - CERT_FILE. (Only if tls is configured)
-      --tls.key=""           A pem encoded key file, EnvVar - CERT_KEY. (Only if tls is configured)
-      --tls.ca=""            A pem encoded CA certificate file, EnvVar - CA_CERT_FILE. (Only if tls is configured)
+      --help                   Show context-sensitive help (also try --help-long and --help-man).
+      --druid.user=""          HTTP basic auth username, EnvVar - DRUID_USER. (Only if it is set)
+      --druid.password=""      HTTP basic auth password, EnvVar - DRUID_PASSWORD. (Only if it is set)
+      --insecure.tls.verify    Boolean flag to skip TLS verification, EnvVar - INSECURE_TLS_VERIFY.
+      --tls.cert=""            A pem encoded certificate file, EnvVar - CERT_FILE. (Only if tls is configured)
+      --tls.key=""             A pem encoded key file, EnvVar - CERT_KEY. (Only if tls is configured)
+      --tls.ca=""              A pem encoded CA certificate file, EnvVar - CA_CERT_FILE. (Only if tls is configured)
   -d, --druid.uri="http://druid.opstreelabs.in"  
-                             URL of druid router or coordinator, EnvVar - DRUID_URL
-  -p, --port="8080"          Port to listen druid exporter, EnvVar - PORT. (Default - 8080)
-  -l, --log.level="info"     Log level for druid exporter, EnvVar - LOG_LEVEL. (Default: info)
-  -f, --log.format="text"    Log format for druid exporter, text or json, EnvVar - LOG_FORMAT. (Default: text)
-      --no-histogram         Flag whether to export histogram metrics or not.
-      --version              Show application version.
+                               URL of druid router or coordinator, EnvVar - DRUID_URL
+  -p, --port="8080"            Port to listen druid exporter, EnvVar - PORT. (Default - 8080)
+  -l, --log.level="info"       Log level for druid exporter, EnvVar - LOG_LEVEL. (Default: info)
+  -f, --log.format="text"      Log format for druid exporter, text or json, EnvVar - LOG_FORMAT. (Default: text)
+      --no-histogram           Flag whether to export histogram metrics or not.
+      --metrics-cleanup-ttl=5  Flag to provide time in minutes for metrics cleanup.
+      --version                Show application version.
 ```
 
 ## Druid Configuration Changes
