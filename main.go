@@ -31,6 +31,11 @@ var (
     		"no-histogram",
     		"Flag whether to export histogram metrics or not.",
     	).Default("false").OverrideDefaultFromEnvar("NO_HISTOGRAM").Bool()
+
+	metricsCleanupTTL = kingpin.Flag(
+    		"metrics-cleanup-ttl",
+    		"Flag to provide time in minutes for metrics cleanup.",
+    	).Default("5").OverrideDefaultFromEnvar("METRICS_CLEANUP_TTL").Int()
 	druidEmittedDataHistogram = prometheus.NewHistogramVec(
 		prometheus.HistogramOpts{
 			Name: "druid_emitted_metrics_histogram",
@@ -72,7 +77,7 @@ func main() {
 	router := mux.NewRouter()
 	getDruidAPIdata := collector.Collector()
 	handlerFunc := newHandler(*getDruidAPIdata)
-	router.Handle("/druid", listener.DruidHTTPEndpoint(*disableHistogram, druidEmittedDataHistogram, druidEmittedDataGauge, dnsCache))
+	router.Handle("/druid", listener.DruidHTTPEndpoint(*metricsCleanupTTL, *disableHistogram, druidEmittedDataHistogram, druidEmittedDataGauge, dnsCache))
 	router.Handle("/metrics", promhttp.InstrumentMetricHandler(prometheus.DefaultRegisterer, handlerFunc))
 	router.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
 		w.Write([]byte(`<html>

@@ -16,8 +16,8 @@ import (
 )
 
 // DruidHTTPEndpoint is the endpoint to listen all druid metrics
-func DruidHTTPEndpoint(disableHistogram bool, histogram *prometheus.HistogramVec, gauge *prometheus.GaugeVec, dnsCache *cache.Cache) http.HandlerFunc {
-	gaugeCleaner := newCleaner(gauge, 10)
+func DruidHTTPEndpoint(metricsCleanupTTL int, disableHistogram bool, histogram *prometheus.HistogramVec, gauge *prometheus.GaugeVec, dnsCache *cache.Cache) http.HandlerFunc {
+	gaugeCleaner := newCleaner(gauge, metricsCleanupTTL)
 	return func(w http.ResponseWriter, req *http.Request) {
 		var druidData []map[string]interface{}
 		reqHeader, _ := header.ParseValueAndParams(req.Header, "Content-Type")
