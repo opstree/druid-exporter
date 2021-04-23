@@ -28,7 +28,7 @@ resources: {}
   #   memory: 128Mi
 
 security:
-  enabled: true
+  enabled: false
   druidUser: admin
   druidPassword: 
     value: admin
