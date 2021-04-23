@@ -28,9 +28,14 @@ resources: {}
   #   memory: 128Mi
 
 security:
-  enabled: false
+  enabled: true
   druidUser: admin
-  druidPassword: admin
+  druidPassword: 
+    value: admin
+    secretKeyRef: 
+      enable: false
+      secretName: mysecret
+      secretKey: mysecretkey
 
 serviceAccount:
   create: true

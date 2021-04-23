@@ -39,8 +39,15 @@ spec:
         - name: DRUID_USER
           value: {{ .Values.security.druidUser }}
         - name: DRUID_PASSWORD
-          value: {{ .Values.security.druidPassword }}
-{{- end }}   
+{{- if not .Values.security.druidPassword.secretKeyRef.enable }}
+          value: {{ .Values.security.druidPassword.value }}
+{{- else }}
+          valueFrom:
+            secretKeyRef:
+              name: {{ .Values.security.druidPassword.secretKeyRef.secretName }}
+              key: {{ .Values.security.druidPassword.secretKeyRef.secretKey }}
+{{- end }}
+{{- end }}
         image: "{{ .Values.image.name }}:{{ .Values.image.tag }}"
         imagePullPolicy: {{ .Values.image.pullPolicy }}
         name: {{ include "prometheus-druid-exporter.fullname" . }}
