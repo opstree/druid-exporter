@@ -33,7 +33,7 @@ security:
   druidPassword: 
     value: admin
     secretKeyRef: 
-      enable: false
+      enabled: false
       secretName: mysecret
       secretKey: mysecretkey
 
