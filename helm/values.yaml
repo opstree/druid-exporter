@@ -30,7 +30,12 @@ resources: {}
 security:
   enabled: false
   druidUser: admin
-  druidPassword: admin
+  druidPassword: 
+    value: admin
+    secretKeyRef: 
+      enabled: false
+      secretName: mysecret
+      secretKey: mysecretkey
 
 serviceAccount:
   create: true
