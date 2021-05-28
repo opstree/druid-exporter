@@ -49,3 +49,5 @@ serviceMonitor:
   scrapeTimeout: 10s
   additionalLabels: {}
   targetLabels: []
+
+testEnabled: true
