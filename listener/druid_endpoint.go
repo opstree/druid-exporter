@@ -67,15 +67,15 @@ func DruidHTTPEndpoint(metricsCleanupTTL int, disableHistogram bool, histogram *
 				if data["dataSource"] != nil {
 					if arrDatasource, ok := datasource.([]interface{}); ok { // Array datasource
 						for _, entryDatasource := range arrDatasource {
-                            if !disableHistogram {
-                                histogram.With(prometheus.Labels{
-                                    "metric_name": strings.Replace(metric, "/", "-", 3),
-                                    "service":     strings.Replace(service, "/", "-", 3),
-                                    "datasource":  entryDatasource.(string),
-                                    "host":        host,
+							if !disableHistogram {
+								histogram.With(prometheus.Labels{
+									"metric_name": strings.Replace(metric, "/", "-", 3),
+									"service":     strings.Replace(service, "/", "-", 3),
+									"datasource":  entryDatasource.(string),
+									"host":        host,
 									"task_id":     taskId,
-                                }).Observe(value)
-                            }
+								}).Observe(value)
+							}
 
 							labels := prometheus.Labels{
 								"metric_name": strings.Replace(metric, "/", "-", 3),
@@ -88,15 +88,15 @@ func DruidHTTPEndpoint(metricsCleanupTTL int, disableHistogram bool, histogram *
 							gauge.With(labels).Set(value)
 						}
 					} else { // Single datasource
-					    if !disableHistogram {
-                            histogram.With(prometheus.Labels{
-                                "metric_name": strings.Replace(metric, "/", "-", 3),
-                                "service":     strings.Replace(service, "/", "-", 3),
-                                "datasource":  datasource.(string),
-                                "host":        host,
+						if !disableHistogram {
+							histogram.With(prometheus.Labels{
+								"metric_name": strings.Replace(metric, "/", "-", 3),
+								"service":     strings.Replace(service, "/", "-", 3),
+								"datasource":  datasource.(string),
+								"host":        host,
 								"task_id":     taskId,
-                            }).Observe(value)
-                        }
+							}).Observe(value)
+						}
 
 						labels := prometheus.Labels{
 							"metric_name": strings.Replace(metric, "/", "-", 3),
@@ -109,15 +109,15 @@ func DruidHTTPEndpoint(metricsCleanupTTL int, disableHistogram bool, histogram *
 						gauge.With(labels).Set(value)
 					}
 				} else { // Missing datasource case
-				    if !disableHistogram {
-                        histogram.With(prometheus.Labels{
-                            "metric_name": strings.Replace(metric, "/", "-", 3),
-                            "service":     strings.Replace(service, "/", "-", 3),
-                            "datasource":  "",
-                            "host":        host,
+					if !disableHistogram {
+						histogram.With(prometheus.Labels{
+							"metric_name": strings.Replace(metric, "/", "-", 3),
+							"service":     strings.Replace(service, "/", "-", 3),
+							"datasource":  "",
+							"host":        host,
 							"task_id":     taskId,
-                        }).Observe(value)
-                    }
+						}).Observe(value)
+					}
 
 					labels := prometheus.Labels{
 						"metric_name": strings.Replace(metric, "/", "-", 3),
