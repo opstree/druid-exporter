@@ -45,6 +45,7 @@ func DruidHTTPEndpoint(metricsCleanupTTL int, disableHistogram bool, histogram *
 				service := fmt.Sprintf("%v", data["service"])
 				hostname := fmt.Sprintf("%v", data["host"])
 				datasource := data["dataSource"]
+				taskId := fmt.Sprintf("%v", data["id"])
 				value, _ := strconv.ParseFloat(fmt.Sprintf("%v", data["value"]), 64)
 
 				// Reverse DNS Lookup
@@ -72,6 +73,7 @@ func DruidHTTPEndpoint(metricsCleanupTTL int, disableHistogram bool, histogram *
                                     "service":     strings.Replace(service, "/", "-", 3),
                                     "datasource":  entryDatasource.(string),
                                     "host":        host,
+									"task_id":     taskId,
                                 }).Observe(value)
                             }
 
@@ -80,6 +82,7 @@ func DruidHTTPEndpoint(metricsCleanupTTL int, disableHistogram bool, histogram *
 								"service":     strings.Replace(service, "/", "-", 3),
 								"datasource":  entryDatasource.(string),
 								"host":        host,
+								"task_id":     taskId,
 							}
 							gaugeCleaner.add(labels)
 							gauge.With(labels).Set(value)
@@ -91,6 +94,7 @@ func DruidHTTPEndpoint(metricsCleanupTTL int, disableHistogram bool, histogram *
                                 "service":     strings.Replace(service, "/", "-", 3),
                                 "datasource":  datasource.(string),
                                 "host":        host,
+								"task_id":     taskId,
                             }).Observe(value)
                         }
 
@@ -99,6 +103,7 @@ func DruidHTTPEndpoint(metricsCleanupTTL int, disableHistogram bool, histogram *
 							"service":     strings.Replace(service, "/", "-", 3),
 							"datasource":  datasource.(string),
 							"host":        host,
+							"task_id":     taskId,
 						}
 						gaugeCleaner.add(labels)
 						gauge.With(labels).Set(value)
@@ -110,6 +115,7 @@ func DruidHTTPEndpoint(metricsCleanupTTL int, disableHistogram bool, histogram *
                             "service":     strings.Replace(service, "/", "-", 3),
                             "datasource":  "",
                             "host":        host,
+							"task_id":     taskId,
                         }).Observe(value)
                     }
 
@@ -118,6 +124,7 @@ func DruidHTTPEndpoint(metricsCleanupTTL int, disableHistogram bool, histogram *
 						"service":     strings.Replace(service, "/", "-", 3),
 						"datasource":  "",
 						"host":        host,
+						"task_id":     taskId,
 					}
 					gaugeCleaner.add(labels)
 					gauge.With(labels).Set(value)
