@@ -1,3 +1,17 @@
+### v0.11
+##### September 19, 2021
+
+#### :tada: Features
+
+- Added metrics cleanup TTLS for cleaning up metrics from memory
+- Support existing secret in helm chart
+- Added support for extra environment variables
+
+#### :beetle: Bug Fixes
+
+- Fixed metrics overriding issue
+- Helm testing is optional now
+
 ### v0.10
 ##### April 12, 2021
 
