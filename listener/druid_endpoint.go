@@ -46,6 +46,7 @@ func DruidHTTPEndpoint(metricsCleanupTTL int, disableHistogram bool, histogram *
 				service := fmt.Sprintf("%v", data["service"])
 				hostname := fmt.Sprintf("%v", data["host"])
 				datasource := data["dataSource"]
+				id := fmt.Sprintf("%v", data["id"])
 				value, _ := strconv.ParseFloat(fmt.Sprintf("%v", data["value"]), 64)
 
 				if data["id"] != nil {
