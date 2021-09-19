@@ -40,13 +40,13 @@ var (
 		prometheus.HistogramOpts{
 			Name: "druid_emitted_metrics_histogram",
 			Help: "Druid emitted metrics from druid emitter",
-		}, []string{"host", "metric_name", "service", "datasource"},
+		}, []string{"host", "metric_name", "service", "datasource", "id"},
 	)
 	druidEmittedDataGauge = prometheus.NewGaugeVec(
 		prometheus.GaugeOpts{
 			Name: "druid_emitted_metrics",
 			Help: "Druid emitted metrics from druid emitter",
-		}, []string{"host", "metric_name", "service", "datasource"},
+		}, []string{"host", "metric_name", "service", "datasource", "id"},
 	)
 )
 
