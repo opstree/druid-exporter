@@ -20,6 +20,7 @@ func DruidHTTPEndpoint(metricsCleanupTTL int, disableHistogram bool, histogram *
 	gaugeCleaner := newCleaner(gauge, metricsCleanupTTL)
 	return func(w http.ResponseWriter, req *http.Request) {
 		var druidData []map[string]interface{}
+		var id string
 		reqHeader, _ := header.ParseValueAndParams(req.Header, "Content-Type")
 		if req.Method == "POST" && reqHeader == "application/json" {
 			output, err := ioutil.ReadAll(req.Body)
@@ -45,9 +46,13 @@ func DruidHTTPEndpoint(metricsCleanupTTL int, disableHistogram bool, histogram *
 				service := fmt.Sprintf("%v", data["service"])
 				hostname := fmt.Sprintf("%v", data["host"])
 				datasource := data["dataSource"]
-				id := fmt.Sprintf("%v", data["id"])
 				value, _ := strconv.ParseFloat(fmt.Sprintf("%v", data["value"]), 64)
 
+				if data["id"] != nil {
+					id = fmt.Sprintf("%v", data["id"])
+				} else {
+					id = ""
+				}
 				// Reverse DNS Lookup
 				// Mutates dnsCache
 				hostValue := strings.Split(hostname, ":")[0]
@@ -62,7 +67,7 @@ func DruidHTTPEndpoint(metricsCleanupTTL int, disableHistogram bool, histogram *
 					logrus.Tracef("    hostname   => (%s -> %s)", hostname, host)
 					logrus.Tracef("    datasource => %v", datasource)
 					logrus.Tracef("    value      => %v", value)
-					logrus.Tracef("    id      => %v", id)
+					logrus.Tracef("    id         => %v", id)
 				}
 
 				if data["dataSource"] != nil {
