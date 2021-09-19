@@ -28,14 +28,14 @@ var (
 		"Log format for druid exporter, text or json, EnvVar - LOG_FORMAT. (Default: text)",
 	).Default("text").OverrideDefaultFromEnvar("LOG_FORMAT").Short('f').String()
 	disableHistogram = kingpin.Flag(
-    		"no-histogram",
-    		"Flag whether to export histogram metrics or not.",
-    	).Default("false").OverrideDefaultFromEnvar("NO_HISTOGRAM").Bool()
+		"no-histogram",
+		"Flag whether to export histogram metrics or not.",
+	).Default("false").OverrideDefaultFromEnvar("NO_HISTOGRAM").Bool()
 
 	metricsCleanupTTL = kingpin.Flag(
-    		"metrics-cleanup-ttl",
-    		"Flag to provide time in minutes for metrics cleanup.",
-    	).Default("5").OverrideDefaultFromEnvar("METRICS_CLEANUP_TTL").Int()
+		"metrics-cleanup-ttl",
+		"Flag to provide time in minutes for metrics cleanup.",
+	).Default("5").OverrideDefaultFromEnvar("METRICS_CLEANUP_TTL").Int()
 	druidEmittedDataHistogram = prometheus.NewHistogramVec(
 		prometheus.HistogramOpts{
 			Name: "druid_emitted_metrics_histogram",

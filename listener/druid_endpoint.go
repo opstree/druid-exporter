@@ -45,6 +45,7 @@ func DruidHTTPEndpoint(metricsCleanupTTL int, disableHistogram bool, histogram *
 				service := fmt.Sprintf("%v", data["service"])
 				hostname := fmt.Sprintf("%v", data["host"])
 				datasource := data["dataSource"]
+				id := fmt.Sprintf("%v", data["id"])
 				value, _ := strconv.ParseFloat(fmt.Sprintf("%v", data["value"]), 64)
 
 				// Reverse DNS Lookup
@@ -61,63 +62,70 @@ func DruidHTTPEndpoint(metricsCleanupTTL int, disableHistogram bool, histogram *
 					logrus.Tracef("    hostname   => (%s -> %s)", hostname, host)
 					logrus.Tracef("    datasource => %v", datasource)
 					logrus.Tracef("    value      => %v", value)
+					logrus.Tracef("    id      => %v", id)
 				}
 
 				if data["dataSource"] != nil {
 					if arrDatasource, ok := datasource.([]interface{}); ok { // Array datasource
 						for _, entryDatasource := range arrDatasource {
-                            if !disableHistogram {
-                                histogram.With(prometheus.Labels{
-                                    "metric_name": strings.Replace(metric, "/", "-", 3),
-                                    "service":     strings.Replace(service, "/", "-", 3),
-                                    "datasource":  entryDatasource.(string),
-                                    "host":        host,
-                                }).Observe(value)
-                            }
+							if !disableHistogram {
+								histogram.With(prometheus.Labels{
+									"metric_name": strings.Replace(metric, "/", "-", 3),
+									"service":     strings.Replace(service, "/", "-", 3),
+									"datasource":  entryDatasource.(string),
+									"host":        host,
+									"id":          id,
+								}).Observe(value)
+							}
 
 							labels := prometheus.Labels{
 								"metric_name": strings.Replace(metric, "/", "-", 3),
 								"service":     strings.Replace(service, "/", "-", 3),
 								"datasource":  entryDatasource.(string),
 								"host":        host,
+								"id":          id,
 							}
 							gaugeCleaner.add(labels)
 							gauge.With(labels).Set(value)
 						}
 					} else { // Single datasource
-					    if !disableHistogram {
-                            histogram.With(prometheus.Labels{
-                                "metric_name": strings.Replace(metric, "/", "-", 3),
-                                "service":     strings.Replace(service, "/", "-", 3),
-                                "datasource":  datasource.(string),
-                                "host":        host,
-                            }).Observe(value)
-                        }
+						if !disableHistogram {
+							histogram.With(prometheus.Labels{
+								"metric_name": strings.Replace(metric, "/", "-", 3),
+								"service":     strings.Replace(service, "/", "-", 3),
+								"datasource":  datasource.(string),
+								"host":        host,
+								"id":          id,
+							}).Observe(value)
+						}
 
 						labels := prometheus.Labels{
 							"metric_name": strings.Replace(metric, "/", "-", 3),
 							"service":     strings.Replace(service, "/", "-", 3),
 							"datasource":  datasource.(string),
 							"host":        host,
+							"id":          id,
 						}
 						gaugeCleaner.add(labels)
 						gauge.With(labels).Set(value)
 					}
 				} else { // Missing datasource case
-				    if !disableHistogram {
-                        histogram.With(prometheus.Labels{
-                            "metric_name": strings.Replace(metric, "/", "-", 3),
-                            "service":     strings.Replace(service, "/", "-", 3),
-                            "datasource":  "",
-                            "host":        host,
-                        }).Observe(value)
-                    }
+					if !disableHistogram {
+						histogram.With(prometheus.Labels{
+							"metric_name": strings.Replace(metric, "/", "-", 3),
+							"service":     strings.Replace(service, "/", "-", 3),
+							"datasource":  "",
+							"host":        host,
+							"id":          id,
+						}).Observe(value)
+					}
 
 					labels := prometheus.Labels{
 						"metric_name": strings.Replace(metric, "/", "-", 3),
 						"service":     strings.Replace(service, "/", "-", 3),
 						"datasource":  "",
 						"host":        host,
+						"id":          id,
 					}
 					gaugeCleaner.add(labels)
 					gauge.With(labels).Set(value)
