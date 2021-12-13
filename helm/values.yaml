@@ -57,5 +57,14 @@ serviceMonitor:
   scrapeTimeout: 10s
   additionalLabels: {}
   targetLabels: []
+  # ref: https://github.com/prometheus-operator/prometheus-operator/blob/main/Documentation/api.md#endpoint
+  relabelings: []
+  metricRelabelings: []
+    ## Solves conflict with the label 'service' set on the kube-prometehus-stack
+    # - sourceLabels:
+    #   - exported_service
+    #   targetLabel: druid_service
+    # - regex: exported_service
+    #   action: labeldrop
 
 testEnabled: true
