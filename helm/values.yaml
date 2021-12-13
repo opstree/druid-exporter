@@ -29,12 +29,18 @@ resources: {}
   #   cpu: 100m
   #   memory: 128Mi
 
+# ref: https://kubernetes.io/docs/concepts/configuration/assign-pod-node/#affinity-and-anti-affinity
+affinity: {}
+
+# ref: https://kubernetes.io/docs/concepts/configuration/taint-and-toleration/
+tolerations: []
+
 security:
   enabled: false
   druidUser: admin
-  druidPassword: 
+  druidPassword:
     value: admin
-    secretKeyRef: 
+    secretKeyRef:
       enabled: false
       secretName: mysecret
       secretKey: mysecretkey
