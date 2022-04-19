@@ -63,3 +63,9 @@ spec:
       serviceAccount: {{ include "prometheus-druid-exporter.fullname" . }}
       serviceAccountName: {{ include "prometheus-druid-exporter.fullname" . }}
 {{- end }}
+{{- if .Values.affinity }}
+      affinity: {{- toYaml .Values.affinity | nindent 8 }}
+{{- end }}
+{{- if .Values.tolerations }}
+      tolerations: {{- toYaml .Values.tolerations | nindent 8 }}
+{{- end }}
