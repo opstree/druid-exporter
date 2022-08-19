@@ -5,7 +5,9 @@ import (
 	"encoding/json"
 	"fmt"
 	"math/rand"
+	"time"
 
+	"github.com/patrickmn/go-cache"
 	"github.com/prometheus/client_golang/prometheus"
 	"github.com/sirupsen/logrus"
 	"gopkg.in/alecthomas/kingpin.v2"
@@ -15,6 +17,7 @@ var (
 	druid = kingpin.Flag(
 		"druid.uri",
 		"URL of druid router or coordinator, EnvVar - DRUID_URL",
+	// ).Default("http://localhost:8888").OverrideDefaultFromEnvar("DRUID_URL").Short('d').String()
 	).Default("http://localhost:8888").OverrideDefaultFromEnvar("DRUID_URL").Short('d').String()
 )
 
@@ -126,6 +129,31 @@ func GetDruidHistoricalTotalFreespace(pathURL string) DruidHistoricalTotalFreeSp
 	return freeSpace
 }
 
+// GetDruidHistoricalFreespace returns the sum of freespace of historical nodes
+func GetDruidHistoricalFreespace(pathURL string, dnsCache *cache.Cache) DruidHistoricalFreeSpace {
+	kingpin.Parse()
+	druidURL := *druid + pathURL
+	responseData, err := utils.GetSQLResponse(druidURL, historicalFreeSpace)
+	if err != nil {
+		logrus.Errorf("Cannot retrieve data for druid's datasources rows: %v", err)
+		return nil
+	}
+	logrus.Debugf("Successfully retrieved the data for druid's datasources rows")
+	var freeSpace DruidHistoricalFreeSpace
+	err = json.Unmarshal(responseData, &freeSpace)
+	if err != nil {
+		logrus.Errorf("Cannot parse JSON data: %v", err)
+		return nil
+	}
+
+	for i, _ := range freeSpace {
+		freeSpace[i].POD = utils.ReverseDNSLookup(freeSpace[i].IP, dnsCache)
+	}
+
+	logrus.Debugf("Druid Historical total free space, %v", freeSpace)
+	return freeSpace
+}
+
 // GetDruidTasksStatusCount returns count of different tasks by status
 func GetDruidTasksStatusCount(pathURL string) TaskStatusMetric {
 	kingpin.Parse()
@@ -224,6 +252,10 @@ func Collector() *MetricCollector {
 			"Number of rows in a datasource",
 			[]string{"datasource_name", "source"}, nil),
 
+		DruidHistoricalFreeSpace: prometheus.NewDesc("data_historical_free_space",
+			"Freespace of all historicals per node",
+			[]string{"host", "server_type", "ip", "pod"}, nil),
+
 		DruidHistoricalTotalFreeSpace: prometheus.NewDesc("data_historical_total_free_space",
 			"Sum of freespace of all historicals", nil, nil),
 
@@ -248,6 +280,9 @@ func Collector() *MetricCollector {
 
 // Collect will collect all the metrics
 func (collector *MetricCollector) Collect(ch chan<- prometheus.Metric) {
+
+	dnsCache := cache.New(5*time.Minute, 10*time.Minute)
+
 	ch <- prometheus.MustNewConstMetric(collector.DruidHealthStatus,
 		prometheus.CounterValue, GetDruidHealthMetrics())
 	for _, data := range GetDruidSegmentData() {
@@ -313,6 +348,10 @@ func (collector *MetricCollector) Collect(ch chan<- prometheus.Metric) {
 
 	for _, data := range GetDruidDataSourcesTotalRows(sqlURL) {
 		ch <- prometheus.MustNewConstMetric(collector.DruidDataSourcesTotalRows, prometheus.GaugeValue, float64(data.TotalRows), data.Datasource, data.Source)
+	}
+
+	for _, data := range GetDruidHistoricalFreespace(sqlURL, dnsCache) {
+		ch <- prometheus.MustNewConstMetric(collector.DruidHistoricalFreeSpace, prometheus.GaugeValue, float64(data.FreeSize), data.Host, data.ServerType, data.IP, data.POD)
 	}
 
 	for _, data := range GetDruidHistoricalTotalFreespace(sqlURL) {

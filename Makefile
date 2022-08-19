@@ -1,8 +1,13 @@
+# # Image URL to use all building/pushing image targets
+# REGISTRY ?= quay.io
+# REPOSITORY ?= $(REGISTRY)/opstree
+# IMAGE ?= druid-exporter
+# VERSION ?= v0.11
+
 # Image URL to use all building/pushing image targets
-REGISTRY ?= quay.io
-REPOSITORY ?= $(REGISTRY)/opstree
+REPOSITORY ?= iunera
 IMAGE ?= druid-exporter
-VERSION ?= v0.11
+VERSION ?= v0.12.3
 
 get-depends:
 	go get -v ./...
@@ -13,7 +18,7 @@ build-code:	get-depends
 build-image:
 	docker build -t ${REPOSITORY}/${IMAGE}:${VERSION} -f Dockerfile .
 
-push-image:
+push-image: build-image
 	docker push ${REPOSITORY}/${IMAGE}:${VERSION}
 
 fmt:
