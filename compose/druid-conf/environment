@@ -40,6 +40,7 @@ druid_coordinator_balancer_strategy=cachingCostg
 druid_indexer_runner_javaOptsArray=["-server", "-Xmx1g", "-Xms1g", "-XX:MaxDirectMemorySize=3g", "-Duser.timezone=UTC", "-Dfile.encoding=UTF-8", "-Djava.util.logging.manager=org.apache.logging.log4j.jul.LogManager"]
 druid_indexer_fork_property_druid_processing_buffer_sizeBytes=268435456
 
+druid_segmentCache_locations=[{"path":"/tmp/segment-cache","maxSize":"1g"}]
 druid_storage_type=local
 druid_storage_storageDirectory=/opt/data/segments
 druid_indexer_logs_type=file

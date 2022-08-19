@@ -15,7 +15,7 @@ var (
 	druid = kingpin.Flag(
 		"druid.uri",
 		"URL of druid router or coordinator, EnvVar - DRUID_URL",
-	).Default("http://druid.opstreelabs.in").OverrideDefaultFromEnvar("DRUID_URL").Short('d').String()
+	).Default("http://localhost:8888").OverrideDefaultFromEnvar("DRUID_URL").Short('d').String()
 )
 
 // GetDruidHealthMetrics returns the set of metrics for druid
@@ -27,7 +27,7 @@ func GetDruidHealthMetrics() float64 {
 }
 
 // GetDruidSegmentData returns the datasources of druid
-func GetDruidSegmentData() SegementInterface {
+func GetDruidSegmentData() SegmentInterface {
 	kingpin.Parse()
 	druidSegmentURL := *druid + segmentDataURL
 	responseData, err := utils.GetResponse(druidSegmentURL, "Segment")
@@ -36,7 +36,7 @@ func GetDruidSegmentData() SegementInterface {
 		return nil
 	}
 	logrus.Debugf("Successfully collected the data for druid segment")
-	var metric SegementInterface
+	var metric SegmentInterface
 	err = json.Unmarshal(responseData, &metric)
 	if err != nil {
 		logrus.Errorf("Cannot parse JSON data: %v", err)
@@ -104,6 +104,26 @@ func GetDruidDataSourcesTotalRows(pathURL string) DataSourcesTotalRows {
 	}
 	logrus.Debugf("Druid datasources total rows, %v", datasources)
 	return datasources
+}
+
+// GetDruidHistoricalTotalFreespace returns the sum of freespace of all historicals
+func GetDruidHistoricalTotalFreespace(pathURL string) DruidHistoricalTotalFreeSpace {
+	kingpin.Parse()
+	druidURL := *druid + pathURL
+	responseData, err := utils.GetSQLResponse(druidURL, historicalTotalFreeSpace)
+	if err != nil {
+		logrus.Errorf("Cannot retrieve data for druid's datasources rows: %v", err)
+		return nil
+	}
+	logrus.Debugf("Successfully retrieved the data for druid's datasources rows")
+	var freeSpace DruidHistoricalTotalFreeSpace
+	err = json.Unmarshal(responseData, &freeSpace)
+	if err != nil {
+		logrus.Errorf("Cannot parse JSON data: %v", err)
+		return nil
+	}
+	logrus.Debugf("Druid Historical total free space, %v", freeSpace)
+	return freeSpace
 }
 
 // GetDruidTasksStatusCount returns count of different tasks by status
@@ -203,6 +223,10 @@ func Collector() *MetricCollector {
 		DruidDataSourcesTotalRows: prometheus.NewDesc("druid_datasource_total_rows",
 			"Number of rows in a datasource",
 			[]string{"datasource_name", "source"}, nil),
+
+		DruidHistoricalTotalFreeSpace: prometheus.NewDesc("data_historical_total_free_space",
+			"Sum of freespace of all historicals", nil, nil),
+
 		DruidRunningTasks: prometheus.NewDesc("druid_running_tasks",
 			"Druid running tasks count",
 			nil, nil,
@@ -289,5 +313,9 @@ func (collector *MetricCollector) Collect(ch chan<- prometheus.Metric) {
 
 	for _, data := range GetDruidDataSourcesTotalRows(sqlURL) {
 		ch <- prometheus.MustNewConstMetric(collector.DruidDataSourcesTotalRows, prometheus.GaugeValue, float64(data.TotalRows), data.Datasource, data.Source)
+	}
+
+	for _, data := range GetDruidHistoricalTotalFreespace(sqlURL) {
+		ch <- prometheus.MustNewConstMetric(collector.DruidHistoricalTotalFreeSpace, prometheus.GaugeValue, float64(data.TotalFreeSpace))
 	}
 }

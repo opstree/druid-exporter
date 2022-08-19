@@ -26,21 +26,24 @@ from sys.segments SEG
 inner join sys.supervisors SUP ON SEG.datasource=SUP.supervisor_id
 group by SEG.datasource, SUP.source`
 
+const historicalTotalFreeSpace = `SELECT "server_type", sum("max_size" - "curr_size") as "total_free_space" FROM sys.servers WHERE "server_type" = 'historical' GROUP BY "server_type"`
+
 // MetricCollector includes the list of metrics
 type MetricCollector struct {
-	DruidHealthStatus         *prometheus.Desc
-	DataSourceCount           *prometheus.Desc
-	DruidWorkers              *prometheus.Desc
-	DruidTasks                *prometheus.Desc
-	DruidSupervisors          *prometheus.Desc
-	DruidSegmentCount         *prometheus.Desc
-	DruidSegmentSize          *prometheus.Desc
-	DruidSegmentReplicateSize *prometheus.Desc
-	DruidDataSourcesTotalRows *prometheus.Desc
-	DruidRunningTasks         *prometheus.Desc
-	DruidWaitingTasks         *prometheus.Desc
-	DruidCompletedTasks       *prometheus.Desc
-	DruidPendingTasks         *prometheus.Desc
+	DruidHealthStatus             *prometheus.Desc
+	DataSourceCount               *prometheus.Desc
+	DruidWorkers                  *prometheus.Desc
+	DruidTasks                    *prometheus.Desc
+	DruidSupervisors              *prometheus.Desc
+	DruidSegmentCount             *prometheus.Desc
+	DruidSegmentSize              *prometheus.Desc
+	DruidSegmentReplicateSize     *prometheus.Desc
+	DruidDataSourcesTotalRows     *prometheus.Desc
+	DruidHistoricalTotalFreeSpace *prometheus.Desc
+	DruidRunningTasks             *prometheus.Desc
+	DruidWaitingTasks             *prometheus.Desc
+	DruidCompletedTasks           *prometheus.Desc
+	DruidPendingTasks             *prometheus.Desc
 }
 
 // DataSourcesTotalRows shows total rows from each datasource
@@ -50,8 +53,13 @@ type DataSourcesTotalRows []struct {
 	TotalRows  int64  `json:"total_rows"`
 }
 
-// SegementInterface is the interface for parsing segments data
-type SegementInterface []struct {
+// DataSourcesTotalRows shows total rows from each datasource
+type DruidHistoricalTotalFreeSpace []struct {
+	TotalFreeSpace int64 `json:"total_free_space"`
+}
+
+// SegmentInterface is the interface for parsing segments data
+type SegmentInterface []struct {
 	Name       string `json:"name"`
 	Properties struct {
 		Tiers struct {
