@@ -26,36 +26,24 @@ from sys.segments SEG
 inner join sys.supervisors SUP ON SEG.datasource=SUP.supervisor_id
 group by SEG.datasource, SUP.source`
 
-const historicalTotalFreeSpace = `SELECT "server_type", sum("max_size" - "curr_size") as "total_free_space" FROM sys.servers WHERE "server_type" = 'historical' GROUP BY "server_type"`
-
-const historicalFreeSpace = `
-SELECT
-  "server" AS "host",
-  "server_type" AS "server_type",
-  "host" as "ip",
-  "max_size" - "curr_size" as "free_size"
-FROM sys.servers
-WHERE 
-"server_type" = 'historical'
-`
-
 // MetricCollector includes the list of metrics
 type MetricCollector struct {
-	DruidHealthStatus             *prometheus.Desc
-	DataSourceCount               *prometheus.Desc
-	DruidWorkers                  *prometheus.Desc
-	DruidTasks                    *prometheus.Desc
-	DruidSupervisors              *prometheus.Desc
-	DruidSegmentCount             *prometheus.Desc
-	DruidSegmentSize              *prometheus.Desc
-	DruidSegmentReplicateSize     *prometheus.Desc
-	DruidDataSourcesTotalRows     *prometheus.Desc
-	DruidHistoricalTotalFreeSpace *prometheus.Desc
-	DruidHistoricalFreeSpace      *prometheus.Desc
-	DruidRunningTasks             *prometheus.Desc
-	DruidWaitingTasks             *prometheus.Desc
-	DruidCompletedTasks           *prometheus.Desc
-	DruidPendingTasks             *prometheus.Desc
+	DruidHealthStatus            *prometheus.Desc
+	DataSourceCount              *prometheus.Desc
+	DruidWorkers                 *prometheus.Desc
+	DruidTasks                   *prometheus.Desc
+	DruidSupervisors             *prometheus.Desc
+	DruidSegmentCount            *prometheus.Desc
+	DruidSegmentSize             *prometheus.Desc
+	DruidSegmentReplicateSize    *prometheus.Desc
+	DruidDataSourcesTotalRows    *prometheus.Desc
+	DruidHistoricalUsagePercent  *prometheus.Desc
+	DruidHistoricalUsageAbsolute *prometheus.Desc
+	DruidHistoricalFreeSpace     *prometheus.Desc
+	DruidRunningTasks            *prometheus.Desc
+	DruidWaitingTasks            *prometheus.Desc
+	DruidCompletedTasks          *prometheus.Desc
+	DruidPendingTasks            *prometheus.Desc
 }
 
 // DataSourcesTotalRows shows total rows from each datasource
@@ -65,17 +53,28 @@ type DataSourcesTotalRows []struct {
 	TotalRows  int64  `json:"total_rows"`
 }
 
-// DataSourcesTotalRows shows total rows from each datasource
-type DruidHistoricalTotalFreeSpace []struct {
-	TotalFreeSpace int64 `json:"total_free_space"`
-}
-
 type DruidHistoricalFreeSpace []struct {
 	Host       string `json:"host"`
 	ServerType string `json:"server_type"`
 	IP         string `json:"ip"`
 	FreeSize   int64  `json:"free_size"`
 	POD        string ""
+}
+
+type DruidHistoricalUsagePercent []struct {
+	Host         string  `json:"host"`
+	ServerType   string  `json:"server_type"`
+	IP           string  `json:"ip"`
+	UsagePercent float64 `json:"usage_percent"`
+	POD          string  ""
+}
+
+type DruidHistoricalUsageAbsolute []struct {
+	Host          string `json:"host"`
+	ServerType    string `json:"server_type"`
+	IP            string `json:"ip"`
+	UsageAbsolute int64  `json:"usage_absolute"`
+	POD           string ""
 }
 
 // SegmentInterface is the interface for parsing segments data

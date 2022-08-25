@@ -73,7 +73,7 @@ func main() {
 		})
 	}
 
-	dnsCache := cache.New(5*time.Minute, 10*time.Minute)
+	dnsCache := cache.New(1*time.Minute, 3*time.Minute)
 	router := mux.NewRouter()
 	getDruidAPIdata := collector.Collector()
 	handlerFunc := newHandler(*getDruidAPIdata)

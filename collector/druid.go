@@ -17,7 +17,6 @@ var (
 	druid = kingpin.Flag(
 		"druid.uri",
 		"URL of druid router or coordinator, EnvVar - DRUID_URL",
-	// ).Default("http://localhost:8888").OverrideDefaultFromEnvar("DRUID_URL").Short('d').String()
 	).Default("http://localhost:8888").OverrideDefaultFromEnvar("DRUID_URL").Short('d').String()
 )
 
@@ -109,36 +108,26 @@ func GetDruidDataSourcesTotalRows(pathURL string) DataSourcesTotalRows {
 	return datasources
 }
 
-// GetDruidHistoricalTotalFreespace returns the sum of freespace of all historicals
-func GetDruidHistoricalTotalFreespace(pathURL string) DruidHistoricalTotalFreeSpace {
-	kingpin.Parse()
-	druidURL := *druid + pathURL
-	responseData, err := utils.GetSQLResponse(druidURL, historicalTotalFreeSpace)
-	if err != nil {
-		logrus.Errorf("Cannot retrieve data for druid's datasources rows: %v", err)
-		return nil
-	}
-	logrus.Debugf("Successfully retrieved the data for druid's datasources rows")
-	var freeSpace DruidHistoricalTotalFreeSpace
-	err = json.Unmarshal(responseData, &freeSpace)
-	if err != nil {
-		logrus.Errorf("Cannot parse JSON data: %v", err)
-		return nil
-	}
-	logrus.Debugf("Druid Historical total free space, %v", freeSpace)
-	return freeSpace
-}
-
 // GetDruidHistoricalFreespace returns the sum of freespace of historical nodes
 func GetDruidHistoricalFreespace(pathURL string, dnsCache *cache.Cache) DruidHistoricalFreeSpace {
 	kingpin.Parse()
 	druidURL := *druid + pathURL
-	responseData, err := utils.GetSQLResponse(druidURL, historicalFreeSpace)
+	const query = `
+	SELECT
+		"server" AS "host",
+		"server_type" AS "server_type",
+		"host" as "ip",
+		"max_size" - "curr_size" as "free_size"
+	FROM sys.servers
+	WHERE 
+	"server_type" = 'historical'
+	`
+	responseData, err := utils.GetSQLResponse(druidURL, query)
 	if err != nil {
-		logrus.Errorf("Cannot retrieve data for druid's datasources rows: %v", err)
+		logrus.Errorf("Cannot retrieve data from druid about freespace: %v", err)
 		return nil
 	}
-	logrus.Debugf("Successfully retrieved the data for druid's datasources rows")
+	logrus.Debugf("Successfully retrieved from druid about total freespace")
 	var freeSpace DruidHistoricalFreeSpace
 	err = json.Unmarshal(responseData, &freeSpace)
 	if err != nil {
@@ -152,6 +141,74 @@ func GetDruidHistoricalFreespace(pathURL string, dnsCache *cache.Cache) DruidHis
 
 	logrus.Debugf("Druid Historical total free space, %v", freeSpace)
 	return freeSpace
+}
+
+func GetDruidHistoricalUsagePercent(pathURL string, dnsCache *cache.Cache) DruidHistoricalUsagePercent {
+	kingpin.Parse()
+	druidURL := *druid + pathURL
+	const query = `
+	SELECT
+  "server" AS "host",
+  "server_type" AS "server_type",
+  "host" AS "ip",
+  CAST ("curr_size" AS FLOAT) / CAST ("max_size" AS FLOAT) * 100.0 AS "usage_percent"
+  FROM sys.servers
+  WHERE 
+  "server_type" = 'historical'
+	`
+	responseData, err := utils.GetSQLResponse(druidURL, query)
+	if err != nil {
+		logrus.Errorf("Cannot retrieve data from druid about usage: %v", err)
+		return nil
+	}
+	logrus.Debugf("Successfully retrieved from druid about usage")
+	var usage DruidHistoricalUsagePercent
+	err = json.Unmarshal(responseData, &usage)
+	if err != nil {
+		logrus.Errorf("Cannot parse JSON data: %v", err)
+		return nil
+	}
+
+	for i, _ := range usage {
+		usage[i].POD = utils.ReverseDNSLookup(usage[i].IP, dnsCache)
+	}
+
+	logrus.Debugf("Druid Historical total free space, %v", usage)
+	return usage
+}
+
+func GetDruidHistoricalUsageAbsolute(pathURL string, dnsCache *cache.Cache) DruidHistoricalUsageAbsolute {
+	kingpin.Parse()
+	druidURL := *druid + pathURL
+	const query = `
+	SELECT
+  "server" AS "host",
+  "server_type" AS "server_type",
+  "host" AS "ip",
+	"curr_size" AS "usage_absolute"
+  FROM sys.servers
+  WHERE 
+  "server_type" = 'historical'
+	`
+	responseData, err := utils.GetSQLResponse(druidURL, query)
+	if err != nil {
+		logrus.Errorf("Cannot retrieve data from druid about usage: %v", err)
+		return nil
+	}
+	logrus.Debugf("Successfully retrieved from druid about usage")
+	var usage DruidHistoricalUsageAbsolute
+	err = json.Unmarshal(responseData, &usage)
+	if err != nil {
+		logrus.Errorf("Cannot parse JSON data: %v", err)
+		return nil
+	}
+
+	for i, _ := range usage {
+		usage[i].POD = utils.ReverseDNSLookup(usage[i].IP, dnsCache)
+	}
+
+	logrus.Debugf("Druid Historical usage, %v", usage)
+	return usage
 }
 
 // GetDruidTasksStatusCount returns count of different tasks by status
@@ -252,12 +309,17 @@ func Collector() *MetricCollector {
 			"Number of rows in a datasource",
 			[]string{"datasource_name", "source"}, nil),
 
-		DruidHistoricalFreeSpace: prometheus.NewDesc("data_historical_free_space",
+		DruidHistoricalFreeSpace: prometheus.NewDesc("druid_historical_free_space",
 			"Freespace of all historicals per node",
 			[]string{"host", "server_type", "ip", "pod"}, nil),
 
-		DruidHistoricalTotalFreeSpace: prometheus.NewDesc("data_historical_total_free_space",
-			"Sum of freespace of all historicals", nil, nil),
+		DruidHistoricalUsagePercent: prometheus.NewDesc("druid_historical_usage_percent",
+			"Usage of all historicals per node in Percent",
+			[]string{"host", "server_type", "ip", "pod"}, nil),
+
+		DruidHistoricalUsageAbsolute: prometheus.NewDesc("druid_historical_usage_absolute",
+			"Absolute Usage of all historicals per node",
+			[]string{"host", "server_type", "ip", "pod"}, nil),
 
 		DruidRunningTasks: prometheus.NewDesc("druid_running_tasks",
 			"Druid running tasks count",
@@ -354,7 +416,10 @@ func (collector *MetricCollector) Collect(ch chan<- prometheus.Metric) {
 		ch <- prometheus.MustNewConstMetric(collector.DruidHistoricalFreeSpace, prometheus.GaugeValue, float64(data.FreeSize), data.Host, data.ServerType, data.IP, data.POD)
 	}
 
-	for _, data := range GetDruidHistoricalTotalFreespace(sqlURL) {
-		ch <- prometheus.MustNewConstMetric(collector.DruidHistoricalTotalFreeSpace, prometheus.GaugeValue, float64(data.TotalFreeSpace))
+	for _, data := range GetDruidHistoricalUsagePercent(sqlURL, dnsCache) {
+		ch <- prometheus.MustNewConstMetric(collector.DruidHistoricalUsagePercent, prometheus.GaugeValue, float64(data.UsagePercent), data.Host, data.ServerType, data.IP, data.POD)
+	}
+	for _, data := range GetDruidHistoricalUsageAbsolute(sqlURL, dnsCache) {
+		ch <- prometheus.MustNewConstMetric(collector.DruidHistoricalUsageAbsolute, prometheus.GaugeValue, float64(data.UsageAbsolute), data.Host, data.ServerType, data.IP, data.POD)
 	}
 }

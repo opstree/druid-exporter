@@ -1,6 +1,6 @@
 FROM golang:1.19 as builder
 
-LABEL VERSION=v0.12.3 \
+LABEL VERSION=v0.12.6 \
       ARCH=AMD64 \
       DESCRIPTION="A monitoring of prometheus for druid" \
       MAINTAINER="iunera"
