@@ -21,9 +21,8 @@ version: "3"
 
 services:
   postgres:
-
     container_name: postgres
-    image: postgres:14.2
+    image: postgres:latest
     volumes:
       - metadata_data:/var/lib/postgresql/data
     environment:
@@ -43,7 +42,7 @@ services:
       - druid
 
   coordinator:
-    image: wiquan871/druid:0.23.0
+    image: apache/druid:0.20.0
     container_name: coordinator
     volumes:
       - ./volumes/druid_storage:/opt/data
@@ -61,7 +60,7 @@ services:
       - druid
 
   broker:
-    image: wiquan871/druid:0.23.0
+    image: apache/druid:0.20.0
     container_name: broker
     volumes:
       - druid_var:/opt/druid-conf/var
@@ -79,7 +78,7 @@ services:
       - druid
 
   historical:
-    image: wiquan871/druid:0.23.0
+    image: apache/druid:0.20.0
     container_name: historical
     volumes:
       - ./volumes/druid_storage:/opt/data
@@ -98,7 +97,7 @@ services:
       - druid
 
   middlemanager:
-    image: wiquan871/druid:0.23.0
+    image: apache/druid:0.20.0
     container_name: middlemanager
     volumes:
       - ./volumes/druid_storage:/opt/data
@@ -117,7 +116,7 @@ services:
       - druid
 
   router:
-    image: wiquan871/druid:0.23.0
+    image: apache/druid:0.20.0
     container_name: router
     volumes:
       - druid_var:/opt/druid-conf/var
@@ -135,7 +134,7 @@ services:
       - druid
 
   overlord:
-    image: wiquan871/druid:0.23.0
+    image: apache/druid:0.20.0
     container_name: overlord
     volumes:
       - druid_var:/opt/druid-conf/var
@@ -153,8 +152,7 @@ services:
       - druid
 
   druid_exporter:
-#    image: quay.io/opstree/druid-exporter:v0.10
-    build: ../
+    image: quay.io/opstree/druid-exporter:v0.10
     container_name: druid_exporter
     ports:
       - "9080:8080"
