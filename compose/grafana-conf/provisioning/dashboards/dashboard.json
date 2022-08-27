@@ -1527,7 +1527,7 @@
       "steppedLine": false,
       "targets": [
         {
-          "expr": "druid_completed_tasks",
+          "expr": "druid_running_tasks",
           "interval": "",
           "legendFormat": "",
           "refId": "A"
