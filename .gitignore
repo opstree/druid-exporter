@@ -1,2 +1,4 @@
 druid-exporter
 dist
+.idea/**
+compose/volumes/*
