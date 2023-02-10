@@ -4,11 +4,11 @@ import (
 	"druid-exporter/utils"
 	"encoding/json"
 	"fmt"
-	"math/rand"
-
 	"github.com/prometheus/client_golang/prometheus"
 	"github.com/sirupsen/logrus"
 	"gopkg.in/alecthomas/kingpin.v2"
+	"math/rand"
+	"strings"
 )
 
 var (
@@ -16,6 +16,12 @@ var (
 		"druid.uri",
 		"URL of druid router or coordinator, EnvVar - DRUID_URL",
 	).Default("http://druid.opstreelabs.in").OverrideDefaultFromEnvar("DRUID_URL").Short('d').String()
+)
+
+const (
+	LABEL_NAME_LENGTH_LIMIT = 90
+	EXCEPTION               = "EXCEPTION"
+	FAILED                  = "FAILED"
 )
 
 // GetDruidHealthMetrics returns the set of metrics for druid
@@ -219,15 +225,29 @@ func Collector() *MetricCollector {
 			"Druid pending tasks count",
 			nil, nil,
 		),
+		DruidFailedTasks: prometheus.NewDesc("druid_failed_tasks",
+			"Druid failed tasks count",
+			nil, nil,
+		),
 		DruidTaskCapacity: prometheus.NewDesc("druid_task_capacity",
 			"Druid task capacity",
 			nil, nil,
+		),
+		DruidTaskErrors: prometheus.NewGaugeVec(
+			prometheus.GaugeOpts{
+				Name: "druid_task_errors",
+				Help: "Druid task errors",
+			},
+			[]string{"error_msg"},
 		),
 	}
 }
 
 // Collect will collect all the metrics
 func (collector *MetricCollector) Collect(ch chan<- prometheus.Metric) {
+	var errorMap map[string]float64 = make(map[string]float64)
+	var failedTaskCount float64 = 0
+
 	ch <- prometheus.MustNewConstMetric(collector.DruidHealthStatus,
 		prometheus.CounterValue, GetDruidHealthMetrics())
 	for _, data := range GetDruidSegmentData() {
@@ -285,9 +305,24 @@ func (collector *MetricCollector) Collect(ch chan<- prometheus.Metric) {
 				hostname = workers[rand.Intn(len(workers))].hostname()
 			}
 		}
+		if len(data.ErrorMsg) > 0 {
+			error_label := errorMsgLabel(data.ErrorMsg)
+			errorMap[error_label]++
+			if data.Status == FAILED {
+				failedTaskCount++
+			}
+		}
 		ch <- prometheus.MustNewConstMetric(collector.DruidTasks,
 			prometheus.GaugeValue, data.Duration, hostname, data.DataSource, data.ID, data.GroupID, data.Status, data.CreatedTime)
 	}
+
+	for key, val := range errorMap {
+		m := collector.DruidTaskErrors.With(prometheus.Labels{"error_msg": key})
+		m.Set(val)
+		ch <- m
+	}
+
+	ch <- prometheus.MustNewConstMetric(collector.DruidFailedTasks, prometheus.GaugeValue, failedTaskCount)
 
 	for _, data := range GetDruidData(supervisorURL) {
 		ch <- prometheus.MustNewConstMetric(collector.DruidSupervisors,
@@ -298,4 +333,21 @@ func (collector *MetricCollector) Collect(ch chan<- prometheus.Metric) {
 	for _, data := range GetDruidDataSourcesTotalRows(sqlURL) {
 		ch <- prometheus.MustNewConstMetric(collector.DruidDataSourcesTotalRows, prometheus.GaugeValue, float64(data.TotalRows), data.Datasource, data.Source)
 	}
+}
+
+func errorMsgLabel(errorMsg string) string {
+	var label string
+	i := strings.Index(errorMsg, EXCEPTION)
+	if i > 0 {
+		label = errorMsg[0 : i+9]
+	} else {
+		label = strings.ReplaceAll(errorMsg, " ", "")
+	}
+
+	if len(label) > LABEL_NAME_LENGTH_LIMIT { // truncate label
+		label = label[:LABEL_NAME_LENGTH_LIMIT]
+	}
+
+	fmt.Println(label)
+	return label
 }

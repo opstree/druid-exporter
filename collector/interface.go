@@ -41,7 +41,9 @@ type MetricCollector struct {
 	DruidWaitingTasks         *prometheus.Desc
 	DruidCompletedTasks       *prometheus.Desc
 	DruidPendingTasks         *prometheus.Desc
+	DruidFailedTasks          *prometheus.Desc
 	DruidTaskCapacity         *prometheus.Desc
+	DruidTaskErrors           *prometheus.GaugeVec
 }
 
 // DataSourcesTotalRows shows total rows from each datasource
@@ -83,6 +85,7 @@ type TasksInterface []struct {
 	RunnerStatusCode string  `json:"runnerStatusCode"`
 	Duration         float64 `json:"duration"`
 	DataSource       string  `json:"dataSource"`
+	ErrorMsg         string  `json:"errorMsg,omitempty"`
 }
 
 // TaskStatusMetric is the interface for tasks status
