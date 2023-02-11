@@ -20,7 +20,7 @@ var (
 
 const (
 	LABEL_NAME_LENGTH_LIMIT = 90
-	EXCEPTION               = "EXCEPTION"
+	EXCEPTION               = "Exception"
 	FAILED                  = "FAILED"
 )
 
