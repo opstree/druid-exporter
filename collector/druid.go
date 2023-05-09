@@ -32,6 +32,26 @@ func GetDruidHealthMetrics() float64 {
 	return utils.GetHealth(druidHealthURL)
 }
 
+// GetDruidCompactionData returns the datasources compaction data
+func GetDruidCompactionData() CompactionStatusInterface {
+	kingpin.Parse()
+	druidCompactionStatusURL := *druid + compactionStatusURL
+	responseData, err := utils.GetResponse(druidCompactionStatusURL, "Compaction")
+	if err != nil {
+		logrus.Errorf("Cannot collect data for druid compaction status: %v", err)
+		return nil
+	}
+	logrus.Debugf("Successfully collected the data for druid compaction status")
+	var metric map[string]CompactionStatusInterface
+	err = json.Unmarshal(responseData, &metric)
+	if err != nil {
+		logrus.Errorf("Cannot parse JSON data: %v", err)
+		return nil
+	}
+	logrus.Debugf("Druid compaction status data, %v", metric)
+	return metric["latestStatus"]
+}
+
 // GetDruidSegmentData returns the datasources of druid
 func GetDruidSegmentData() SegementInterface {
 	kingpin.Parse()
@@ -167,6 +187,9 @@ func (collector *MetricCollector) Describe(ch chan<- *prometheus.Desc) {
 	ch <- collector.DruidWaitingTasks
 	ch <- collector.DruidCompletedTasks
 	ch <- collector.DruidPendingTasks
+	ch <- collector.DruidBytesCompaction
+	ch <- collector.DruidSegmentCountCompaction
+	ch <- collector.DruidIntervalCountCompaction
 }
 
 // Collector return the defined metrics
@@ -239,6 +262,15 @@ func Collector() *MetricCollector {
 				Help: "Druid task errors",
 			},
 			[]string{"error_msg"},
+		),
+		DruidBytesCompaction: prometheus.NewDesc("druid_bytes_compaction",
+			"Druid Bytes compaction", []string{"datasource"}, nil,
+		),
+		DruidSegmentCountCompaction: prometheus.NewDesc("druid_segment_count_compaction",
+			"Druid Segment Count Compaction", []string{"datasource"}, nil,
+		),
+		DruidIntervalCountCompaction: prometheus.NewDesc("druid_interval_count_compaction",
+			"Druid Interval Count Compaction", []string{"datasource"}, nil,
 		),
 	}
 }
@@ -332,6 +364,17 @@ func (collector *MetricCollector) Collect(ch chan<- prometheus.Metric) {
 
 	for _, data := range GetDruidDataSourcesTotalRows(sqlURL) {
 		ch <- prometheus.MustNewConstMetric(collector.DruidDataSourcesTotalRows, prometheus.GaugeValue, float64(data.TotalRows), data.Datasource, data.Source)
+	}
+
+	for _, data := range GetDruidCompactionData() {
+		b := data.BytesCompacted * 100 / (data.BytesCompacted + data.BytesAwaitingCompaction)
+		ch <- prometheus.MustNewConstMetric(collector.DruidBytesCompaction, prometheus.GaugeValue, b, data.DataSource)
+
+		sc := data.SegmentCountCompacted * 100 / (data.SegmentCountCompacted + data.SegmentCountAwaitingCompaction)
+		ch <- prometheus.MustNewConstMetric(collector.DruidSegmentCountCompaction, prometheus.GaugeValue, sc, data.DataSource)
+
+		ic := data.IntervalCountCompacted * 100 / (data.IntervalCountCompacted + data.IntervalCountAwaitingCompaction)
+		ch <- prometheus.MustNewConstMetric(collector.DruidIntervalCountCompaction, prometheus.GaugeValue, ic, data.DataSource)
 	}
 }
 

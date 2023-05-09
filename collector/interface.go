@@ -8,16 +8,17 @@ import (
 )
 
 const (
-	healthURL      = "/status/health"
-	segmentDataURL = "/druid/coordinator/v1/datasources?simple"
-	tasksURL       = "/druid/indexer/v1/tasks"
-	workersURL     = "/druid/indexer/v1/workers"
-	supervisorURL  = "/druid/indexer/v1/supervisor?full"
-	sqlURL         = "/druid/v2/sql"
-	pendingTask    = "/druid/indexer/v1/pendingTasks"
-	runningTask    = "/druid/indexer/v1/runningTasks"
-	waitingTask    = "/druid/indexer/v1/waitingTasks"
-	completedTask  = "/druid/indexer/v1/completeTasks"
+	healthURL           = "/status/health"
+	segmentDataURL      = "/druid/coordinator/v1/datasources?simple"
+	tasksURL            = "/druid/indexer/v1/tasks"
+	workersURL          = "/druid/indexer/v1/workers"
+	supervisorURL       = "/druid/indexer/v1/supervisor?full"
+	sqlURL              = "/druid/v2/sql"
+	pendingTask         = "/druid/indexer/v1/pendingTasks"
+	runningTask         = "/druid/indexer/v1/runningTasks"
+	waitingTask         = "/druid/indexer/v1/waitingTasks"
+	completedTask       = "/druid/indexer/v1/completeTasks"
+	compactionStatusURL = "/druid/coordinator/v1/compaction/status"
 )
 
 const totalRowsSQL = `select SEG.datasource, SUP.source,
@@ -28,22 +29,25 @@ group by SEG.datasource, SUP.source`
 
 // MetricCollector includes the list of metrics
 type MetricCollector struct {
-	DruidHealthStatus         *prometheus.Desc
-	DataSourceCount           *prometheus.Desc
-	DruidWorkers              *prometheus.Desc
-	DruidTasks                *prometheus.Desc
-	DruidSupervisors          *prometheus.Desc
-	DruidSegmentCount         *prometheus.Desc
-	DruidSegmentSize          *prometheus.Desc
-	DruidSegmentReplicateSize *prometheus.Desc
-	DruidDataSourcesTotalRows *prometheus.Desc
-	DruidRunningTasks         *prometheus.Desc
-	DruidWaitingTasks         *prometheus.Desc
-	DruidCompletedTasks       *prometheus.Desc
-	DruidPendingTasks         *prometheus.Desc
-	DruidFailedTasks          *prometheus.Desc
-	DruidTaskCapacity         *prometheus.Desc
-	DruidTaskErrors           *prometheus.GaugeVec
+	DruidHealthStatus            *prometheus.Desc
+	DataSourceCount              *prometheus.Desc
+	DruidWorkers                 *prometheus.Desc
+	DruidTasks                   *prometheus.Desc
+	DruidSupervisors             *prometheus.Desc
+	DruidSegmentCount            *prometheus.Desc
+	DruidSegmentSize             *prometheus.Desc
+	DruidSegmentReplicateSize    *prometheus.Desc
+	DruidDataSourcesTotalRows    *prometheus.Desc
+	DruidRunningTasks            *prometheus.Desc
+	DruidWaitingTasks            *prometheus.Desc
+	DruidCompletedTasks          *prometheus.Desc
+	DruidPendingTasks            *prometheus.Desc
+	DruidFailedTasks             *prometheus.Desc
+	DruidTaskCapacity            *prometheus.Desc
+	DruidTaskErrors              *prometheus.GaugeVec
+	DruidBytesCompaction         *prometheus.Desc
+	DruidSegmentCountCompaction  *prometheus.Desc
+	DruidIntervalCountCompaction *prometheus.Desc
 }
 
 // DataSourcesTotalRows shows total rows from each datasource
@@ -103,6 +107,21 @@ type worker struct {
 	}
 	CurrCapacityUsed int      `json:"currCapacityUsed"`
 	RunningTasks     []string `json:"runningTasks"`
+}
+
+// CompactionInterface is the interface for parsing compaction status data
+type CompactionStatusInterface []struct {
+	DataSource                      string  `json:"dataSource"`
+	ScheduleStatus                  string  `json:"scheduleStatus"`
+	BytesAwaitingCompaction         float64 `json:"bytesAwaitingCompaction"`
+	BytesCompacted                  float64 `json:"bytesCompacted"`
+	BytesSkipped                    float64 `json:"bytesSkipped"`
+	SegmentCountAwaitingCompaction  float64 `json:"segmentCountAwaitingCompaction"`
+	SegmentCountCompacted           float64 `json:"segmentCountCompacted"`
+	SegmentCountSkipped             float64 `json:"segmentCountSkipped"`
+	IntervalCountAwaitingCompaction float64 `json:"intervalCountAwaitingCompaction"`
+	IntervalCountCompacted          float64 `json:"intervalCountCompacted"`
+	IntervalCountSkipped            float64 `json:"intervalCountSkipped"`
 }
 
 func (w worker) hostname() string {
