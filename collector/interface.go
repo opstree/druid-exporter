@@ -8,16 +8,17 @@ import (
 )
 
 const (
-	healthURL      = "/status/health"
-	segmentDataURL = "/druid/coordinator/v1/datasources?simple"
-	tasksURL       = "/druid/indexer/v1/tasks"
-	workersURL     = "/druid/indexer/v1/workers"
-	supervisorURL  = "/druid/indexer/v1/supervisor?full"
-	sqlURL         = "/druid/v2/sql"
-	pendingTask    = "/druid/indexer/v1/pendingTasks"
-	runningTask    = "/druid/indexer/v1/runningTasks"
-	waitingTask    = "/druid/indexer/v1/waitingTasks"
-	completedTask  = "/druid/indexer/v1/completeTasks"
+	healthURL           = "/status/health"
+	segmentDataURL      = "/druid/coordinator/v1/datasources?simple"
+	tasksURL            = "/druid/indexer/v1/tasks"
+	workersURL          = "/druid/indexer/v1/workers"
+	supervisorURL       = "/druid/indexer/v1/supervisor?full"
+	sqlURL              = "/druid/v2/sql"
+	pendingTask         = "/druid/indexer/v1/pendingTasks"
+	runningTask         = "/druid/indexer/v1/runningTasks"
+	waitingTask         = "/druid/indexer/v1/waitingTasks"
+	completedTask       = "/druid/indexer/v1/completeTasks"
+	compactionStatusURL = "/druid/coordinator/v1/compaction/status"
 )
 
 const totalRowsSQL = `select SEG.datasource, SUP.source,
@@ -26,24 +27,44 @@ from sys.segments SEG
 inner join sys.supervisors SUP ON SEG.datasource=SUP.supervisor_id
 group by SEG.datasource, SUP.source`
 
+const avgRowSize = `SELECT datasource,
+	CASE WHEN
+	 SUM("num_rows") FILTER (WHERE is_published = 1 AND is_overshadowed = 0) <> 0
+	THEN
+	 (SUM("size") FILTER (WHERE is_published = 1 AND is_overshadowed = 0) / SUM("num_rows") FILTER (WHERE is_published = 1 AND is_overshadowed = 0))
+	ELSE 0
+	END AS avg_row_size
+FROM sys.segments
+GROUP BY 1 ORDER BY 1`
+
 // MetricCollector includes the list of metrics
 type MetricCollector struct {
-	DruidHealthStatus         *prometheus.Desc
-	DataSourceCount           *prometheus.Desc
-	DruidWorkers              *prometheus.Desc
-	DruidTasks                *prometheus.Desc
-	DruidSupervisors          *prometheus.Desc
-	DruidSegmentCount         *prometheus.Desc
-	DruidSegmentSize          *prometheus.Desc
-	DruidSegmentReplicateSize *prometheus.Desc
-	DruidDataSourcesTotalRows *prometheus.Desc
-	DruidRunningTasks         *prometheus.Desc
-	DruidWaitingTasks         *prometheus.Desc
-	DruidCompletedTasks       *prometheus.Desc
-	DruidPendingTasks         *prometheus.Desc
-	DruidFailedTasks          *prometheus.Desc
-	DruidTaskCapacity         *prometheus.Desc
-	DruidTaskErrors           *prometheus.GaugeVec
+	DruidHealthStatus              *prometheus.Desc
+	DataSourceCount                *prometheus.Desc
+	DruidWorkers                   *prometheus.Desc
+	DruidTasks                     *prometheus.Desc
+	DruidSupervisors               *prometheus.Desc
+	DruidSegmentCount              *prometheus.Desc
+	DruidSegmentSize               *prometheus.Desc
+	DruidSegmentReplicateSize      *prometheus.Desc
+	DruidDataSourcesTotalRows      *prometheus.Desc
+	DruidDataSourcesAverageRowSize *prometheus.Desc
+	DruidRunningTasks              *prometheus.Desc
+	DruidWaitingTasks              *prometheus.Desc
+	DruidCompletedTasks            *prometheus.Desc
+	DruidPendingTasks              *prometheus.Desc
+	DruidFailedTasks               *prometheus.Desc
+	DruidTaskCapacity              *prometheus.Desc
+	DruidTaskErrors                *prometheus.GaugeVec
+	DruidBytesCompaction           *prometheus.Desc
+	DruidSegmentCountCompaction    *prometheus.Desc
+	DruidIntervalCountCompaction   *prometheus.Desc
+}
+
+// DataSourcesAvgRowSize shows average row size from each datasource
+type DataSourcesAvgRowSize []struct {
+	Datasource string `json:"datasource"`
+	AvgRowSize int64  `json:"avg_row_size"`
 }
 
 // DataSourcesTotalRows shows total rows from each datasource
@@ -103,6 +124,21 @@ type worker struct {
 	}
 	CurrCapacityUsed int      `json:"currCapacityUsed"`
 	RunningTasks     []string `json:"runningTasks"`
+}
+
+// CompactionInterface is the interface for parsing compaction status data
+type CompactionStatusInterface []struct {
+	DataSource                      string  `json:"dataSource"`
+	ScheduleStatus                  string  `json:"scheduleStatus"`
+	BytesAwaitingCompaction         float64 `json:"bytesAwaitingCompaction"`
+	BytesCompacted                  float64 `json:"bytesCompacted"`
+	BytesSkipped                    float64 `json:"bytesSkipped"`
+	SegmentCountAwaitingCompaction  float64 `json:"segmentCountAwaitingCompaction"`
+	SegmentCountCompacted           float64 `json:"segmentCountCompacted"`
+	SegmentCountSkipped             float64 `json:"segmentCountSkipped"`
+	IntervalCountAwaitingCompaction float64 `json:"intervalCountAwaitingCompaction"`
+	IntervalCountCompacted          float64 `json:"intervalCountCompacted"`
+	IntervalCountSkipped            float64 `json:"intervalCountSkipped"`
 }
 
 func (w worker) hostname() string {
