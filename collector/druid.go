@@ -173,6 +173,26 @@ func getDruidWorkersData(pathURL string) []worker {
 	return workers
 }
 
+// GetDruidDataSourcesAverageRowSize returns the amount of rows in each datasource
+func GetDruidDataSourcesAverageRowSize(pathURL string) DataSourcesAvgRowSize {
+	kingpin.Parse()
+	druidURL := *druid + pathURL
+	responseData, err := utils.GetSQLResponse(druidURL, avgRowSize)
+	if err != nil {
+		logrus.Errorf("Cannot retrieve data for druid's datasources rows: %v", err)
+		return nil
+	}
+	logrus.Debugf("Successfully retrieved the data for druid's datasources rows")
+	var datasources DataSourcesAvgRowSize
+	err = json.Unmarshal(responseData, &datasources)
+	if err != nil {
+		logrus.Errorf("Cannot parse JSON data: %v", err)
+		return nil
+	}
+	logrus.Debugf("Druid datasources avg row size, %v", datasources)
+	return datasources
+}
+
 // Describe will associate the value for druid exporter
 func (collector *MetricCollector) Describe(ch chan<- *prometheus.Desc) {
 	ch <- collector.DruidHealthStatus
@@ -190,6 +210,7 @@ func (collector *MetricCollector) Describe(ch chan<- *prometheus.Desc) {
 	ch <- collector.DruidBytesCompaction
 	ch <- collector.DruidSegmentCountCompaction
 	ch <- collector.DruidIntervalCountCompaction
+	ch <- collector.DruidDataSourcesAverageRowSize
 }
 
 // Collector return the defined metrics
@@ -232,6 +253,10 @@ func Collector() *MetricCollector {
 		DruidDataSourcesTotalRows: prometheus.NewDesc("druid_datasource_total_rows",
 			"Number of rows in a datasource",
 			[]string{"datasource_name", "source"}, nil),
+		DruidDataSourcesAverageRowSize: prometheus.NewDesc("druid_datasource_average_row_size",
+			"Average Row Size in a datasource",
+			[]string{"datasource"}, nil,
+		),
 		DruidRunningTasks: prometheus.NewDesc("druid_running_tasks",
 			"Druid running tasks count",
 			nil, nil,
@@ -264,13 +289,16 @@ func Collector() *MetricCollector {
 			[]string{"error_msg"},
 		),
 		DruidBytesCompaction: prometheus.NewDesc("druid_bytes_compaction",
-			"Druid Bytes compaction", []string{"datasource"}, nil,
+			"Druid Bytes compaction",
+			[]string{"datasource"}, nil,
 		),
 		DruidSegmentCountCompaction: prometheus.NewDesc("druid_segment_count_compaction",
-			"Druid Segment Count Compaction", []string{"datasource"}, nil,
+			"Druid Segment Count Compaction",
+			[]string{"datasource"}, nil,
 		),
 		DruidIntervalCountCompaction: prometheus.NewDesc("druid_interval_count_compaction",
-			"Druid Interval Count Compaction", []string{"datasource"}, nil,
+			"Druid Interval Count Compaction",
+			[]string{"datasource"}, nil,
 		),
 	}
 }
@@ -364,6 +392,10 @@ func (collector *MetricCollector) Collect(ch chan<- prometheus.Metric) {
 
 	for _, data := range GetDruidDataSourcesTotalRows(sqlURL) {
 		ch <- prometheus.MustNewConstMetric(collector.DruidDataSourcesTotalRows, prometheus.GaugeValue, float64(data.TotalRows), data.Datasource, data.Source)
+	}
+
+	for _, data := range GetDruidDataSourcesAverageRowSize(sqlURL) {
+		ch <- prometheus.MustNewConstMetric(collector.DruidDataSourcesAverageRowSize, prometheus.GaugeValue, float64(data.AvgRowSize), data.Datasource)
 	}
 
 	for _, data := range GetDruidCompactionData() {

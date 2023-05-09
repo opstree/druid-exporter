@@ -27,27 +27,44 @@ from sys.segments SEG
 inner join sys.supervisors SUP ON SEG.datasource=SUP.supervisor_id
 group by SEG.datasource, SUP.source`
 
+const avgRowSize = `SELECT datasource,
+	CASE WHEN
+	 SUM("num_rows") FILTER (WHERE is_published = 1 AND is_overshadowed = 0) <> 0
+	THEN
+	 (SUM("size") FILTER (WHERE is_published = 1 AND is_overshadowed = 0) / SUM("num_rows") FILTER (WHERE is_published = 1 AND is_overshadowed = 0))
+	ELSE 0
+	END AS avg_row_size
+FROM sys.segments
+GROUP BY 1 ORDER BY 1`
+
 // MetricCollector includes the list of metrics
 type MetricCollector struct {
-	DruidHealthStatus            *prometheus.Desc
-	DataSourceCount              *prometheus.Desc
-	DruidWorkers                 *prometheus.Desc
-	DruidTasks                   *prometheus.Desc
-	DruidSupervisors             *prometheus.Desc
-	DruidSegmentCount            *prometheus.Desc
-	DruidSegmentSize             *prometheus.Desc
-	DruidSegmentReplicateSize    *prometheus.Desc
-	DruidDataSourcesTotalRows    *prometheus.Desc
-	DruidRunningTasks            *prometheus.Desc
-	DruidWaitingTasks            *prometheus.Desc
-	DruidCompletedTasks          *prometheus.Desc
-	DruidPendingTasks            *prometheus.Desc
-	DruidFailedTasks             *prometheus.Desc
-	DruidTaskCapacity            *prometheus.Desc
-	DruidTaskErrors              *prometheus.GaugeVec
-	DruidBytesCompaction         *prometheus.Desc
-	DruidSegmentCountCompaction  *prometheus.Desc
-	DruidIntervalCountCompaction *prometheus.Desc
+	DruidHealthStatus              *prometheus.Desc
+	DataSourceCount                *prometheus.Desc
+	DruidWorkers                   *prometheus.Desc
+	DruidTasks                     *prometheus.Desc
+	DruidSupervisors               *prometheus.Desc
+	DruidSegmentCount              *prometheus.Desc
+	DruidSegmentSize               *prometheus.Desc
+	DruidSegmentReplicateSize      *prometheus.Desc
+	DruidDataSourcesTotalRows      *prometheus.Desc
+	DruidDataSourcesAverageRowSize *prometheus.Desc
+	DruidRunningTasks              *prometheus.Desc
+	DruidWaitingTasks              *prometheus.Desc
+	DruidCompletedTasks            *prometheus.Desc
+	DruidPendingTasks              *prometheus.Desc
+	DruidFailedTasks               *prometheus.Desc
+	DruidTaskCapacity              *prometheus.Desc
+	DruidTaskErrors                *prometheus.GaugeVec
+	DruidBytesCompaction           *prometheus.Desc
+	DruidSegmentCountCompaction    *prometheus.Desc
+	DruidIntervalCountCompaction   *prometheus.Desc
+}
+
+// DataSourcesAvgRowSize shows average row size from each datasource
+type DataSourcesAvgRowSize []struct {
+	Datasource string `json:"datasource"`
+	AvgRowSize int64  `json:"avg_row_size"`
 }
 
 // DataSourcesTotalRows shows total rows from each datasource
