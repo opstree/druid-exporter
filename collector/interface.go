@@ -53,6 +53,7 @@ type MetricCollector struct {
 	DruidWaitingTasks              *prometheus.Desc
 	DruidCompletedTasks            *prometheus.Desc
 	DruidPendingTasks              *prometheus.Desc
+	DruidPendingIngestTasks        *prometheus.Desc
 	DruidFailedTasks               *prometheus.Desc
 	DruidTaskCapacity              *prometheus.Desc
 	DruidTaskErrors                *prometheus.GaugeVec
@@ -113,6 +114,7 @@ type TasksInterface []struct {
 type TaskStatusMetric []struct {
 	NameDataSource string `json:"dataSource"`
 	StatusCode     string `json:"statusCode"`
+	Type           string `json:"type"`
 }
 
 type worker struct {
