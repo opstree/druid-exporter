@@ -27,7 +27,10 @@ from sys.segments SEG
 inner join sys.supervisors SUP ON SEG.datasource=SUP.supervisor_id
 group by SEG.datasource, SUP.source`
 
-const avgRowSize = `SELECT datasource,
+const segmentData = `SELECT datasource,
+    COUNT(*) FILTER (WHERE (is_published = 1 AND is_overshadowed = 0) OR is_realtime = 1) AS num_segments,
+	COUNT(*) FILTER (WHERE is_published = 1 AND is_overshadowed = 0 AND is_available = 0) AS num_segments_to_load,
+	COUNT(*) FILTER (WHERE is_available = 1 AND NOT ((is_published = 1 AND is_overshadowed = 0) OR is_realtime = 1)) AS num_segments_to_drop,
 	CASE WHEN
 	 SUM("num_rows") FILTER (WHERE is_published = 1 AND is_overshadowed = 0) <> 0
 	THEN
@@ -39,33 +42,39 @@ GROUP BY 1 ORDER BY 1`
 
 // MetricCollector includes the list of metrics
 type MetricCollector struct {
-	DruidHealthStatus              *prometheus.Desc
-	DataSourceCount                *prometheus.Desc
-	DruidWorkers                   *prometheus.Desc
-	DruidTasks                     *prometheus.Desc
-	DruidSupervisors               *prometheus.Desc
-	DruidSegmentCount              *prometheus.Desc
-	DruidSegmentSize               *prometheus.Desc
-	DruidSegmentReplicateSize      *prometheus.Desc
-	DruidDataSourcesTotalRows      *prometheus.Desc
-	DruidDataSourcesAverageRowSize *prometheus.Desc
-	DruidRunningTasks              *prometheus.Desc
-	DruidWaitingTasks              *prometheus.Desc
-	DruidCompletedTasks            *prometheus.Desc
-	DruidPendingTasks              *prometheus.Desc
-	DruidPendingIngestTasks        *prometheus.Desc
-	DruidFailedTasks               *prometheus.Desc
-	DruidTaskCapacity              *prometheus.Desc
-	DruidTaskErrors                *prometheus.GaugeVec
-	DruidBytesCompaction           *prometheus.Desc
-	DruidSegmentCountCompaction    *prometheus.Desc
-	DruidIntervalCountCompaction   *prometheus.Desc
+	DruidHealthStatus                 *prometheus.Desc
+	DataSourceCount                   *prometheus.Desc
+	DruidWorkers                      *prometheus.Desc
+	DruidTasks                        *prometheus.Desc
+	DruidSupervisors                  *prometheus.Desc
+	DruidSegmentCount                 *prometheus.Desc
+	DruidSegmentSize                  *prometheus.Desc
+	DruidSegmentReplicateSize         *prometheus.Desc
+	DruidDataSourcesTotalRows         *prometheus.Desc
+	DruidDataSourcesAverageRowSize    *prometheus.Desc
+	DruidDataSourcesNumSegments       *prometheus.Desc
+	DruidDataSourcesNumSegmentsToLoad *prometheus.Desc
+	DruidDataSourcesNumSegmentsToDrop *prometheus.Desc
+	DruidRunningTasks                 *prometheus.Desc
+	DruidWaitingTasks                 *prometheus.Desc
+	DruidCompletedTasks               *prometheus.Desc
+	DruidPendingTasks                 *prometheus.Desc
+	DruidPendingIngestTasks           *prometheus.Desc
+	DruidFailedTasks                  *prometheus.Desc
+	DruidTaskCapacity                 *prometheus.Desc
+	DruidTaskErrors                   *prometheus.GaugeVec
+	DruidBytesCompaction              *prometheus.Desc
+	DruidSegmentCountCompaction       *prometheus.Desc
+	DruidIntervalCountCompaction      *prometheus.Desc
 }
 
-// DataSourcesAvgRowSize shows average row size from each datasource
-type DataSourcesAvgRowSize []struct {
-	Datasource string `json:"datasource"`
-	AvgRowSize int64  `json:"avg_row_size"`
+// DataSourcesSegmentData shows average row size from each datasource
+type DataSourcesSegmentData []struct {
+	Datasource        string `json:"datasource"`
+	AvgRowSize        int64  `json:"avg_row_size"`
+	NumSegments       int64  `json:"num_segments"`
+	NumSegmentsToLoad int64  `json:"num_segments_to_load"`
+	NumSegmentsToDrop int64  `json:"num_segments_to_drop"`
 }
 
 // DataSourcesTotalRows shows total rows from each datasource
