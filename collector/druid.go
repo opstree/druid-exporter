@@ -276,6 +276,10 @@ func Collector() *MetricCollector {
 			"Druid running tasks count",
 			nil, nil,
 		),
+		DruidRunningIngestTasks: prometheus.NewDesc("druid_running_ingest_tasks",
+			"Druid running ingest tasks count",
+			nil, nil,
+		),
 		DruidWaitingTasks: prometheus.NewDesc("druid_waiting_tasks",
 			"Druid waiting tasks count",
 			nil, nil,
@@ -327,6 +331,7 @@ func (collector *MetricCollector) Collect(ch chan<- prometheus.Metric) {
 	var errorMap map[string]float64 = make(map[string]float64)
 	var failedTaskCount float64 = 0
 	var pendingIngestTaskCount float64 = 0
+	var runningIngestTaskCount float64 = 0
 
 	ch <- prometheus.MustNewConstMetric(collector.DruidHealthStatus,
 		prometheus.CounterValue, GetDruidHealthMetrics())
@@ -362,6 +367,15 @@ func (collector *MetricCollector) Collect(ch chan<- prometheus.Metric) {
 	}
 	ch <- prometheus.MustNewConstMetric(collector.DruidPendingTasks, prometheus.GaugeValue, float64(len(pendingTasks)))
 	ch <- prometheus.MustNewConstMetric(collector.DruidPendingIngestTasks, prometheus.GaugeValue, pendingIngestTaskCount)
+
+	runningTasks := GetDruidTasksStatusCount(runningTask)
+	for _, t := range runningTasks {
+		if t.Type == "index_kafka" {
+			runningIngestTaskCount++
+		}
+	}
+	ch <- prometheus.MustNewConstMetric(collector.DruidRunningTasks, prometheus.GaugeValue, float64(len(runningTasks)))
+	ch <- prometheus.MustNewConstMetric(collector.DruidRunningIngestTasks, prometheus.GaugeValue, runningIngestTaskCount)
 
 	workers := getDruidWorkersData(workersURL)
 

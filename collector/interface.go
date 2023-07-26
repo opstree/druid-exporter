@@ -56,6 +56,7 @@ type MetricCollector struct {
 	DruidDataSourcesNumSegmentsToLoad *prometheus.Desc
 	DruidDataSourcesNumSegmentsToDrop *prometheus.Desc
 	DruidRunningTasks                 *prometheus.Desc
+	DruidRunningIngestTasks           *prometheus.Desc
 	DruidWaitingTasks                 *prometheus.Desc
 	DruidCompletedTasks               *prometheus.Desc
 	DruidPendingTasks                 *prometheus.Desc
