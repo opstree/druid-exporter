@@ -7,7 +7,7 @@
 # Image URL to use all building/pushing image targets
 REPOSITORY ?= iunera
 IMAGE ?= druid-exporter
-VERSION ?= v0.12.6
+VERSION ?= v0.12.7-3
 
 get-depends:
 	go get -v ./...

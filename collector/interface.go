@@ -14,10 +14,10 @@ const (
 	workersURL     = "/druid/indexer/v1/workers"
 	supervisorURL  = "/druid/indexer/v1/supervisor?full"
 	sqlURL         = "/druid/v2/sql"
-	pendingTask    = "/druid/indexer/v1/pendingTasks"
-	runningTask    = "/druid/indexer/v1/runningTasks"
-	waitingTask    = "/druid/indexer/v1/waitingTasks"
-	completedTask  = "/druid/indexer/v1/completeTasks"
+	pendingTask    = "/druid/indexer/v1/tasks?state=pending"
+	runningTask    = "/druid/indexer/v1/tasks?state=running"
+	waitingTask    = "/druid/indexer/v1/tasks?state=waiting"
+	completedTask  = "/druid/indexer/v1/tasks?state=complete"
 )
 
 const totalRowsSQL = `select SEG.datasource, SUP.source,
@@ -31,7 +31,7 @@ type MetricCollector struct {
 	DruidHealthStatus            *prometheus.Desc
 	DataSourceCount              *prometheus.Desc
 	DruidWorkers                 *prometheus.Desc
-	DruidTasks                   *prometheus.Desc
+	// DruidTasks                   *prometheus.Desc
 	DruidSupervisors             *prometheus.Desc
 	DruidSegmentCount            *prometheus.Desc
 	DruidSegmentSize             *prometheus.Desc

@@ -4,7 +4,7 @@ import (
 	"druid-exporter/utils"
 	"encoding/json"
 	"fmt"
-	"math/rand"
+	// "math/rand"
 	"time"
 
 	"github.com/patrickmn/go-cache"
@@ -18,7 +18,14 @@ var (
 		"druid.uri",
 		"URL of druid router or coordinator, EnvVar - DRUID_URL",
 	).Default("http://localhost:8888").OverrideDefaultFromEnvar("DRUID_URL").Short('d').String()
+
+	maxCompletedTasks = kingpin.Flag(
+		"maxCompletedTasks",
+		"Max Results of completed Tasks (Default: 50)",
+	).Default("50").OverrideDefaultFromEnvar("MAX_COMPLETED_TASKS").String()
+
 )
+
 
 // GetDruidHealthMetrics returns the set of metrics for druid
 func GetDruidHealthMetrics() float64 {
@@ -71,7 +78,9 @@ func GetDruidData(pathURL string) []map[string]interface{} {
 // GetDruidTasksData return all the tasks and its state
 func GetDruidTasksData(pathURL string) TasksInterface {
 	kingpin.Parse()
+	max := *maxCompletedTasks
 	druidURL := *druid + pathURL
+	pathURL = pathURL + fmt.Sprintf("&max=%s",max)
 	responseData, err := utils.GetResponse(druidURL, pathURL)
 	if err != nil {
 		logrus.Errorf("Cannot retrieve data for druid's tasks: %v", err)
@@ -214,7 +223,9 @@ func GetDruidHistoricalUsageAbsolute(pathURL string, dnsCache *cache.Cache) Drui
 // GetDruidTasksStatusCount returns count of different tasks by status
 func GetDruidTasksStatusCount(pathURL string) TaskStatusMetric {
 	kingpin.Parse()
+
 	druidURL := *druid + pathURL
+
 	responseData, err := utils.GetResponse(druidURL, pathURL)
 	if err != nil {
 		logrus.Errorf("Cannot retrieve data for druid's workers: %v", err)
@@ -260,7 +271,7 @@ func (collector *MetricCollector) Describe(ch chan<- *prometheus.Desc) {
 	ch <- collector.DruidSegmentCount
 	ch <- collector.DruidSegmentSize
 	ch <- collector.DruidWorkers
-	ch <- collector.DruidTasks
+	// ch <- collector.DruidTasks
 	ch <- collector.DruidSegmentReplicateSize
 	ch <- collector.DruidRunningTasks
 	ch <- collector.DruidWaitingTasks
@@ -285,10 +296,10 @@ func Collector() *MetricCollector {
 			"Druid workers capacity used",
 			[]string{"pod", "version", "ip"}, nil,
 		),
-		DruidTasks: prometheus.NewDesc("druid_tasks_duration",
-			"Druid tasks duration and state",
-			[]string{"pod", "datasource", "task_id", "groupd_id", "task_status", "created_time"}, nil,
-		),
+		// DruidTasks: prometheus.NewDesc("druid_tasks_duration",
+		// 	"Druid tasks duration and state",
+		// 	[]string{"pod", "datasource", "task_id", "groupd_id", "task_status", "created_time"}, nil,
+		// ),
 		DruidSupervisors: prometheus.NewDesc("druid_supervisors",
 			"Druid supervisors status",
 			[]string{"supervisor_name", "healthy", "state"}, nil,
@@ -380,27 +391,27 @@ func (collector *MetricCollector) Collect(ch chan<- prometheus.Metric) {
 			prometheus.GaugeValue, float64(worker.CurrCapacityUsed), worker.hostname(), worker.Worker.Version, worker.Worker.IP)
 	}
 
-	for _, data := range GetDruidTasksData(tasksURL) {
-		hostname := ""
-		for _, worker := range workers {
-			for _, task := range worker.RunningTasks {
-				if task == data.ID {
-					hostname = worker.hostname()
-					break
-				}
-			}
-			if hostname != "" {
-				break
-			}
-		}
-		if hostname == "" {
-			if len(workers) != 0 {
-				hostname = workers[rand.Intn(len(workers))].hostname()
-			}
-		}
-		ch <- prometheus.MustNewConstMetric(collector.DruidTasks,
-			prometheus.GaugeValue, data.Duration, hostname, data.DataSource, data.ID, data.GroupID, data.Status, data.CreatedTime)
-	}
+	// for _, data := range GetDruidTasksData(tasksURL) {
+	// 	hostname := ""
+	// 	for _, worker := range workers {
+	// 		for _, task := range worker.RunningTasks {
+	// 			if task == data.ID {
+	// 				hostname = worker.hostname()
+	// 				break
+	// 			}
+	// 		}
+	// 		if hostname != "" {
+	// 			break
+	// 		}
+	// 	}
+	// 	if hostname == "" {
+	// 		if len(workers) != 0 {
+	// 			hostname = workers[rand.Intn(len(workers))].hostname()
+	// 		}
+	// 	}
+	// 	ch <- prometheus.MustNewConstMetric(collector.DruidTasks,
+	// 		prometheus.GaugeValue, data.Duration, hostname, data.DataSource, data.ID, data.GroupID, data.Status, data.CreatedTime)
+	// }
 
 	for _, data := range GetDruidData(supervisorURL) {
 		ch <- prometheus.MustNewConstMetric(collector.DruidSupervisors,
