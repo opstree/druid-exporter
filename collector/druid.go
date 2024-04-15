@@ -4,7 +4,7 @@ import (
 	"druid-exporter/utils"
 	"encoding/json"
 	"fmt"
-	// "math/rand"
+	"math/rand"
 	"time"
 
 	"github.com/patrickmn/go-cache"
@@ -23,9 +23,7 @@ var (
 		"maxCompletedTasks",
 		"Max Results of completed Tasks (Default: 50)",
 	).Default("50").OverrideDefaultFromEnvar("MAX_COMPLETED_TASKS").String()
-
 )
-
 
 // GetDruidHealthMetrics returns the set of metrics for druid
 func GetDruidHealthMetrics() float64 {
@@ -80,7 +78,7 @@ func GetDruidTasksData(pathURL string) TasksInterface {
 	kingpin.Parse()
 	max := *maxCompletedTasks
 	druidURL := *druid + pathURL
-	pathURL = pathURL + fmt.Sprintf("&max=%s",max)
+	pathURL = pathURL + fmt.Sprintf("&max=%s", max)
 	responseData, err := utils.GetResponse(druidURL, pathURL)
 	if err != nil {
 		logrus.Errorf("Cannot retrieve data for druid's tasks: %v", err)
@@ -271,7 +269,7 @@ func (collector *MetricCollector) Describe(ch chan<- *prometheus.Desc) {
 	ch <- collector.DruidSegmentCount
 	ch <- collector.DruidSegmentSize
 	ch <- collector.DruidWorkers
-	// ch <- collector.DruidTasks
+	ch <- collector.DruidTasks
 	ch <- collector.DruidSegmentReplicateSize
 	ch <- collector.DruidRunningTasks
 	ch <- collector.DruidWaitingTasks
@@ -296,10 +294,10 @@ func Collector() *MetricCollector {
 			"Druid workers capacity used",
 			[]string{"pod", "version", "ip"}, nil,
 		),
-		// DruidTasks: prometheus.NewDesc("druid_tasks_duration",
-		// 	"Druid tasks duration and state",
-		// 	[]string{"pod", "datasource", "task_id", "groupd_id", "task_status", "created_time"}, nil,
-		// ),
+		DruidTasks: prometheus.NewDesc("druid_tasks_duration",
+			"Druid tasks duration and state",
+			[]string{"pod", "datasource", "task_id", "groupd_id", "task_status", "created_time"}, nil,
+		),
 		DruidSupervisors: prometheus.NewDesc("druid_supervisors",
 			"Druid supervisors status",
 			[]string{"supervisor_name", "healthy", "state"}, nil,
@@ -348,6 +346,10 @@ func Collector() *MetricCollector {
 			"Druid pending tasks count",
 			nil, nil,
 		),
+		DruidTaskCapacity: prometheus.NewDesc("druid_task_capacity",
+			"Druid task capacity",
+			nil, nil,
+		),
 	}
 }
 
@@ -386,32 +388,36 @@ func (collector *MetricCollector) Collect(ch chan<- prometheus.Metric) {
 
 	workers := getDruidWorkersData(workersURL)
 
+	taskCapacity := 0
 	for _, worker := range workers {
+		taskCapacity += worker.Worker.Capacity
 		ch <- prometheus.MustNewConstMetric(collector.DruidWorkers,
 			prometheus.GaugeValue, float64(worker.CurrCapacityUsed), worker.hostname(), worker.Worker.Version, worker.Worker.IP)
 	}
 
-	// for _, data := range GetDruidTasksData(tasksURL) {
-	// 	hostname := ""
-	// 	for _, worker := range workers {
-	// 		for _, task := range worker.RunningTasks {
-	// 			if task == data.ID {
-	// 				hostname = worker.hostname()
-	// 				break
-	// 			}
-	// 		}
-	// 		if hostname != "" {
-	// 			break
-	// 		}
-	// 	}
-	// 	if hostname == "" {
-	// 		if len(workers) != 0 {
-	// 			hostname = workers[rand.Intn(len(workers))].hostname()
-	// 		}
-	// 	}
-	// 	ch <- prometheus.MustNewConstMetric(collector.DruidTasks,
-	// 		prometheus.GaugeValue, data.Duration, hostname, data.DataSource, data.ID, data.GroupID, data.Status, data.CreatedTime)
-	// }
+	ch <- prometheus.MustNewConstMetric(collector.DruidTaskCapacity, prometheus.GaugeValue, float64(taskCapacity))
+
+	for _, data := range GetDruidTasksData(tasksURL) {
+		hostname := ""
+		for _, worker := range workers {
+			for _, task := range worker.RunningTasks {
+				if task == data.ID {
+					hostname = worker.hostname()
+					break
+				}
+			}
+			if hostname != "" {
+				break
+			}
+		}
+		if hostname == "" {
+			if len(workers) != 0 {
+				hostname = workers[rand.Intn(len(workers))].hostname()
+			}
+		}
+		ch <- prometheus.MustNewConstMetric(collector.DruidTasks,
+			prometheus.GaugeValue, data.Duration, hostname, data.DataSource, data.ID, data.GroupID, data.Status, data.CreatedTime)
+	}
 
 	for _, data := range GetDruidData(supervisorURL) {
 		ch <- prometheus.MustNewConstMetric(collector.DruidSupervisors,

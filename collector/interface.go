@@ -31,7 +31,7 @@ type MetricCollector struct {
 	DruidHealthStatus            *prometheus.Desc
 	DataSourceCount              *prometheus.Desc
 	DruidWorkers                 *prometheus.Desc
-	// DruidTasks                   *prometheus.Desc
+	DruidTasks                   *prometheus.Desc
 	DruidSupervisors             *prometheus.Desc
 	DruidSegmentCount            *prometheus.Desc
 	DruidSegmentSize             *prometheus.Desc

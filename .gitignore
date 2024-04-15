@@ -1,7 +1,8 @@
 druid-exporter
 dist
-compose/volumes/**
 .vscode/**
 Untitled-1.sql
 go.mod
 go.sum
+.idea/**
+compose/volumes/*
