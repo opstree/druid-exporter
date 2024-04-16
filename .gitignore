@@ -1,4 +1,8 @@
 druid-exporter
 dist
+.vscode/**
+go.mod
+go.sum
 .idea/**
 compose/volumes/*
+.env

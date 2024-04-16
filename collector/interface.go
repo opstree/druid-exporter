@@ -14,10 +14,10 @@ const (
 	workersURL     = "/druid/indexer/v1/workers"
 	supervisorURL  = "/druid/indexer/v1/supervisor?full"
 	sqlURL         = "/druid/v2/sql"
-	pendingTask    = "/druid/indexer/v1/pendingTasks"
-	runningTask    = "/druid/indexer/v1/runningTasks"
-	waitingTask    = "/druid/indexer/v1/waitingTasks"
-	completedTask  = "/druid/indexer/v1/completeTasks"
+	pendingTask    = "/druid/indexer/v1/tasks?state=pending"
+	runningTask    = "/druid/indexer/v1/tasks?state=running"
+	waitingTask    = "/druid/indexer/v1/tasks?state=waiting"
+	completedTask  = "/druid/indexer/v1/tasks?state=complete"
 )
 
 const totalRowsSQL = `select SEG.datasource, SUP.source,
@@ -28,20 +28,23 @@ group by SEG.datasource, SUP.source`
 
 // MetricCollector includes the list of metrics
 type MetricCollector struct {
-	DruidHealthStatus         *prometheus.Desc
-	DataSourceCount           *prometheus.Desc
-	DruidWorkers              *prometheus.Desc
-	DruidTasks                *prometheus.Desc
-	DruidSupervisors          *prometheus.Desc
-	DruidSegmentCount         *prometheus.Desc
-	DruidSegmentSize          *prometheus.Desc
-	DruidSegmentReplicateSize *prometheus.Desc
-	DruidDataSourcesTotalRows *prometheus.Desc
-	DruidRunningTasks         *prometheus.Desc
-	DruidWaitingTasks         *prometheus.Desc
-	DruidCompletedTasks       *prometheus.Desc
-	DruidPendingTasks         *prometheus.Desc
-	DruidTaskCapacity         *prometheus.Desc
+	DruidHealthStatus            *prometheus.Desc
+	DataSourceCount              *prometheus.Desc
+	DruidWorkers                 *prometheus.Desc
+	DruidTasks                   *prometheus.Desc
+	DruidSupervisors             *prometheus.Desc
+	DruidSegmentCount            *prometheus.Desc
+	DruidSegmentSize             *prometheus.Desc
+	DruidSegmentReplicateSize    *prometheus.Desc
+	DruidDataSourcesTotalRows    *prometheus.Desc
+	DruidHistoricalUsagePercent  *prometheus.Desc
+	DruidHistoricalUsageAbsolute *prometheus.Desc
+	DruidHistoricalFreeSpace     *prometheus.Desc
+	DruidRunningTasks            *prometheus.Desc
+	DruidWaitingTasks            *prometheus.Desc
+	DruidCompletedTasks          *prometheus.Desc
+	DruidPendingTasks            *prometheus.Desc
+	DruidTaskCapacity            *prometheus.Desc
 }
 
 // DataSourcesTotalRows shows total rows from each datasource
@@ -51,7 +54,31 @@ type DataSourcesTotalRows []struct {
 	TotalRows  int64  `json:"total_rows"`
 }
 
-// SegementInterface is the interface for parsing segments data
+type DruidHistoricalFreeSpace []struct {
+	Host       string `json:"host"`
+	ServerType string `json:"server_type"`
+	IP         string `json:"ip"`
+	FreeSize   int64  `json:"free_size"`
+	POD        string ""
+}
+
+type DruidHistoricalUsagePercent []struct {
+	Host         string  `json:"host"`
+	ServerType   string  `json:"server_type"`
+	IP           string  `json:"ip"`
+	UsagePercent float64 `json:"usage_percent"`
+	POD          string  ""
+}
+
+type DruidHistoricalUsageAbsolute []struct {
+	Host          string `json:"host"`
+	ServerType    string `json:"server_type"`
+	IP            string `json:"ip"`
+	UsageAbsolute int64  `json:"usage_absolute"`
+	POD           string ""
+}
+
+// SegmentInterface is the interface for parsing segments data
 type SegementInterface []struct {
 	Name       string `json:"name"`
 	Properties struct {
