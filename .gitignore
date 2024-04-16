@@ -1,7 +1,6 @@
 druid-exporter
 dist
 .vscode/**
-Untitled-1.sql
 go.mod
 go.sum
 .idea/**
