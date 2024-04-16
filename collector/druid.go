@@ -34,7 +34,7 @@ func GetDruidHealthMetrics() float64 {
 }
 
 // GetDruidSegmentData returns the datasources of druid
-func GetDruidSegmentData() SegmentInterface {
+func GetDruidSegmentData() SegementInterface {
 	kingpin.Parse()
 	druidSegmentURL := *druid + segmentDataURL
 	responseData, err := utils.GetResponse(druidSegmentURL, "Segment")
@@ -43,7 +43,7 @@ func GetDruidSegmentData() SegmentInterface {
 		return nil
 	}
 	logrus.Debugf("Successfully collected the data for druid segment")
-	var metric SegmentInterface
+	var metric SegementInterface
 	err = json.Unmarshal(responseData, &metric)
 	if err != nil {
 		logrus.Errorf("Cannot parse JSON data: %v", err)

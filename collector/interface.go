@@ -79,7 +79,7 @@ type DruidHistoricalUsageAbsolute []struct {
 }
 
 // SegmentInterface is the interface for parsing segments data
-type SegmentInterface []struct {
+type SegementInterface []struct {
 	Name       string `json:"name"`
 	Properties struct {
 		Tiers struct {
