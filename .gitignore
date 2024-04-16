@@ -6,3 +6,4 @@ go.mod
 go.sum
 .idea/**
 compose/volumes/*
+.env
