@@ -23,6 +23,11 @@ var (
 		"maxCompletedTasks",
 		"Max Results of completed Tasks (Default: 50)",
 	).Default("50").OverrideDefaultFromEnvar("MAX_COMPLETED_TASKS").String()
+
+	hasMiddlemanager = kingpin.Flag(
+		"hasMiddlemanager",
+		"hasMiddlemanager disable in case of Kubernetes based peon jobs, EnvVar - HAS_MIDDLEMANAGER. (Default - true)",
+	).Default("true").OverrideDefaultFromEnvar("HAS_MIDDLEMANAGER").Bool()
 )
 
 // GetDruidHealthMetrics returns the set of metrics for druid
@@ -386,16 +391,20 @@ func (collector *MetricCollector) Collect(ch chan<- prometheus.Metric) {
 	ch <- prometheus.MustNewConstMetric(collector.DruidPendingTasks,
 		prometheus.GaugeValue, float64(len(GetDruidTasksStatusCount(pendingTask))))
 
-	workers := getDruidWorkersData(workersURL)
+	var workers []worker
 
-	taskCapacity := 0
-	for _, worker := range workers {
-		taskCapacity += worker.Worker.Capacity
-		ch <- prometheus.MustNewConstMetric(collector.DruidWorkers,
-			prometheus.GaugeValue, float64(worker.CurrCapacityUsed), worker.hostname(), worker.Worker.Version, worker.Worker.IP)
+	if *hasMiddlemanager {
+		workers := getDruidWorkersData(workersURL)
+
+		taskCapacity := 0
+		for _, worker := range workers {
+			taskCapacity += worker.Worker.Capacity
+			ch <- prometheus.MustNewConstMetric(collector.DruidWorkers,
+				prometheus.GaugeValue, float64(worker.CurrCapacityUsed), worker.hostname(), worker.Worker.Version, worker.Worker.IP)
+		}
+
+		ch <- prometheus.MustNewConstMetric(collector.DruidTaskCapacity, prometheus.GaugeValue, float64(taskCapacity))
 	}
-
-	ch <- prometheus.MustNewConstMetric(collector.DruidTaskCapacity, prometheus.GaugeValue, float64(taskCapacity))
 
 	for _, data := range GetDruidTasksData(tasksURL) {
 		hostname := ""
